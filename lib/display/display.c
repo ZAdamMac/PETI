@@ -127,12 +127,12 @@ void printText(const char* text, unsigned char line)
         indexLineBuffer = 0;
         while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
         {
-            if(character < ' ' || character > 'Z')  //Sanity: replace characters not in font.
-            {
-                character = ' ';
-            }
-            character = character - 32; //Changes character to an index in our stolen font table.
-            bitmap = font8x8[(character*8)+indexLine];  // Retrieves the byte defining one line of character.
+            //if(character < ' ' || character > 'Z')  //Sanity: replace characters not in font.
+            //{
+            //    character = ' ';
+            //} Not needed with the post-edit font.
+            //character = character - 32; //Changes character to an index in our stolen font table.
+            bitmap = font8x8[character][indexLine];  // Retrieves the byte defining one line of character.
             bufferLine[indexLineBuffer] = bitmap;
             indexLineBuffer++;
             indexText++;
