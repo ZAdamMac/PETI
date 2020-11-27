@@ -20,7 +20,7 @@
 #include "lib/display/display.h"
 #include <msp430.h>
 
-#define VERSION " POC-2020-10-10"      //Max 16 characters.
+#define VERSION " POC-2020-11-26"      //Max 16 characters.
 
 volatile unsigned int timeMSec;         // clock milliseconds
 volatile unsigned char timeSecond;      // clock seconds

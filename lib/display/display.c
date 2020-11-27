@@ -102,7 +102,7 @@ void SPIWriteLine(unsigned char line)
     unsigned char index_of_byte = 0; //loop to send line buffer byte by byte
     while (index_of_byte <= (PIXELS_X/8))
         {
-            EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, ~reverse(bufferLine[index_of_byte++]));
+            EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, bufferLine[index_of_byte++]);
             while (UCB1STATW & UCBUSY);
         }
 
@@ -141,7 +141,7 @@ void printText(const char* text, unsigned char line)
         while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
         {
             padded = true;
-            bufferLine[indexLineBuffer] = 0x00;
+            bufferLine[indexLineBuffer] = 0xFF;
             indexLineBuffer++;
         }
 
@@ -158,18 +158,18 @@ void printText(const char* text, unsigned char line)
 
 void DisplaySplash(void){
     volatile unsigned char bitmap, indexLineBuffer, indexLine;
-    volatile unsigned int line, indexByte;
+    volatile unsigned int line, indexByte, this_line, sent_line;
     line = 0;
     indexLine = 0;
     indexByte = 0; // The whole bitmap is one byte array.
     while (indexLine <= PIXELS_Y){
         indexLineBuffer = 0;
         while (indexLineBuffer < PIXELS_X/8){
-            bitmap = splash_bitmap[indexByte];
+            bitmap = reverse(splash_bitmap[indexByte]);
             bufferLine[indexLineBuffer] = bitmap;
             indexLineBuffer++;
             indexByte++;
-        }
+        };
         SPIWriteLine(line++);
         indexLine++;
     }
