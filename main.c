@@ -20,7 +20,7 @@
 #include "lib/display/display.h"
 #include <msp430.h>
 
-#define VERSION " POC-2020-11-26"      //Max 16 characters.
+#define VERSION " POC-2020-11-28"      //Max 16 characters.
 
 volatile unsigned int timeMSec;         // clock milliseconds
 volatile unsigned char timeSecond;      // clock seconds
@@ -37,7 +37,7 @@ void Init_GPIO(void) {
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN1); // P1.1 is a debugging LED
     GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN1);
 
-    //Uncomment the section below for the debugging panel.
+    //Uncomment the section below for the debugging panel; make sure that you aren't colliding with Input
     //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN0); //Current use: Whole byte of indexLine
     //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
     //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN1); //Current use:
@@ -54,6 +54,24 @@ void Init_GPIO(void) {
     //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN6);
     //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN7); //Current use:
     //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN7);
+
+    //Inputs Block
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P6, GPIO_PIN0); //A = P6.0
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P7, GPIO_PIN1); //B = P7.1
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5, GPIO_PIN7); //C = P5.7
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P8, GPIO_PIN3); //D = P8.3
+    GPIO_enableInterrupt(GPIO_PORT_P6, GPIO_PIN0);
+    GPIO_enableInterrupt(GPIO_PORT_P7, GPIO_PIN1);
+    GPIO_enableInterrupt(GPIO_PORT_P5, GPIO_PIN7);
+    GPIO_enableInterrupt(GPIO_PORT_P8, GPIO_PIN3);
+    GPIO_selectInterruptEdge(GPIO_PORT_P6,GPIO_PIN0, GPIO_HIGH_TO_LOW_TRANSITION);
+    GPIO_selectInterruptEdge(GPIO_PORT_P7,GPIO_PIN1, GPIO_HIGH_TO_LOW_TRANSITION);
+    GPIO_selectInterruptEdge(GPIO_PORT_P5,GPIO_PIN7, GPIO_HIGH_TO_LOW_TRANSITION);
+    GPIO_selectInterruptEdge(GPIO_PORT_P8,GPIO_PIN3, GPIO_HIGH_TO_LOW_TRANSITION);
+    GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
+    GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
+    GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
+    GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
 }
 
 void Init_Timers(void) {
@@ -99,17 +117,17 @@ int main(void) {
         Init_SPI();
         Init_LCD();
         DisplaySplash();
-        printText(VERSION, 118);
+        printTextSmall(VERSION, 118);
         __delay_cycles(1000000);  //Normally stuff happens here, this is just as a demonstration
         //GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN1);
         LCDClearDisplay();
-        printText("HELLO, WORLD!", 1);
-        printText("PETI", 16);
-        printText("SAYS", 24);
-        printText("HI", 32);
-        printText("1234567890123456", 56);
-        printText("UPTIME:",72);
-
+        printTextMedium("HELLO, WORLD!", 1);
+        printTextSmall("PETI", 16);
+        printTextSmall("SAYS", 24);
+        printTextSmall("HI", 32);
+        printTextSmall("1234567890123456", 56);
+        printTextSmall("UPTIME:",72);
+        printTextLarge(" A B C D", 100);
         while (1)
         {
         PMM_unlockLPM5();
@@ -122,7 +140,7 @@ int main(void) {
         bufferText[4] = timeSecond / 10 + '0';
         bufferText[5] = timeSecond % 10 + '0';
         bufferText[6] = 0;
-        printText(bufferText,88); // There is still a bug here, this line doesn't fully display.
+        printTextSmall(bufferText,88); // There is still a bug here, this line doesn't fully display.
         ToggleVCOM(); //<- Removing this KILLS the ISRtrap bug.
         __bis_SR_register(LPM0_bits | GIE);
         };
@@ -160,4 +178,36 @@ __interrupt void VCOM_ISR (void)
         }
         __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
     }
+}
+
+#pragma vector=PORT5_VECTOR
+__interrupt void BUTTON_C_ISR (void)
+{
+        GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
+        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+}
+
+#pragma vector=PORT6_VECTOR
+__interrupt void BUTTON_A_ISR (void)
+{
+        GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
+        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+}
+
+#pragma vector=PORT7_VECTOR
+__interrupt void BUTTON_B_ISR (void)
+{
+        GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
+        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+}
+
+#pragma vector=PORT8_VECTOR
+__interrupt void BUTTON_D_ISR (void)
+{
+        GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
+        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }

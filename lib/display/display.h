@@ -25,7 +25,9 @@ volatile unsigned char VCOM;             // State of VCOM (either 0x00 or 0x02)
 unsigned char bufferLine[PIXELS_X/8];   // Textmode Line Buffer
 
 void Init_LCD(void);
-void printText(const char* text, unsigned char line);
+void printTextSmall(const char* text, unsigned char line);
+void printTextMedium(const char* text, unsigned char line);
+void printTextLarge(const char* text, unsigned char line);
 void Init_SPI(void);
 void DisplaySplash(void);
 void ToggleVCOM(void);

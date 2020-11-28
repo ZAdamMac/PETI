@@ -115,7 +115,7 @@ void SPIWriteLine(unsigned char line)
 // write a string to display, truncated after PIXEL_X/8 characters
 // input: text      0-terminated string
 //        line      vertical position of text, 0-(PIXEL_Y-1)
-void printText(const char* text, unsigned char line)
+void printTextSmall(const char* text, unsigned char line)
 {
     unsigned char character, bitmap, indexText, indexLineBuffer, indexLine;
     bool padded;
@@ -127,11 +127,6 @@ void printText(const char* text, unsigned char line)
         indexLineBuffer = 0;
         while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
         {
-            //if(character < ' ' || character > 'Z')  //Sanity: replace characters not in font.
-            //{
-            //    character = ' ';
-            //} Not needed with the post-edit font.
-            //character = character - 32; //Changes character to an index in our stolen font table.
             bitmap = font8x8[character][indexLine];  // Retrieves the byte defining one line of character.
             bufferLine[indexLineBuffer] = bitmap;
             indexLineBuffer++;
@@ -153,6 +148,92 @@ void printText(const char* text, unsigned char line)
 
         SPIWriteLine(line++);
         indexLine++;
+    }
+}
+
+// write a string to display, truncated after PIXEL_X/8 characters
+// expects an 8x12 font
+// input: text      0-terminated string
+//        line      vertical position of text, 0-(PIXEL_Y-1)
+void printTextMedium(const char* text, unsigned char line)
+{
+    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine;
+    bool padded;
+    //For simplicity, and because we are borrowing an existing font library, we print line-by-line
+    indexLine = 0;
+    while(indexLine < 12 && line < PIXELS_Y)             //loop for 12 char lines within display
+    {
+        indexText = 0;
+        indexLineBuffer = 0;
+        while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
+        {
+            bitmap = font8x12[character][indexLine];  // Retrieves the byte defining one line of character.
+            bufferLine[indexLineBuffer] = bitmap;
+            indexLineBuffer++;
+            indexText++;
+        }
+
+        while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
+        {
+            padded = true;
+            bufferLine[indexLineBuffer] = 0xFF;
+            indexLineBuffer++;
+        }
+
+        if(padded) // needed because <= might break things.
+        {
+            bufferLine[indexLineBuffer] = 0x00;
+            padded = false;
+        }
+
+        SPIWriteLine(line++);
+        indexLine++;
+    }
+}
+
+
+// write a string to display, truncated after PIXEL_X/16 characters
+// expects a 16x16 font
+// input: text      0-terminated string
+//        line      vertical position of text, 0-(PIXEL_Y-1)
+void printTextLarge(const char* text, unsigned char line)
+{
+    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine, indexOfOffset;
+    bool padded;
+    //For simplicity, and because we are borrowing an existing font library, we print line-by-line
+    indexLine = 0;
+    indexOfOffset = 0;
+    while(indexLine < 16 && line < PIXELS_Y)             //loop for 16 char lines within display
+    {
+        indexText = 0;
+        indexLineBuffer = 0;
+        while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
+        {
+            bitmap = font16x16[character][indexLine+indexOfOffset];  // Retrieves the byte defining the left side of the character.
+            bufferLine[indexLineBuffer] = bitmap;
+            indexLineBuffer++;
+            bitmap = font16x16[character][indexLine+indexOfOffset+1];  // Retrieves the byte defining the right side of the character.
+            bufferLine[indexLineBuffer] = bitmap;
+            indexLineBuffer++;
+            indexText++;
+        }
+
+        while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
+        {
+            padded = true;
+            bufferLine[indexLineBuffer] = 0xFF;
+            indexLineBuffer++;
+        }
+
+        if(padded) // needed because <= might break things.
+        {
+            bufferLine[indexLineBuffer] = 0x00;
+            padded = false;
+        }
+
+        SPIWriteLine(line++);
+        indexLine++;
+        indexOfOffset++;
     }
 }
 
