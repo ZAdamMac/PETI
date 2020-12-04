@@ -17,6 +17,8 @@
 #include "splash.h"
 #include <msp430.h>
 
+// Initiates the eUSCI_B #1 module to act as the SPI controller.
+// Used exclusively to drive the LCD but could be used as a general SPI controller as needed.
 void Init_SPI(void) {
     EUSCI_B_SPI_disable(EUSCI_B1_BASE); // disable the EUSCI to be programme
 
@@ -65,6 +67,8 @@ void Init_SPI(void) {
 
 }
 
+// Provides a shortcut method to calculate the correct clear-screen command for the mLCD module based on current VCOM state
+// And send it.
 void LCDClearDisplay(void){
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN3);
     EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, (MLCD_CM | VCOM));
@@ -72,6 +76,8 @@ void LCDClearDisplay(void){
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN3);
 }
 
+// Provides the LCD controller power and LCD display power to the LCD in the order
+// Specified by SHARP, and then sends the clear screen command, which is recommended.
 void Init_LCD(void) {
 
     // We need a function to initialize the LCD, which is non-automatic.
@@ -84,6 +90,8 @@ void Init_LCD(void) {
 
 // Reverse the bit order of a byte to resolve the mirroring issue. Likely used in all SPI sends.
 // Full credit to Stack Overflow user STH for this handy function
+// We're trying to remove reliance on it but it might be used /optionally/ in a mirrored print function to save
+// Fontspace.
 unsigned char reverse(unsigned char b) {
    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
@@ -135,16 +143,16 @@ void printTextSmall(const char* text, unsigned char line)
 
         while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
         {
-            padded = true;
+            //padded = true;
             bufferLine[indexLineBuffer] = 0xFF;
             indexLineBuffer++;
         }
 
-        if(padded) // needed because <= might break things.
-        {
-            bufferLine[indexLineBuffer] = 0x00;
-            padded = false;
-        }
+       // if(padded) // needed because <= might break things.
+       // {
+       //     bufferLine[indexLineBuffer] = 0x00;
+       //     padded = false;
+       // }
 
         SPIWriteLine(line++);
         indexLine++;
@@ -175,16 +183,16 @@ void printTextMedium(const char* text, unsigned char line)
 
         while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
         {
-            padded = true;
+            //padded = true;
             bufferLine[indexLineBuffer] = 0xFF;
             indexLineBuffer++;
         }
 
-        if(padded) // needed because <= might break things.
-        {
-            bufferLine[indexLineBuffer] = 0x00;
-            padded = false;
-        }
+        //if(padded) // needed because <= might break things.
+        //{
+        //    bufferLine[indexLineBuffer] = 0x00;
+        //    padded = false;
+        //}
 
         SPIWriteLine(line++);
         indexLine++;
@@ -220,16 +228,16 @@ void printTextLarge(const char* text, unsigned char line)
 
         while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
         {
-            padded = true;
+            //padded = true;
             bufferLine[indexLineBuffer] = 0xFF;
             indexLineBuffer++;
         }
 
-        if(padded) // needed because <= might break things.
-        {
-            bufferLine[indexLineBuffer] = 0x00;
-            padded = false;
-        }
+        //if(padded) // needed because <= might break things.
+        //{
+        //    bufferLine[(PIXELS_X/8)-1] = 0x00;  // This is the line that breaks things.
+        //    padded = false;
+        //}
 
         SPIWriteLine(line++);
         indexLine++;
@@ -237,6 +245,10 @@ void printTextLarge(const char* text, unsigned char line)
     }
 }
 
+
+// prints whatever image is currenlty defined as splash_bitmap in splash.h.
+// This expects an image of 128x128 pixels expressed in a BIGENDIAN bit-order, thus reverse.
+// TODO/FUTURE: Refactor splash-bitmap and remove the reverse function for better performance.
 void DisplaySplash(void){
     volatile unsigned char bitmap, indexLineBuffer, indexLine;
     volatile unsigned int line, indexByte, this_line, sent_line;

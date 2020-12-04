@@ -4,10 +4,9 @@
 //  Principal Code for TI MSP430FR5994 LaunchPad to adjudicate a PETI game.
 //  This code works with the TI BOOKSXL-SHARP128 booster pack. Output P3 is available as
 //  an output array for printing arbitrary debug flags to LED; check with the Init_GPIO
-//  function to determine which pin is in what state under what condition. P8.0 through
-//  P8.3 are used as GPIO inputs for the input buttons.
+//  function to determine which pin is in what state under what condition.
 //
-//  Check the schematics folder for VCS-controlled hardware schematics
+//  Check the schematics folder for VCS-controlled hardware schematics, including pinouts.
 //
 //
 //  Zac Adam-MacEwen (Kensho Security Labs)
@@ -20,24 +19,97 @@
 #include "lib/display/display.h"
 #include <msp430.h>
 
-#define VERSION " POC-2020-11-28"      //Max 16 characters.
+#define VERSION " POC-2020-12-03"       //Max 16 characters.
 
 volatile unsigned int timeMSec;         // clock milliseconds
 volatile unsigned char timeSecond;      // clock seconds
 volatile unsigned char timeMinute;      // clock minutes
 volatile unsigned char VCOM;            // current VCOM state
-char bufferText[17];
+char bufferText[17];                    // General placeholder used by all the printext functions.
 
-//We need a simple function to initialize eUSCI B1 to act as th
+char buttonsBar[9];                     // string that prints button status bar. Might not survive in prod.
+unsigned int buttons_state;            // We need to hold a whole byte to keep track of the flag state
+#define button_a_pressed BIT7           // And hit state of each button, along with the bits to control each.
+#define button_b_pressed BIT6
+#define button_c_pressed BIT5
+#define button_d_pressed BIT4
+#define button_a_toggle BIT3
+#define button_b_toggle BIT2
+#define button_c_toggle BIT1
+#define button_d_toggle BIT0
+
+//We need a simple function for handling the state of buttons_state as it
+//Needs updating throughtout the ISR functions.
+void Update_Button_States(void){
+    if (buttons_state & button_a_pressed)
+    {
+        buttons_state &= ~button_a_pressed; // In this instance we know we can de-set this flag.
+        buttons_state ^= button_a_toggle;  // And alternate this flag.
+    }
+    if (buttons_state & button_b_pressed)
+    {
+            buttons_state &= ~button_b_pressed; // In this instance we know we can de-set this flag.
+            buttons_state ^= button_b_toggle;  // And alternate this flag.
+        }
+    if (buttons_state & button_c_pressed)
+    {
+            buttons_state &= ~button_c_pressed; // In this instance we know we can de-set this flag.
+            buttons_state ^= button_c_toggle;  // And alternate this flag.
+        }
+    if (buttons_state & button_d_pressed)
+    {
+            buttons_state &= ~button_d_pressed; // In this instance we know we can de-set this flag.
+            buttons_state ^= button_d_toggle;  // And alternate this flag.
+        }
+}
+
+//We also need a simple function for updating the magic string:
+void Update_Buttons_Bar(void){
+    if ((buttons_state & button_a_toggle) == button_a_toggle)
+    { // in each case we care only about the state of the toggle flag.
+        buttonsBar[2] = 'a';               // because of how the font is designed, the bold/pressed version is lowercase
+    }
+    else
+    {
+        buttonsBar[2] = 'A';
+    }
+    if (buttons_state & button_b_toggle)
+    { // in each case we care only about the state of the toggle flag.
+        buttonsBar[3] = 'b';               // because of how the font is designed, the bold/pressed version is lowercase
+    }
+    else
+    {
+        buttonsBar[3] = 'B';
+    }
+    if ( buttons_state & button_c_toggle )
+    { // in each case we care only about the state of the toggle flag.
+        buttonsBar[4] = 'c';               // because of how the font is designed, the bold/pressed version is lowercase
+    }
+    else
+    {
+        buttonsBar[4] = 'C';
+    }
+    if (buttons_state & button_d_toggle)
+    { // in each case we care only about the state of the toggle flag.
+        buttonsBar[5] = 'd';               // because of how the font is designed, the bold/pressed version is lowercase
+    }
+    else
+    {
+        buttonsBar[5] = 'D';
+    }
+}
+
+//We need a simple function to initialize some GPIO pins for driving
+//button input as well as the status LEDs
 void Init_GPIO(void) {
     //We have a couple GPIO pins that most make sense to set up individually.
     // Some are explicitly or implicitly set up during Init_SPI.
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0); // P1.0 is an LED for indicating VCOM state.
     GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN0); // Initial VCOM = 0
-    GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN1); // P1.1 is a debugging LED
+    GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN1); // P1.1 is a debugging LED; currently toggles with each keypress.
     GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN1);
 
-    //Uncomment the section below for the debugging panel; make sure that you aren't colliding with Input
+    //Uncomment the section below for the debugging panel
     //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN0); //Current use: Whole byte of indexLine
     //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
     //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN1); //Current use:
@@ -56,6 +128,7 @@ void Init_GPIO(void) {
     //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN7);
 
     //Inputs Block
+    //This sets up the buttons as indicated below.
     GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P6, GPIO_PIN0); //A = P6.0
     GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P7, GPIO_PIN1); //B = P7.1
     GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P5, GPIO_PIN7); //C = P5.7
@@ -76,6 +149,10 @@ void Init_GPIO(void) {
 
 void Init_Timers(void) {
     // There are some very important global timers that we need
+    // Currently we only initialize Timer_A which will raise a 1khz interrupt
+    // Allowing us to tick off the milliseconds.
+    // In future this will likely be altered for power mnagement and to use RTC for main
+    // Time tracking.
     VCOM = MLCD_VCOM;                                   // Starting value setup.
     timeMSec = 0;                                       // initialize variables used by "clock"
     timeSecond = 0;
@@ -89,7 +166,7 @@ void Init_Timers(void) {
     initContParam.clockSource = TIMER_A_CLOCKSOURCE_SMCLK;
     initContParam.clockSourceDivider = TIMER_A_CLOCKSOURCE_DIVIDER_1;
     initContParam.timerInterruptEnable_TAIE = TIMER_A_TAIE_INTERRUPT_DISABLE;
-    initContParam.timerPeriod = 1000; // this should result in a roughly 1ms period.
+    initContParam.timerPeriod = 1000; // this should result in a roughly 1ms period, assuming the clock speed is accurate
     initContParam.timerClear = TIMER_A_DO_CLEAR;
     initContParam.captureCompareInterruptEnable_CCR0_CCIE = TIMER_A_CCIE_CCR0_INTERRUPT_DISABLE;
     initContParam.startTimer = false;
@@ -107,32 +184,46 @@ void Init_Timers(void) {
 int main(void) {
 
     WDTCTL = WDTPW | WDTHOLD; // Disable the watchdog timer. We might rely on this later, but not for now.
-        P1IFG = 0;
+        P1IFG = 0;  // Clear P1 IFGs, more as a formality than anything.
         // Disable the GPIO power-on default high-impedance mode
         // to activate previously configured port settings
-        SFRIFG1 &= ~OFIFG; // Clear the OFIFG because that's some annoying bugs.
-        PMM_unlockLPM5();
+        SFRIFG1 &= ~OFIFG; // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
+        PMM_unlockLPM5();  // Without this output pins can be stuck at current state causing apparent freezes.
         Init_GPIO();
         Init_Timers();
         Init_SPI();
         Init_LCD();
         DisplaySplash();
         printTextSmall(VERSION, 118);
-        __delay_cycles(1000000);  //Normally stuff happens here, this is just as a demonstration
+        __delay_cycles(1000000);  //Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
         //GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN1);
         LCDClearDisplay();
-        printTextMedium("HELLO, WORLD!", 1);
-        printTextSmall("PETI", 16);
-        printTextSmall("SAYS", 24);
-        printTextSmall("HI", 32);
+        printTextMedium("  HELLO, WORLD! ", 1);
+        printTextSmall("      PETI      ", 16);
+        printTextSmall("      SAYS      ", 24);
+        printTextSmall("       HI       ", 32);
         printTextSmall("1234567890123456", 56);
         printTextSmall("UPTIME:",72);
-        printTextLarge(" A B C D", 100);
+        buttons_state = 0;
+        buttonsBar[0] = ' ';
+        buttonsBar[1] = ' ';
+        buttonsBar[2] = 'A';
+        buttonsBar[3] = 'B';
+        buttonsBar[4] = 'C';
+        buttonsBar[5] = 'D';
+        buttonsBar[6] = ' ';
+        buttonsBar[7] = ' ';
+        buttonsBar[8] = 0;
+        //Update_Buttons_Bar();
+        //printTextLarge(buttonsBar, 48);
+
         while (1)
         {
         PMM_unlockLPM5();
         //__delay_cycles(1000);
         // write clock to display by forming a string literal representing the current time
+        Update_Button_States();
+        Update_Buttons_Bar();
         bufferText[0] = ' ';
         bufferText[1] = timeMinute / 10 + '0';
         bufferText[2] = timeMinute % 10 + '0';
@@ -141,13 +232,14 @@ int main(void) {
         bufferText[5] = timeSecond % 10 + '0';
         bufferText[6] = 0;
         printTextSmall(bufferText,88); // There is still a bug here, this line doesn't fully display.
+        printTextLarge(buttonsBar, 100);
         ToggleVCOM(); //<- Removing this KILLS the ISRtrap bug.
         __bis_SR_register(LPM0_bits | GIE);
         };
     }
 
 
-// interrupt service routine to handle timer A; drives VCOM and readable clock
+// interrupt service routine to handle timer A; drives VCOM and readable clock; mostly for demonstration
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void VCOM_ISR (void)
 {
@@ -180,11 +272,15 @@ __interrupt void VCOM_ISR (void)
     }
 }
 
+// The ISRs below handle interrupts raised by each of the input keys A through D.
+// In future they should not "do" what their key does, simply set a flag used in main() indicating the button was pressed.
+
 #pragma vector=PORT5_VECTOR
 __interrupt void BUTTON_C_ISR (void)
 {
         GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
-        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1); //deprecate these.
+        buttons_state |= button_c_pressed;
         __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
@@ -193,6 +289,7 @@ __interrupt void BUTTON_A_ISR (void)
 {
         GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
         GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        buttons_state |= button_a_pressed;
         __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
@@ -201,6 +298,7 @@ __interrupt void BUTTON_B_ISR (void)
 {
         GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
         GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        buttons_state |= button_b_pressed;
         __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
@@ -209,5 +307,6 @@ __interrupt void BUTTON_D_ISR (void)
 {
         GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
         GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+        buttons_state |= button_d_pressed;
         __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
