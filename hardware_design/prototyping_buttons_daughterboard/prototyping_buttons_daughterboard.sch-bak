@@ -1,0 +1,218 @@
+EESchema Schematic File Version 4
+EELAYER 30 0
+EELAYER END
+$Descr A4 11693 8268
+encoding utf-8
+Sheet 1 1
+Title "PETI Prototyping Button-Inputs Board"
+Date "2020-12-17"
+Rev "Prototype B"
+Comp "PETI"
+Comment1 "Daughter Board for PETI development platform"
+Comment2 ""
+Comment3 ""
+Comment4 ""
+$EndDescr
+$Comp
+L Connector_Generic:Conn_02x10_Counter_Clockwise J1
+U 1 1 5FDBF0D5
+P 6400 4950
+F 0 "J1" H 6450 5567 50  0000 C CNN
+F 1 "Conn_02x10_Counter_Clockwise" H 6450 5476 50  0000 C CNN
+F 2 "Connector_PinSocket_2.00mm:PinSocket_2x10_P2.00mm_Vertical" H 6400 4950 50  0001 C CNN
+F 3 "~" H 6400 4950 50  0001 C CNN
+	1    6400 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Connector_Generic:Conn_02x10_Counter_Clockwise J2
+U 1 1 5FDC1735
+P 8100 4950
+F 0 "J2" H 8150 5567 50  0000 C CNN
+F 1 "Conn_02x10_Counter_Clockwise" H 8150 5476 50  0000 C CNN
+F 2 "Connector_PinSocket_2.00mm:PinSocket_2x10_P2.00mm_Vertical" H 8100 4950 50  0001 C CNN
+F 3 "~" H 8100 4950 50  0001 C CNN
+	1    8100 4950
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW-C1
+U 1 1 5FDC81F9
+P 9700 4550
+F 0 "SW-C1" H 9700 4835 50  0000 C CNN
+F 1 "SW_Push" H 9700 4744 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 9700 4750 50  0001 C CNN
+F 3 "~" H 9700 4750 50  0001 C CNN
+	1    9700 4550
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW-D1
+U 1 1 5FDC87E8
+P 9700 5250
+F 0 "SW-D1" H 9700 5535 50  0000 C CNN
+F 1 "SW_Push" H 9700 5444 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 9700 5450 50  0001 C CNN
+F 3 "~" H 9700 5450 50  0001 C CNN
+	1    9700 5250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C3
+U 1 1 5FDCCE68
+P 10050 4050
+F 0 "C3" H 10165 4096 50  0000 L CNN
+F 1 "CODE 104" H 10165 4005 50  0000 L CNN
+F 2 "Capacitor_THT:C_Disc_D3.0mm_W2.0mm_P2.50mm" H 10088 3900 50  0001 C CNN
+F 3 "~" H 10050 4050 50  0001 C CNN
+	1    10050 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C4
+U 1 1 5FDCDA05
+P 10100 5750
+F 0 "C4" H 10215 5796 50  0000 L CNN
+F 1 "CODE 104" H 10215 5705 50  0000 L CNN
+F 2 "Capacitor_THT:C_Disc_D3.0mm_W2.0mm_P2.50mm" H 10138 5600 50  0001 C CNN
+F 3 "~" H 10100 5750 50  0001 C CNN
+	1    10100 5750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	5150 5250 5600 5250
+$Comp
+L Device:C C1
+U 1 1 5FDCADF5
+P 4750 4050
+F 0 "C1" H 4865 4096 50  0000 L CNN
+F 1 "CODE 104" H 4865 4005 50  0000 L CNN
+F 2 "Capacitor_THT:C_Disc_D3.0mm_W2.0mm_P2.50mm" H 4788 3900 50  0001 C CNN
+F 3 "~" H 4750 4050 50  0001 C CNN
+	1    4750 4050
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW-B1
+U 1 1 5FDC6E66
+P 4950 5250
+F 0 "SW-B1" H 4950 5535 50  0000 C CNN
+F 1 "SW_Push" H 4950 5444 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 4950 5450 50  0001 C CNN
+F 3 "~" H 4950 5450 50  0001 C CNN
+	1    4950 5250
+	1    0    0    -1  
+$EndComp
+$Comp
+L Switch:SW_Push SW-A1
+U 1 1 5FDC635B
+P 4950 4600
+F 0 "SW-A1" H 4950 4885 50  0000 C CNN
+F 1 "SW_Push" H 4950 4794 50  0000 C CNN
+F 2 "Button_Switch_THT:SW_PUSH_6mm" H 4950 4800 50  0001 C CNN
+F 3 "~" H 4950 4800 50  0001 C CNN
+	1    4950 4600
+	1    0    0    -1  
+$EndComp
+$Comp
+L Device:C C2
+U 1 1 5FDCC646
+P 4800 5800
+F 0 "C2" H 4915 5846 50  0000 L CNN
+F 1 "CODE 104" H 4915 5755 50  0000 L CNN
+F 2 "Capacitor_THT:C_Disc_D3.0mm_W2.0mm_P2.50mm" H 4838 5650 50  0001 C CNN
+F 3 "~" H 4800 5800 50  0001 C CNN
+	1    4800 5800
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	4800 5650 5600 5650
+Wire Wire Line
+	10900 3850 10050 3850
+Wire Wire Line
+	10050 3850 10050 3900
+Wire Wire Line
+	10050 3900 8950 3900
+Wire Wire Line
+	8950 3900 8950 4550
+Wire Wire Line
+	8950 4550 8400 4550
+Connection ~ 10050 3900
+Wire Wire Line
+	8400 4650 9250 4650
+Wire Wire Line
+	9250 4650 9250 4550
+Wire Wire Line
+	9250 4550 9500 4550
+Wire Wire Line
+	9250 4550 9250 4200
+Wire Wire Line
+	9250 4200 10050 4200
+Connection ~ 9250 4550
+Wire Wire Line
+	9900 4550 10900 4550
+Wire Wire Line
+	8400 5250 9500 5250
+Wire Wire Line
+	9500 5600 10100 5600
+Connection ~ 9500 5250
+Wire Wire Line
+	9500 5250 9500 5600
+Wire Wire Line
+	10900 3850 10900 4550
+Wire Wire Line
+	10100 5900 10900 5900
+Wire Wire Line
+	10900 5900 10900 5250
+Connection ~ 10900 4550
+Wire Wire Line
+	9900 5250 10900 5250
+Connection ~ 10900 5250
+Wire Wire Line
+	10900 5250 10900 4550
+Wire Wire Line
+	6200 5250 5700 5250
+Wire Wire Line
+	6700 4750 6800 4750
+Wire Wire Line
+	6800 4750 6800 5650
+Wire Wire Line
+	4750 3900 6000 3900
+Wire Wire Line
+	6000 3900 6000 4750
+Wire Wire Line
+	6000 4750 6200 4750
+Wire Wire Line
+	6800 5650 5600 5650
+Connection ~ 5600 5650
+Wire Wire Line
+	4750 4200 5700 4200
+Wire Wire Line
+	5150 4600 5700 4600
+Wire Wire Line
+	5600 5600 5600 5650
+Wire Wire Line
+	5700 4200 5700 4600
+Wire Wire Line
+	5600 5250 5600 5650
+Connection ~ 5700 4600
+Wire Wire Line
+	5700 4600 5700 5250
+Wire Wire Line
+	4800 5950 4450 5950
+Wire Wire Line
+	4450 3900 4750 3900
+Connection ~ 4750 3900
+Wire Wire Line
+	4750 4600 4450 4600
+Connection ~ 4450 4600
+Wire Wire Line
+	4450 4600 4450 3900
+Wire Wire Line
+	4750 5250 4450 5250
+Wire Wire Line
+	4450 4600 4450 5250
+Connection ~ 4450 5250
+Wire Wire Line
+	4450 5250 4450 5950
+$EndSCHEMATC
