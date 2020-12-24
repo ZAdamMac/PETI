@@ -4,14 +4,14 @@
 
 PETI is a project to create a bespoke, retro-styled Virtual Pet running on the MSP430FR5994 microcontroller, along with a number of late-project goals to add functionality that is useful for demonstrating the sort of Hardware Hacking concepts useful in (i.e.) DEFCON Badge Challenges.
 
-Full documentation is available as part of the "documentation" directory of this repo.
+Full documentation is available as part of the "documentation" directory of this repo. A suite of helper tools is present [here](https://github.com/zadammac/peti-helpers)
 
-This project involves both firmware and hardware development
+This project involves both firmware and hardware development.
 
 ## Requirements
 This project has a number of requirements that need to be satisfied to build the project successfully:
   - It is advised that the developer use TI's Code Composer Studio and its included compiler.
-  - The developer will also need to meet the requirements laid out in `schematics/current_hardware.md`, and;
+  - The developer will also need to meet the requirements laid out in `hardware_design/readme.md`, and;
   - The developer will need to provide both the standard MSP430 incudes directory and the "driverlib" from MSP430, both available under license from TI.
 	
 ## Contribution and Acknowledgement
