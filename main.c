@@ -182,6 +182,16 @@ void Init_Timers(void) {
     Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_UP_MODE);
 }
 
+void Print_Uptime(void){
+    bufferText[0] = ' ';
+    bufferText[1] = timeMinute / 10 + '0';
+    bufferText[2] = timeMinute % 10 + '0';
+    bufferText[3] = ':';
+    bufferText[4] = timeSecond / 10 + '0';
+    bufferText[5] = timeSecond % 10 + '0';
+    bufferText[6] = 0;
+    printTextSmall(bufferText,88); // There is still a bug here, this line doesn't fully display.
+}
 
 int main(void) {
     WDTCTL = WDTPW | WDTHOLD; // Disable the watchdog timer. We might rely on this later, but not for now.
@@ -224,14 +234,7 @@ int main(void) {
         // write clock to display by forming a string literal representing the current time
         Update_Button_States();
         Update_Buttons_Bar();
-        bufferText[0] = ' ';
-        bufferText[1] = timeMinute / 10 + '0';
-        bufferText[2] = timeMinute % 10 + '0';
-        bufferText[3] = ':';
-        bufferText[4] = timeSecond / 10 + '0';
-        bufferText[5] = timeSecond % 10 + '0';
-        bufferText[6] = 0;
-        printTextSmall(bufferText,88); // There is still a bug here, this line doesn't fully display.
+        Print_Uptime();
         printTextLarge(buttonsBar, 100);
         ToggleVCOM(); //<- Removing this KILLS the ISRtrap bug.
         __bis_SR_register(LPM0_bits | GIE);
