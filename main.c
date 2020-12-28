@@ -238,9 +238,7 @@ int main(void) {
     Init_LCD();
     Init_Buttons();
 
-    Display_Splash_with_Delay(1000000)
-    //GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN1);
-
+    Display_Splash_with_Delay(1000000);
     printTextMedium("  HELLO, WORLD! ", 1);
     printTextSmall("      PETI      ", 16);
     printTextSmall("      SAYS      ", 24);
@@ -248,12 +246,8 @@ int main(void) {
     printTextSmall("1234567890123456", 56);
     printTextSmall("UPTIME:", 72);
 
-    //Update_Buttons_Bar();
-    //printTextLarge(buttonsBar, 48);
-
     while (1){
         PMM_unlockLPM5();
-        //__delay_cycles(1000);
         Update_Button_States();
         Update_Buttons_Bar();
         Print_Uptime();
