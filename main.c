@@ -198,7 +198,8 @@ void Init_Buttons(void){
 void Display_Splash_with_Delay(int cycles){
     DisplaySplash();
     printTextSmall(VERSION, 118);
-    __delay_cycles(cycles);  //Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
+    // Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
+    __delay_cycles(cycles);  
     LCDClearDisplay();
 }
 
@@ -216,12 +217,20 @@ void Print_Uptime(void){
 
 int main(void) {
     // Kosmo: could any of this init go into an init function?
-    WDTCTL = WDTPW | WDTHOLD; // Disable the watchdog timer. We might rely on this later, but not for now.
-    P1IFG = 0;  // Clear P1 IFGs, more as a formality than anything.
+
+    // Disable the watchdog timer. We might rely on this later, but not for now.
+    WDTCTL = WDTPW | WDTHOLD; 
+    
+    // Clear P1 IFGs, more as a formality than anything.
     // Disable the GPIO power-on default high-impedance mode
     // to activate previously configured port settings
-    SFRIFG1 &= ~OFIFG; // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
-    PMM_unlockLPM5();  // Without this output pins can be stuck at current state causing apparent freezes.
+    P1IFG = 0;  
+    
+    // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
+    SFRIFG1 &= ~OFIFG;
+
+    // Without this output pins can be stuck at current state causing apparent freezes. 
+    PMM_unlockLPM5();  
     
     Init_GPIO();
     Init_Timers();
@@ -249,7 +258,8 @@ int main(void) {
         Update_Buttons_Bar();
         Print_Uptime();
         printTextLarge(buttonsBar, 100);
-        ToggleVCOM(); //<- Removing this KILLS the ISRtrap bug.
+        // Removing below KILLS the ISRtrap bug.
+        ToggleVCOM(); 
         __bis_SR_register(LPM0_bits | GIE);
     }
 }
