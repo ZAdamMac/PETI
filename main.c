@@ -182,7 +182,28 @@ void Init_Timers(void) {
     Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_UP_MODE);
 }
 
+void Init_Buttons(void){
+    buttons_state = 0;
+    buttonsBar[0] = ' ';
+    buttonsBar[1] = ' ';
+    buttonsBar[2] = 'A';
+    buttonsBar[3] = 'B';
+    buttonsBar[4] = 'C';
+    buttonsBar[5] = 'D';
+    buttonsBar[6] = ' ';
+    buttonsBar[7] = ' ';
+    buttonsBar[8] = 0;
+}
+
+void Display_Splash_with_Delay(int cycles){
+    DisplaySplash();
+    printTextSmall(VERSION, 118);
+    __delay_cycles(cycles);  //Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
+    LCDClearDisplay();
+}
+
 void Print_Uptime(void){
+    // write clock to display by forming a string literal representing the current time
     bufferText[0] = ' ';
     bufferText[1] = timeMinute / 10 + '0';
     bufferText[2] = timeMinute % 10 + '0';
@@ -194,44 +215,36 @@ void Print_Uptime(void){
 }
 
 int main(void) {
+    // Kosmo: could any of this init go into an init function?
     WDTCTL = WDTPW | WDTHOLD; // Disable the watchdog timer. We might rely on this later, but not for now.
     P1IFG = 0;  // Clear P1 IFGs, more as a formality than anything.
     // Disable the GPIO power-on default high-impedance mode
     // to activate previously configured port settings
     SFRIFG1 &= ~OFIFG; // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
     PMM_unlockLPM5();  // Without this output pins can be stuck at current state causing apparent freezes.
+    
     Init_GPIO();
     Init_Timers();
     Init_SPI();
     Init_LCD();
-    DisplaySplash();
-    printTextSmall(VERSION, 118);
-    __delay_cycles(1000000);  //Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
+    Init_Buttons();
+
+    Display_Splash_with_Delay(1000000)
     //GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN1);
-    LCDClearDisplay();
+
     printTextMedium("  HELLO, WORLD! ", 1);
     printTextSmall("      PETI      ", 16);
     printTextSmall("      SAYS      ", 24);
     printTextSmall("       HI       ", 32);
     printTextSmall("1234567890123456", 56);
-    printTextSmall("UPTIME:",72);
-    buttons_state = 0;
-    buttonsBar[0] = ' ';
-    buttonsBar[1] = ' ';
-    buttonsBar[2] = 'A';
-    buttonsBar[3] = 'B';
-    buttonsBar[4] = 'C';
-    buttonsBar[5] = 'D';
-    buttonsBar[6] = ' ';
-    buttonsBar[7] = ' ';
-    buttonsBar[8] = 0;
+    printTextSmall("UPTIME:", 72);
+
     //Update_Buttons_Bar();
     //printTextLarge(buttonsBar, 48);
 
     while (1){
         PMM_unlockLPM5();
         //__delay_cycles(1000);
-        // write clock to display by forming a string literal representing the current time
         Update_Button_States();
         Update_Buttons_Bar();
         Print_Uptime();
