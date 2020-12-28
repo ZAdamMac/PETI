@@ -109,23 +109,25 @@ void Init_GPIO(void) {
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN1); // P1.1 is a debugging LED; currently toggles with each keypress.
     GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN1);
 
-    //Uncomment the section below for the debugging panel
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN0); //Current use: Whole byte of indexLine
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN1); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN1);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN2); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN3); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN3);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN4); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN5); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN5);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN6); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN6);
-    //GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN7); //Current use:
-    //GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN7);
+    // Set up debugging panel GPIO
+    #ifdef DEBUG
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN0); //Current use: Whole byte of indexLine
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN0);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN1); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN1);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN2); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN2);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN3); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN3);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN4); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN5); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN5);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN6); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN6);
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN7); //Current use:
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN7);
+    #endif
 
     //Inputs Block
     //This sets up the buttons as indicated below.
@@ -182,7 +184,6 @@ void Init_Timers(void) {
 
 
 int main(void) {
-
     WDTCTL = WDTPW | WDTHOLD; // Disable the watchdog timer. We might rely on this later, but not for now.
     P1IFG = 0;  // Clear P1 IFGs, more as a formality than anything.
     // Disable the GPIO power-on default high-impedance mode
@@ -217,8 +218,7 @@ int main(void) {
     //Update_Buttons_Bar();
     //printTextLarge(buttonsBar, 48);
 
-    while (1)
-    {
+    while (1){
         PMM_unlockLPM5();
         //__delay_cycles(1000);
         // write clock to display by forming a string literal representing the current time
@@ -235,7 +235,7 @@ int main(void) {
         printTextLarge(buttonsBar, 100);
         ToggleVCOM(); //<- Removing this KILLS the ISRtrap bug.
         __bis_SR_register(LPM0_bits | GIE);
-    };
+    }
 }
 
 
