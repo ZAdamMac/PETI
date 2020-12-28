@@ -184,41 +184,41 @@ void Init_Timers(void) {
 int main(void) {
 
     WDTCTL = WDTPW | WDTHOLD; // Disable the watchdog timer. We might rely on this later, but not for now.
-        P1IFG = 0;  // Clear P1 IFGs, more as a formality than anything.
-        // Disable the GPIO power-on default high-impedance mode
-        // to activate previously configured port settings
-        SFRIFG1 &= ~OFIFG; // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
-        PMM_unlockLPM5();  // Without this output pins can be stuck at current state causing apparent freezes.
-        Init_GPIO();
-        Init_Timers();
-        Init_SPI();
-        Init_LCD();
-        DisplaySplash();
-        printTextSmall(VERSION, 118);
-        __delay_cycles(1000000);  //Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
-        //GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN1);
-        LCDClearDisplay();
-        printTextMedium("  HELLO, WORLD! ", 1);
-        printTextSmall("      PETI      ", 16);
-        printTextSmall("      SAYS      ", 24);
-        printTextSmall("       HI       ", 32);
-        printTextSmall("1234567890123456", 56);
-        printTextSmall("UPTIME:",72);
-        buttons_state = 0;
-        buttonsBar[0] = ' ';
-        buttonsBar[1] = ' ';
-        buttonsBar[2] = 'A';
-        buttonsBar[3] = 'B';
-        buttonsBar[4] = 'C';
-        buttonsBar[5] = 'D';
-        buttonsBar[6] = ' ';
-        buttonsBar[7] = ' ';
-        buttonsBar[8] = 0;
-        //Update_Buttons_Bar();
-        //printTextLarge(buttonsBar, 48);
+    P1IFG = 0;  // Clear P1 IFGs, more as a formality than anything.
+    // Disable the GPIO power-on default high-impedance mode
+    // to activate previously configured port settings
+    SFRIFG1 &= ~OFIFG; // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
+    PMM_unlockLPM5();  // Without this output pins can be stuck at current state causing apparent freezes.
+    Init_GPIO();
+    Init_Timers();
+    Init_SPI();
+    Init_LCD();
+    DisplaySplash();
+    printTextSmall(VERSION, 118);
+    __delay_cycles(1000000);  //Normally stuff happens here, this is just as a demonstration to allow the page to remain a while
+    //GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN1);
+    LCDClearDisplay();
+    printTextMedium("  HELLO, WORLD! ", 1);
+    printTextSmall("      PETI      ", 16);
+    printTextSmall("      SAYS      ", 24);
+    printTextSmall("       HI       ", 32);
+    printTextSmall("1234567890123456", 56);
+    printTextSmall("UPTIME:",72);
+    buttons_state = 0;
+    buttonsBar[0] = ' ';
+    buttonsBar[1] = ' ';
+    buttonsBar[2] = 'A';
+    buttonsBar[3] = 'B';
+    buttonsBar[4] = 'C';
+    buttonsBar[5] = 'D';
+    buttonsBar[6] = ' ';
+    buttonsBar[7] = ' ';
+    buttonsBar[8] = 0;
+    //Update_Buttons_Bar();
+    //printTextLarge(buttonsBar, 48);
 
-        while (1)
-        {
+    while (1)
+    {
         PMM_unlockLPM5();
         //__delay_cycles(1000);
         // write clock to display by forming a string literal representing the current time
@@ -235,8 +235,8 @@ int main(void) {
         printTextLarge(buttonsBar, 100);
         ToggleVCOM(); //<- Removing this KILLS the ISRtrap bug.
         __bis_SR_register(LPM0_bits | GIE);
-        };
-    }
+    };
+}
 
 
 // interrupt service routine to handle timer A; drives VCOM and readable clock; mostly for demonstration
