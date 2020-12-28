@@ -257,8 +257,7 @@ int main(void) {
 
 // interrupt service routine to handle timer A; drives VCOM and readable clock; mostly for demonstration
 #pragma vector=TIMER0_A0_VECTOR
-__interrupt void VCOM_ISR (void)
-{
+__interrupt void VCOM_ISR (void){
     timeMSec++;// count milliseconds
     Timer_A_clearTimerInterrupt(TIMER_A0_BASE);
     Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
@@ -292,37 +291,33 @@ __interrupt void VCOM_ISR (void)
 // In future they should not "do" what their key does, simply set a flag used in main() indicating the button was pressed.
 
 #pragma vector=PORT5_VECTOR
-__interrupt void BUTTON_C_ISR (void)
-{
-        GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
-        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1); //deprecate these.
-        buttons_state |= button_c_pressed;
-        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+__interrupt void BUTTON_C_ISR (void){
+    GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1); //deprecate these.
+    buttons_state |= button_c_pressed;
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
 #pragma vector=PORT6_VECTOR
-__interrupt void BUTTON_A_ISR (void)
-{
-        GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
-        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
-        buttons_state |= button_a_pressed;
-        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+__interrupt void BUTTON_A_ISR (void){
+    GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+    buttons_state |= button_a_pressed;
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
 #pragma vector=PORT7_VECTOR
-__interrupt void BUTTON_B_ISR (void)
-{
-        GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
-        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
-        buttons_state |= button_b_pressed;
-        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+__interrupt void BUTTON_B_ISR (void){
+    GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+    buttons_state |= button_b_pressed;
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
 #pragma vector=PORT8_VECTOR
-__interrupt void BUTTON_D_ISR (void)
-{
-        GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
-        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
-        buttons_state |= button_d_pressed;
-        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+__interrupt void BUTTON_D_ISR (void){
+    GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
+    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
+    buttons_state |= button_d_pressed;
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
