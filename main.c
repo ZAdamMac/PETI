@@ -22,7 +22,6 @@
 #define VERSION " POC-2021-05-08"       //Max 16 characters.
 #define SPLASH_DELAY 1000000            //Number of cycles to make the system idle at the splash page idle.
 
-volatile unsigned int timeMSec;         // clock milliseconds
 volatile unsigned char timeSecond;      // clock seconds
 volatile unsigned char timeMinute;      // clock minutes
 volatile unsigned char VCOM;            // current VCOM state
@@ -157,25 +156,24 @@ void Init_Timers(void) {
     // In future this will likely be altered for power mnagement and to use RTC for main
     // Time tracking.
     VCOM = MLCD_VCOM;                                   // Starting value setup.
-    timeMSec = 0;                                       // initialize variables used by "clock"
     timeSecond = 0;
     timeMinute = 0;
     // Set master clock to 1MHz; at this rate TimerA would interrupt every millisecond.
     // This is not likely especially power performant.
     // sets the properties to init Timer_A
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0); // Set DCO frequency 1 MHz
+    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0); // Set DCO frequency 1 MHz (? - experimentation suggests this is not true)
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1); //SMCLK = 1 Mhz
     Timer_A_initUpModeParam initContParam = {0};
     initContParam.clockSource = TIMER_A_CLOCKSOURCE_SMCLK;
-    initContParam.clockSourceDivider = TIMER_A_CLOCKSOURCE_DIVIDER_1;
+    initContParam.clockSourceDivider = TIMER_A_CLOCKSOURCE_DIVIDER_16; // Should yield a freq where this counts at roughly 65kHz
     initContParam.timerInterruptEnable_TAIE = TIMER_A_TAIE_INTERRUPT_DISABLE;
-    initContParam.timerPeriod = 1000; // this should result in a roughly 1ms period, assuming the clock speed is accurate
+    initContParam.timerPeriod = 0xFFFF; // Which SHOULD trigger the interrupt 1/second.
     initContParam.timerClear = TIMER_A_DO_CLEAR;
     initContParam.captureCompareInterruptEnable_CCR0_CCIE = TIMER_A_CCIE_CCR0_INTERRUPT_DISABLE;
     initContParam.startTimer = false;
     Timer_A_initUpMode(TIMER_A0_BASE, &initContParam); // init TA in compare mode for TA2
     Timer_A_clearTimerInterrupt(TIMER_A0_BASE);
-    Timer_A_setCompareValue(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0, 1000);
+    Timer_A_setCompareValue(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0, 0xFFFF); // THIS ALSO SETS THE INTERRUPT FREQUENCY!
     Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
     Timer_A_enableInterrupt(TIMER_A0_BASE);
     Timer_A_enableCaptureCompareInterrupt(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
@@ -263,33 +261,28 @@ int main(void) {
 // interrupt service routine to handle timer A; drives VCOM and readable clock; mostly for demonstration
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void VCOM_ISR (void){
-    timeMSec++;// count milliseconds
-    Timer_A_clearTimerInterrupt(TIMER_A0_BASE);
     Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
-    if(timeMSec == 1000)                                // if we reached 1 second
+    Timer_A_clearTimerInterrupt(TIMER_A0_BASE);
+    timeSecond++;                                   // increase seconds
+    if(timeSecond == 60)                            // if we reached 1 minute
     {
-        timeMSec = 0;                                   // reset milliseconds
-        timeSecond++;                                   // increase seconds
-        if(timeSecond == 60)                            // if we reached 1 minute
+        timeSecond = 0;                             // reset seconds
+        timeMinute++;                               // increase minutes
+        if(timeMinute == 60)                        // if we reached 1 hour
         {
-            timeSecond = 0;                             // reset seconds
-            timeMinute++;                               // increase minutes
-            if(timeMinute == 60)                        // if we reached 1 hour
-            {
-                timeMinute = 0;                         // reset minutes
-            }
+            timeMinute = 0;                         // reset minutes
         }
-        GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
-        if(VCOM == 0x00)                                  // invert polarity bit every second
-        {
-            VCOM = MLCD_VCOM;
-        }
-        else
-        {
-            VCOM = 0x00;
-        }
-        __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
     }
+    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
+    if(VCOM == 0x00)                                  // invert polarity bit every second
+    {
+        VCOM = MLCD_VCOM;
+    }
+    else
+    {
+        VCOM = 0x00;
+    }
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
 // The ISRs below handle interrupts raised by each of the input keys A through D.
