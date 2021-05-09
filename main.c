@@ -222,14 +222,14 @@ void Print_CurrentTime(void){
     bufferText[1] = ' ';
     bufferText[2] = ' ';
     bufferText[3] = ' ';
-    bufferText[4] = currentTime.Hours / 10 + '0'; //get the 10s of hours then add the appropriate character offset.
-    bufferText[5] = currentTime.Hours % 10 + '0'; //get the 1s of hours, add offset
+    bufferText[4] = currentTime.Hours / 16 + '0'; //get the 10s of hours then add the appropriate character offset.
+    bufferText[5] = currentTime.Hours % 16 + '0'; //16 is used as the divisor because the BCD format expresses the decimal value in a hex space, thus the need for math.
     bufferText[6] = ':';
-    bufferText[7] = currentTime.Minutes / 10 + '0';
-    bufferText[8] = currentTime.Minutes % 10 + '0';
+    bufferText[7] = currentTime.Minutes / 16 + '0';
+    bufferText[8] = currentTime.Minutes % 16 + '0';
     bufferText[9] = ':';
-    bufferText[10] = currentTime.Seconds / 10 + '0';
-    bufferText[11] = currentTime.Seconds % 10 + '0';
+    bufferText[10] = currentTime.Seconds / 16 + '0';
+    bufferText[11] = currentTime.Seconds % 16 + '0';
     bufferText[12] = ' ';
     bufferText[13] = ' ';
     bufferText[14] = ' ';
@@ -273,7 +273,6 @@ int main(void) {
         Update_Buttons_Bar();
         Print_CurrentTime();
         printTextLarge(buttonsBar, 100);
-        // Removing below KILLS the ISRtrap bug.
         ToggleVCOM();
         __bis_SR_register(LPM0_bits | GIE);
     }
