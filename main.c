@@ -22,8 +22,6 @@
 #define VERSION " POC-2021-05-08"       //Max 16 characters.
 #define SPLASH_DELAY 1000000            //Number of cycles to make the system idle at the splash page idle.
 
-volatile unsigned char timeSecond;      // clock seconds
-volatile unsigned char timeMinute;      // clock minutes
 volatile unsigned char VCOM;            // current VCOM state
 char bufferText[17];                    // General placeholder used by all the printext functions.
 
@@ -156,8 +154,7 @@ void Init_Timers(void) {
     // In future this will likely be altered for power mnagement and to use RTC for main
     // Time tracking.
     VCOM = MLCD_VCOM;                                   // Starting value setup.
-    timeSecond = 0;
-    timeMinute = 0;
+
     // Set master clock to 1MHz; at this rate TimerA would interrupt every millisecond.
     // This is not likely especially power performant.
     // sets the properties to init Timer_A
@@ -181,6 +178,22 @@ void Init_Timers(void) {
     Timer_A_startCounter(TIMER_A0_BASE, TIMER_A_UP_MODE);
 }
 
+void Init_RTC(void){
+    //We need a default calendar to use as a local epoch. The date just happens to be when we were setting up this function.
+    Calendar defaultTime;
+    defaultTime.Seconds = 0x00;
+    defaultTime.Minutes = 0x00;
+    defaultTime.Hours = 0x00;
+    defaultTime.DayOfWeek = 0x06;  // No convention is specified, so here we treat sunday as 0.
+    defaultTime.DayOfMonth = 0x08;
+    defaultTime.Month = 0x05;
+    defaultTime.Year = 0x2021; // Accepts values up to 4096 (lel) so no unix epoch issue here.
+
+    RTC_C_initCalendar(RTC_C_BASE, &defaultTime, RTC_C_FORMAT_BCD); // Hey struct, get into your registers.
+    RTC_C_startClock(RTC_C_BASE); // Okay let's go!
+}
+
+
 void Init_Buttons(void){
     buttons_state = 0;
     buttonsBar[0] = ' ';
@@ -202,16 +215,26 @@ void Display_Splash_with_Delay(void){
     LCDClearDisplay();
 }
 
-void Print_Uptime(void){
-    // write clock to display by forming a string literal representing the current time
-    bufferText[0] = ' ';
-    bufferText[1] = timeMinute / 10 + '0';
-    bufferText[2] = timeMinute % 10 + '0';
-    bufferText[3] = ':';
-    bufferText[4] = timeSecond / 10 + '0';
-    bufferText[5] = timeSecond % 10 + '0';
-    bufferText[6] = 0;
-    printTextSmall(bufferText,88); // There is still a bug here, this line doesn't fully display.
+
+void Print_CurrentTime(void){
+    Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE); // Returns the calendar time as a struct.
+    bufferText[0] = ' '; // Centering Manually for Lulz.
+    bufferText[1] = ' ';
+    bufferText[2] = ' ';
+    bufferText[3] = ' ';
+    bufferText[4] = currentTime.Hours / 10 + '0'; //get the 10s of hours then add the appropriate character offset.
+    bufferText[5] = currentTime.Hours % 10 + '0'; //get the 1s of hours, add offset
+    bufferText[6] = ':';
+    bufferText[7] = currentTime.Minutes / 10 + '0';
+    bufferText[8] = currentTime.Minutes % 10 + '0';
+    bufferText[9] = ':';
+    bufferText[10] = currentTime.Seconds / 10 + '0';
+    bufferText[11] = currentTime.Seconds % 10 + '0';
+    bufferText[12] = ' ';
+    bufferText[13] = ' ';
+    bufferText[14] = ' ';
+    bufferText[15] = ' ';
+    printTextSmall(bufferText, 88); // Goes direct to the position for uptime in the old method
 }
 
 int main(void) {
@@ -221,8 +244,6 @@ int main(void) {
     WDTCTL = WDTPW | WDTHOLD;
 
     // Clear P1 IFGs, more as a formality than anything.
-    // Disable the GPIO power-on default high-impedance mode
-    // to activate previously configured port settings
     P1IFG = 0;
 
     // Clear the OFIFG because occasionally strange IFGs get set that we aren't handling.
@@ -233,6 +254,7 @@ int main(void) {
 
     Init_GPIO();
     Init_Timers();
+    Init_RTC();
     Init_SPI();
     Init_LCD();
     Init_Buttons();
@@ -243,13 +265,13 @@ int main(void) {
     printTextSmall("      SAYS      ", 24);
     printTextSmall("       HI       ", 32);
     printTextSmall("1234567890123456", 56);
-    printTextSmall("UPTIME:", 72);
+    printTextSmall("  The Time Is:  ", 72);
 
     while (1){
         PMM_unlockLPM5();
         Update_Button_States();
         Update_Buttons_Bar();
-        Print_Uptime();
+        Print_CurrentTime();
         printTextLarge(buttonsBar, 100);
         // Removing below KILLS the ISRtrap bug.
         ToggleVCOM();
@@ -263,16 +285,6 @@ int main(void) {
 __interrupt void VCOM_ISR (void){
     Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
     Timer_A_clearTimerInterrupt(TIMER_A0_BASE);
-    timeSecond++;                                   // increase seconds
-    if(timeSecond == 60)                            // if we reached 1 minute
-    {
-        timeSecond = 0;                             // reset seconds
-        timeMinute++;                               // increase minutes
-        if(timeMinute == 60)                        // if we reached 1 hour
-        {
-            timeMinute = 0;                         // reset minutes
-        }
-    }
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
     if(VCOM == 0x00)                                  // invert polarity bit every second
     {
@@ -291,31 +303,27 @@ __interrupt void VCOM_ISR (void){
 #pragma vector=PORT5_VECTOR
 __interrupt void BUTTON_C_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
-    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1); //deprecate these.
     buttons_state |= button_c_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
 
 #pragma vector=PORT6_VECTOR
 __interrupt void BUTTON_A_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
-    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
     buttons_state |= button_a_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
 
 #pragma vector=PORT7_VECTOR
 __interrupt void BUTTON_B_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
-    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
     buttons_state |= button_b_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
 
 #pragma vector=PORT8_VECTOR
 __interrupt void BUTTON_D_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
-    GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN1);
     buttons_state |= button_d_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
