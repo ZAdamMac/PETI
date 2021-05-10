@@ -9,9 +9,6 @@
 #define LIB_DISPLAY_DISPLAY_H_
 
 
-#endif /* LIB_DISPLAY_DISPLAY_H_ */
-
-
 #define MLCD_WR 0x01                    // MLCD write line command
 #define MLCD_CM 0x04                    // MLCD clear memory command
 #define MLCD_SM 0x00                    // MLCD static mode command
@@ -32,3 +29,7 @@ void Init_SPI(void);
 void DisplaySplash(void);
 void ToggleVCOM(void);
 void LCDClearDisplay(void);
+
+
+
+#endif /* LIB_DISPLAY_DISPLAY_H_ */
