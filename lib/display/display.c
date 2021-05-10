@@ -17,6 +17,7 @@
 #include "splash.h"
 #include <msp430.h>
 
+
 // Initiates the eUSCI_B #1 module to act as the SPI controller.
 // Used exclusively to drive the LCD but could be used as a general SPI controller as needed.
 void Init_SPI(void) {
@@ -277,4 +278,56 @@ void ToggleVCOM(void){
     EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, 0);
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN3);
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
+}
+
+// Determine the changed lines of text between the previous and incoming frame, and send only those lines of text through the print process.
+// This is specifically for scenes using the MODE_DEMO and the DemoFrame struct.
+void printDeltas_demo(DisplayFrame incoming_frame){
+    if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line0, 1);
+        incoming_frame.refresh_L0 = false;
+    }
+    if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
+        printTextSmall(incoming_frame.line1, 16);
+        incoming_frame.refresh_L1 = false;
+    }
+    if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
+        printTextSmall(incoming_frame.line2, 24);
+        incoming_frame.refresh_L2 = false;
+    }
+    if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
+        printTextSmall(incoming_frame.line3, 32);
+        incoming_frame.refresh_L3 = false;
+    }
+    if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
+        printTextSmall(incoming_frame.line4, 56);
+        incoming_frame.refresh_L4 = false;
+    }
+    if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
+        printTextSmall(incoming_frame.line5, 72);
+        incoming_frame.refresh_L5 = false;
+    }
+    if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
+        printTextSmall(incoming_frame.line6, 88);
+        incoming_frame.refresh_L6 = false;
+    }
+    if (incoming_frame.refresh_L7 || FORCE_REFRESH ){
+        printTextLarge(incoming_frame.line7, 100);
+        incoming_frame.refresh_L7 = false;
+    }
+}
+
+
+//Determine which mode of changes-only screen update to use, and drop the incoming frame of output to that function.
+void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
+    switch (mode){
+        case MODE_DEMO :
+            printDeltas_demo(incoming_frame);
+            break;
+        case MODE_GAME :
+            break;
+        case MODE_MENU :
+            break;
+    }
+    FORCE_REFRESH = false;
 }

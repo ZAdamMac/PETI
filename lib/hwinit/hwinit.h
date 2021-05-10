@@ -13,5 +13,4 @@ void Init_Timers(void);
 void Init_RTC(void);
 void Init_Watchdog(void);
 
-
 #endif /* LIB_HWINIT_HWINIT_H_ */
