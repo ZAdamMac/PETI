@@ -16,7 +16,7 @@
 #include "lib/display/display.h"
 #include "main.h"
 
-#define NEXT_SCENE SCENEADDR_demo_mode  // This is where we goin' when we leave here.
+#define NEXT_SCENE SCENEADDR_calendar_menu  // This is where we goin' when we leave here.
 
 volatile bool SPLASH_SENT = false;
 

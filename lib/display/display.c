@@ -317,6 +317,49 @@ void printDeltas_demo(DisplayFrame incoming_frame){
     }
 }
 
+void printDeltas_menu(DisplayFrame incoming_frame){
+    if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line0, 4);
+        incoming_frame.refresh_L0 = false;
+    }
+    if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
+        printTextMedium(incoming_frame.line1, 16);
+        incoming_frame.refresh_L1 = false;
+    }
+    if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line2, 28);
+        incoming_frame.refresh_L2 = false;
+    }
+    if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
+        printTextMedium(incoming_frame.line3, 40);
+        incoming_frame.refresh_L3 = false;
+    }
+    if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line4, 52);
+        incoming_frame.refresh_L4 = false;
+    }
+    if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
+        printTextMedium(incoming_frame.line5, 64);
+        incoming_frame.refresh_L5 = false;
+    }
+    if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
+        printTextMedium(incoming_frame.line6, 76);
+        incoming_frame.refresh_L6 = false;
+    }
+    if (incoming_frame.refresh_L7 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line7, 88);
+        incoming_frame.refresh_L7 = false;
+    }
+    if (incoming_frame.refresh_L8 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line8, 100);
+        incoming_frame.refresh_L8 = false;
+    }
+    if (incoming_frame.refresh_L9 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line9, 112);
+        incoming_frame.refresh_L9 = false;
+    }
+}
+
 
 //Determine which mode of changes-only screen update to use, and drop the incoming frame of output to that function.
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
@@ -327,7 +370,16 @@ void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
         case MODE_GAME :
             break;
         case MODE_MENU :
+            printDeltas_menu(incoming_frame);
             break;
     }
     FORCE_REFRESH = false;
+}
+
+
+//Convenience function for breaking out multidigit numbers for display. Automatically elevates to the correct character code (subtract '0' if you need the number):
+char DISPLAY_nthDigit(int digit_index_from_least, int full_value){
+    while (digit_index_from_least--)
+        full_value /= 10;
+    return full_value%10 + '0';
 }

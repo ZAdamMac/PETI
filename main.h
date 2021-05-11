@@ -5,7 +5,7 @@
  *      Author: patches
  */
 
-#define VERSION " POC-2021-05-10"       //Max 16 characters.
+#define VERSION " POC-2021-05-11"       //Max 16 characters.
 
 volatile unsigned char VCOM;            // current VCOM state
 char bufferText[17];                    // General placeholder used by all the printext functions.

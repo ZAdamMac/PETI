@@ -70,6 +70,7 @@ void DisplaySplash(void);
 void ToggleVCOM(void);
 void LCDClearDisplay(void);
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode);
+char DISPLAY_nthDigit(int digit_index_from_least, int full_value);
 
 
 

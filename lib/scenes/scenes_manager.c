@@ -15,6 +15,7 @@
 #include "scenes_manager.h"
 #include "boot_splash.h"
 #include "demo_mode.h"
+#include "calendar_menu.h"
 #include "main.h"
 #include "lib/display/display.h"
 
@@ -36,6 +37,9 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_demo_mode :  //Triggers the demonstorator/helloworld mode defined in demo.h/c
             SCENE_demo_mode();
+            break;
+        case SCENEADDR_calendar_menu: // This is the calendar menu screen
+            SCENE_CalendarMenu();
             break;
     }
 }
