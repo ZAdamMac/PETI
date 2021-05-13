@@ -317,6 +317,7 @@ void printDeltas_demo(DisplayFrame incoming_frame){
     }
 }
 
+// 10 rows of the 8x12 font centered vertically on the screen
 void printDeltas_menu(DisplayFrame incoming_frame){
     if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
         printTextMedium(incoming_frame.line0, 4);
@@ -360,6 +361,50 @@ void printDeltas_menu(DisplayFrame incoming_frame){
     }
 }
 
+// Special Print mode Consisting Of:
+// 1 row of 8x12 text, 16 characters wide (the "Upper Menu Bar")
+// 6 rows of 16x16 text, 8 characters wide (collectively the "Playing Field")
+// 1 row of 8x8 text, 16 characters wide (the "DEBUG" bar)
+//1 row of 8x12 text, 16 characters wide (the "lower menu bar")
+
+void printDeltas_game(DisplayFrame incoming_frame){
+    if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line0, 1);
+        incoming_frame.refresh_L0 = false;
+    }
+    if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
+        printTextLarge(incoming_frame.line1, 13);
+        incoming_frame.refresh_L1 = false;
+    }
+    if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
+        printTextLarge(incoming_frame.line2, 29);
+        incoming_frame.refresh_L2 = false;
+    }
+    if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
+        printTextLarge(incoming_frame.line3, 45);
+        incoming_frame.refresh_L3 = false;
+    }
+    if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
+        printTextLarge(incoming_frame.line4, 61);
+        incoming_frame.refresh_L4 = false;
+    }
+    if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
+        printTextLarge(incoming_frame.line5, 77);
+        incoming_frame.refresh_L5 = false;
+    }
+    if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
+        printTextLarge(incoming_frame.line6, 93);
+        incoming_frame.refresh_L6 = false;
+    }
+    if (incoming_frame.refresh_L8 || FORCE_REFRESH ){
+        printTextSmall(incoming_frame.line8, 109);
+        incoming_frame.refresh_L8 = false;
+    }
+    if (incoming_frame.refresh_L9 || FORCE_REFRESH ){
+        printTextMedium(incoming_frame.line9, 117);
+        incoming_frame.refresh_L9 = false;
+    }
+}
 
 //Determine which mode of changes-only screen update to use, and drop the incoming frame of output to that function.
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
@@ -368,6 +413,7 @@ void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
             printDeltas_demo(incoming_frame);
             break;
         case MODE_GAME :
+            printDeltas_game(incoming_frame);
             break;
         case MODE_MENU :
             printDeltas_menu(incoming_frame);

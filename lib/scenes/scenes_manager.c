@@ -38,6 +38,9 @@ void SCENE_updateDisplay(void){
         case SCENEADDR_demo_mode :  //Triggers the demonstorator/helloworld mode defined in demo.h/c
             SCENE_demo_mode();
             break;
+        case SCENEADDR_main_game :  //Yooooo!
+            SCENE_main_game();
+            break;
         case SCENEADDR_calendar_menu: // This is the calendar menu screen
             SCENE_CalendarMenu();
             break;

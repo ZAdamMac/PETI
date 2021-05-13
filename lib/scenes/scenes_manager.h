@@ -15,6 +15,7 @@ volatile unsigned int SCENE_ACT;            // The current active scene
 
 #define SCENEADDR_boot_splash 0x00
 #define SCENEADDR_demo_mode 0x01
+#define SCENEADDR_main_game 0x02
 #define SCENEADDR_calendar_menu 0x10
 
 void SCENE_updateDisplay(void);

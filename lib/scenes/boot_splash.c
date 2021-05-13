@@ -32,7 +32,7 @@ void SCENE_boot_splash(void){
         DisplaySplash();
         printTextSmall(VERSION, 118);
         SPLASH_SENT = true; // We sent it! Let's get out of here.
-        SCENE_setTransitionTimeCondition(10); // Wait here for 10 seconds.
+        SCENE_setTransitionTimeCondition(5); // Wait here for a few
     }
 }
 

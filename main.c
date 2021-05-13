@@ -16,6 +16,7 @@
 
 
 #include "driverlib.h"
+#include "lib/game/game_manager.h"
 #include "lib/display/display.h"
 #include "lib/hwinit/hwinit.h"
 #include "lib/scenes/scenes_manager.h"
@@ -69,7 +70,6 @@ int main(void) {
     Init_Watchdog();
     PMM_unlockLPM5();
     VCOM = MLCD_VCOM; // Set the initial state of the VCOM bit.
-    SCENE_ACT = 0x00; // Force the display to the splash scene
     FORCE_REFRESH = 0x00; // Force a refresh of all lines for the first scene ever called
     interacted_flag = 0x00;
     Init_GPIO();
@@ -78,9 +78,11 @@ int main(void) {
     Init_SPI();
     Init_LCD();
     Init_Buttons();
+    GAME_initStateStruct();
 
     while (1){
         PMM_unlockLPM5();
+        GAME_evaluateTimedEvents();
         Update_Button_States();
         SCENE_updateDisplay();
         ToggleVCOM();

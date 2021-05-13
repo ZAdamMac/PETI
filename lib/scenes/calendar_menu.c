@@ -17,7 +17,7 @@
 #include "main.h"
 #include "lib/locales/enCA_strings.h"
 
-#define NEXT_SCENE SCENEADDR_demo_mode  // Under normal use this is probably a different value than DEMOMODE
+#define NEXT_SCENE SCENEADDR_main_game  // Under normal use this is probably a different value than DEMOMODE
 #define SCENE_TYPE MODE_MENU            // Sets the scene type to use. Done here instead of inline so that a scene template code-page can be developed.
 
 unsigned int calendar_menu_year;                //Integer year, any value from 0 to 4096.
@@ -30,8 +30,8 @@ int change_in_digit;                            //Signed int used by the input h
 unsigned int calmenu_init;                      //Boolean store; used so that the calendar menu doesn't reset to default 1/sec.
 unsigned int calmenu_exiting;                   //Boolean store; used so that we can indicate the SET command was issued and we can leave later.
 unsigned int save_changes;                      //Boolean store; used to indicate we accepted the exit and the calendar should be updated.
-unsigned int cursor_position = 0x00;                   //Cursor position, used to track which digit is being manipulated
-unsigned int cursor_position_set = 13;        //Fourteen possible positions indexing from 0
+unsigned int cursor_position = 0x00;            //Cursor position, used to track which digit is being manipulated
+unsigned int cursor_position_set = 13;          //Fourteen possible positions indexing from 0
 DisplayFrame CALMENU_Frame;
 char top_alterable[17];
 char bottom_alterable[17];
@@ -344,6 +344,7 @@ void SCENE_CalendarMenu(void){
     if (calmenu_exiting){
         if (save_changes){
             CALMENU_setGlobalCalendar();
+            calendar_initial_setup_completed = true;
         }
         SCENE_ACT = NEXT_SCENE;
     }

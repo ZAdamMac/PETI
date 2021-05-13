@@ -5,7 +5,7 @@
  *      Author: patches
  */
 
-#define VERSION " POC-2021-05-11"       //Max 16 characters.
+#define VERSION "     v0.0.1"       //Max 16 characters, and pad left.
 
 volatile unsigned char VCOM;            // current VCOM state
 char bufferText[17];                    // General placeholder used by all the printext functions.
@@ -24,3 +24,4 @@ unsigned int buttons_state;            // We need to hold a whole byte to keep t
 unsigned char bcd_to_dec(unsigned char bcd);
 
 unsigned int interacted_flag;
+unsigned int calendar_initial_setup_completed;
