@@ -16,9 +16,9 @@
 #include "lib/display/display.h"
 #include "main.h"
 
-#define NEXT_SCENE SCENEADDR_calendar_menu  // This is where we goin' when we leave here.
+#define NEXT_SCENE SCENEADDR_calendar_menu  // This is where we need to redirect after the boot splash.
 
-volatile bool SPLASH_SENT = false;
+volatile bool SPLASH_SENT = false; // A simple local flag to help us figure out if we're waiting on the exit time condition or actually writing to screen.
 
 void SCENE_boot_splash(void){
     bool exiting;
@@ -32,7 +32,7 @@ void SCENE_boot_splash(void){
         DisplaySplash();
         printTextSmall(VERSION, 118);
         SPLASH_SENT = true; // We sent it! Let's get out of here.
-        SCENE_setTransitionTimeCondition(5); // Wait here for a few
+        SCENE_setTransitionTimeCondition(5); // Wait here for a few seconds.
     }
 }
 

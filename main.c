@@ -7,10 +7,11 @@
 //  function to determine which pin is in what state under what condition.
 //
 //  Check the schematics folder for VCS-controlled hardware schematics, including pinouts.
+//  Check the wiki at the github repo for high-level documentation.
 //
 //
-//  Zac Adam-MacEwen (Kensho Security Labs)
-//  October 2020
+//  Zac Adam-MacEwen (Arcana Labs)
+//  October 2020 - Updated May 2021
 //***************************************************************************************
 
 
@@ -24,7 +25,7 @@
 #include "main.h"
 
 //We need a simple function for handling the state of buttons_state as it
-//Needs updating throughout the ISR functions.
+//is adjusted by the ISRs.
 void Update_Button_States(void){
     if (buttons_state & button_a_pressed)
     {
@@ -52,7 +53,7 @@ void Update_Button_States(void){
         }
 }
 
-
+// This is chiefly only used by the demo mode (lib/scenes/demo_mode) and may be removed once more of the game is implemented, to save space.
 void Init_Buttons(void){
     buttons_state = 0;
     buttonsBar[0] = ' ';
@@ -90,7 +91,9 @@ int main(void) {
     }
 }
 
-//BCD is a pain to work with...
+//BCD is a pain to work with... This function was added for convenience and is still used in odd places.
+// There is a faster implementation, RTC_C_convertBCDtoBinary(), which is preferred for usage.
+// The refactor to convert to that is not complete and so this function has to stay.
 unsigned char bcd_to_dec(unsigned char bcd)
 {
   return bcd - 3*(bcd >> 4);
@@ -98,7 +101,10 @@ unsigned char bcd_to_dec(unsigned char bcd)
 
 
 
-// interrupt service routine to handle timer A; drives VCOM and readable clock; mostly for demonstration
+// interrupt service routine to handle timer A.
+// Based on current configuration as of may 2021 this should be raised once per second.
+// Raising this alert flips the VCOM flag at the manufacturer-recommended rate of 1/sec
+// And wakes up the main loop.
 #pragma vector=TIMER0_A0_VECTOR
 __interrupt void VCOM_ISR (void){
     Timer_A_clearCaptureCompareInterrupt(TIMER_A0_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
@@ -116,7 +122,8 @@ __interrupt void VCOM_ISR (void){
 }
 
 // The ISRs below handle interrupts raised by each of the input keys A through D.
-// In future they should not "do" what their key does, simply set a flag used in main() indicating the button was pressed.
+// They update the buttons_state int to indicate that they have been used, then wake
+// up the device to handle the input in main loop rather than via an ISR.
 
 #pragma vector=PORT5_VECTOR
 __interrupt void BUTTON_C_ISR (void){

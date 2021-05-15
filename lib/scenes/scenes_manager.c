@@ -25,6 +25,7 @@ volatile unsigned int SCENE_TRANS_MINUTES;  // the time at which a time-based tr
 volatile unsigned int PREVIOUS_SCENE = 0x00;
 
 // Basically, all of scene management is one giant switch statement to select the scene and determine what to print to screen.
+// When adding new scenes make sure that the SCENEADDR is added to the header file and that a case is added to this function to handle it.
 void SCENE_updateDisplay(void){
     if (SCENE_ACT != PREVIOUS_SCENE){
         LCDClearDisplay();
@@ -62,7 +63,8 @@ void SCENE_setTransitionTimeCondition(unsigned int delay_seconds){
 }
 
 // Interrogate the RTC and determine if the delay set by SCENE_setTransitionTimeCondition has passed.
-// Principle use of this workflow would be to evaluate
+// Principle use of this workflow would be to evaluate if it is time to leave the current scene.
+// Other mechanisms exist to determine if (e.g.) the screen is due to be rested.
 bool SCENE_checkTransitionTimeCondition(){
     volatile unsigned int current_seconds, current_minutes;
     volatile Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE);

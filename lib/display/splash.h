@@ -1,8 +1,8 @@
 /*
  * splash.h
  *
- *  Created on: Oct 9, 2020
- *      Author: patches
+ *  Created on: Oct 9, 2020 - Modified May 13, 2021
+ *      Author: Zac Adam-MacEwen (Arcana Labs)
  */
 
 #ifndef LIB_DISPLAY_SPLASH_H_

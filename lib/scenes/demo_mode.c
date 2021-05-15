@@ -1,8 +1,8 @@
 //***************************************************************************************
-//  PETI FOSS Virtual Pet - Boot Splash Scene
+//  PETI FOSS Virtual Pet - Demo Mode Scene
 //
 //  Sends the boot splash screen to the display and waits until it is time to exit.
-//
+//  Should be deprecated as soon as there's enough game available to test the inputs without it.
 //
 //
 //  Zac Adam-MacEwen (Kensho Security Labs)
@@ -16,6 +16,8 @@
 #include "lib/display/display.h"
 #include "main.h"
 
+// This is a cludgy function based on the earlier PETI demos to print the current time.
+// It was originally uptime but now directly interrogates RTC_C. It's not implemented cleanly and relies on some fauly logic.
 char* Print_CurrentTime(void){
     Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE); // Returns the calendar time as a struct.
     bufferText[0] = ' '; // Centering Manually for Lulz.

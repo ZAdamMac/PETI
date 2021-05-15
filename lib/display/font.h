@@ -1,13 +1,14 @@
 /*
  * font.h
  *
- *  Created on: 2020-11-28
+ *  Created on: 2020-11-28; Updated 2021-05-13
  *      Author: github.com/zadammac
  */
 
 #ifndef FONT_H_
 #define FONT_H_
 
+// The font referenced by printTextSmall - 8x8 pixels chiefly alphanumeric.
 #pragma PERSISTENT(font8x8)
 const char *font8x8[] = {
                           "\x00\x00\x00\x00\x00\x00\x00\x00", /* 0x0 */

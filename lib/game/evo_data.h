@@ -26,7 +26,7 @@ typedef struct Stage{
 
 #pragma PERSISTENT(EVO_metaStruct)
 Stage EVO_metaStruct[] = {
-                           {// Begin entry for egg. Arguments are in order isted in stage definition above
+                           {// Begin entry for egg. Arguments are in order listed in stage definition above
                                 .stage_id = 0x00,
                                 .phase = 0x00,
                                 .size = 0x04,

@@ -7,8 +7,8 @@
 //  Check the schematics folder for VCS-controlled hardware schematics
 //
 //
-//  Zac Adam-MacEwen (Kensho Security Labs)
-//  October 2020
+//  Zac Adam-MacEwen (Arcana Labs)
+//  October 2020 - Updated: May 2021
 //***************************************************************************************
 
 #include "display.h"
@@ -91,8 +91,8 @@ void Init_LCD(void) {
 
 // Reverse the bit order of a byte to resolve the mirroring issue. Likely used in all SPI sends.
 // Full credit to Stack Overflow user STH for this handy function
-// We're trying to remove reliance on it but it might be used /optionally/ in a mirrored print function to save
-// Fontspace.
+// We're trying to remove reliance on it but it might be used in a mirrored print function to save
+// Fontspace, and is currently use for the slpash image to not tune them.
 unsigned char reverse(unsigned char b) {
    b = (b & 0xF0) >> 4 | (b & 0x0F) << 4;
    b = (b & 0xCC) >> 2 | (b & 0x33) << 2;
@@ -280,6 +280,10 @@ void ToggleVCOM(void){
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
 }
 
+// The follwing printDeltas functions are all preferred to calling the printText functions if a direct call is needed, however
+// there is an even better method to update the screen provided by DISPLAY_updatesOnly(); refer to the wiki for information
+// on usage.
+
 // Determine the changed lines of text between the previous and incoming frame, and send only those lines of text through the print process.
 // This is specifically for scenes using the MODE_DEMO and the DemoFrame struct.
 void printDeltas_demo(DisplayFrame incoming_frame){
@@ -317,7 +321,8 @@ void printDeltas_demo(DisplayFrame incoming_frame){
     }
 }
 
-// 10 rows of the 8x12 font centered vertically on the screen
+// 10 rows of the 8x12 font centered vertically on the screen, based on the incoming frame
+// to determine if a row should be reprinted.
 void printDeltas_menu(DisplayFrame incoming_frame){
     if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
         printTextMedium(incoming_frame.line0, 4);
@@ -364,7 +369,7 @@ void printDeltas_menu(DisplayFrame incoming_frame){
 // Special Print mode Consisting Of:
 // 1 row of 8x12 text, 16 characters wide (the "Upper Menu Bar")
 // 6 rows of 16x16 text, 8 characters wide (collectively the "Playing Field")
-// 1 row of 8x8 text, 16 characters wide (the "DEBUG" bar)
+// 1 row of 8x8 text, 16 characters wide (the "DEBUG" bar) <- considered safe to write to directly if needed.
 //1 row of 8x12 text, 16 characters wide (the "lower menu bar")
 
 void printDeltas_game(DisplayFrame incoming_frame){
@@ -407,6 +412,9 @@ void printDeltas_game(DisplayFrame incoming_frame){
 }
 
 //Determine which mode of changes-only screen update to use, and drop the incoming frame of output to that function.
+//Expects a displayframe object compatible with the outgoing mode (and the scene that constructed it) and calls the correct
+//printDeltas_XXXXX function depending on the value of MODE. For convenience any new modes added should be given descriptive
+//symbolic names in display.h
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
     switch (mode){
         case MODE_DEMO :
@@ -424,6 +432,7 @@ void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
 
 
 //Convenience function for breaking out multidigit numbers for display. Automatically elevates to the correct character code (subtract '0' if you need the number):
+//Anywhere this method is not being used should be replaced as noticed unless there is a special-handling reason not to do so.
 char DISPLAY_nthDigit(int digit_index_from_least, int full_value){
     while (digit_index_from_least--)
         full_value /= 10;

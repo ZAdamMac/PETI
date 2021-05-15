@@ -23,7 +23,7 @@
 unsigned int calendar_menu_year;                //Integer year, any value from 0 to 4096.
 unsigned int calendar_menu_month;               //Integer month bounded 1-12
 unsigned int calendar_menu_day;                 //Integer day 0-31. Logic is used to trim for dates.
-unsigned int calendar_menu_dow;                      //Integer day 0-6. 0 is sunday, refer to lookup table daysOfWeek in calendar_menu.h
+unsigned int calendar_menu_dow;                 //Integer day 0-6. 0 is sunday, refer to lookup table daysOfWeek in calendar_menu.h
 unsigned int calendar_menu_hours;               //Integer hours 0-23
 unsigned int calendar_menu_minutes;             //Integer minutes 0-59.
 int change_in_digit;                            //Signed int used by the input handler to change the value of the currently-selected object.
@@ -32,11 +32,11 @@ unsigned int calmenu_exiting;                   //Boolean store; used so that we
 unsigned int save_changes;                      //Boolean store; used to indicate we accepted the exit and the calendar should be updated.
 unsigned int cursor_position = 0x00;            //Cursor position, used to track which digit is being manipulated
 unsigned int cursor_position_set = 13;          //Fourteen possible positions indexing from 0
-DisplayFrame CALMENU_Frame;
-char top_alterable[17];
-char bottom_alterable[17];
+DisplayFrame CALMENU_Frame;                     //It is convenient and acceptable for each scene to hold its own such frame. The frames are pointerwise anyway.
+char top_alterable[17];                         //An array holding text for the year, month, day, and day of week displays.
+char bottom_alterable[17];                      //an array holding the hour and minutes output displays.
 
-int lengthOfMonths[12] = {
+int lengthOfMonths[12] = {                      //An array which holds the length of the months. February is included but not used for historical reasons.
                                    31,
                                    28,
                                    31,
@@ -51,8 +51,11 @@ int lengthOfMonths[12] = {
                                    31
 };
 
+
+// We simply require a function to update the various current local time integers with their initial values, to give the menu a place to start.
+// This is done instead of static values as the menu will be accessible during the game, allowing the user to adjust the time settings on the fly.
 void CALMENU_initCalendarStruct(){
-    Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE);
+    Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE);  // We rely on these vendor-supplied functions to handle the conversions in-hardware for speed.
     calendar_menu_year = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Year);
     calendar_menu_month = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Month);
     calendar_menu_day = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.DayOfMonth);
@@ -63,6 +66,8 @@ void CALMENU_initCalendarStruct(){
 
 }
 
+// We need our own scene-specific input handling, which will probably almost always be the case for scenes.
+// In this case, we have a certain way to move through the menu that is highly specific to setting the clock.
 void CALMENU_handleInputs(void){
     if (buttons_state & button_a_toggle){  //A increases the value in this position by one.
         change_in_digit = 1;
@@ -127,6 +132,9 @@ void CALMENU_rectifyCalendar(void){
     }
 }
 
+//This function updates the calendar data integers specific to this scene; not those
+//Tracked in or stored by the RTC. It also makes no effort to ensure those values are legal.
+//A later function rectifies this data before allowing it to be displayed or written to RTC C.
 void CALMENU_updateInternalCalendar(void){
     switch (cursor_position){
         case 0x00 : // Millenium is highlighted.
@@ -201,6 +209,7 @@ void CALMENU_updateInternalCalendar(void){
     CALMENU_rectifyCalendar();
 }
 
+//This updates top_alterable by breaking out the displayable version of the calendar date and day of the week.
 char * CALMENU_dateAndDow(void){
     top_alterable[0] = ' '; // Centering Manually for Lulz.
     top_alterable[1] = DISPLAY_nthDigit(3, calendar_menu_year); // A convenience function. It'd be nice to do this for other places where this logic is used like in the demo.
@@ -220,7 +229,7 @@ char * CALMENU_dateAndDow(void){
     top_alterable[15] = ' ';
     switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
         case 0 :
-            top_alterable[1] += 80;
+            top_alterable[1] += 80; // Because of how the 8x12 font is laid out, for all characters A-Z0-9, adding 80 will give a colour-reversed version.
             break;
         case 1 :
             top_alterable[2] += 80;
@@ -252,7 +261,7 @@ char * CALMENU_dateAndDow(void){
     return top_alterable;
 }
 
-
+// This updates the bottom_alterable by breaking out the current 24h time.
 char * CALMENU_printTime(void){
     bottom_alterable[0] = ' '; // Centering Manually for Lulz.
     bottom_alterable[1] = ' ';
@@ -287,6 +296,10 @@ char * CALMENU_printTime(void){
     return bottom_alterable;
 }
 
+// This function updates all the values in CALMENU frame by interrogating the various scene-specific
+// integers of the scene-specific calendar via CALMENU_dateAndDow and CALMENU_printTime, above.
+// Some logic is also applied to determine which rows need to be updated based on where the cursor is.
+// This technically means we write too often but it's proven to be sufficiently performant not to matter.
 void CALMENU_computeNextFrame(void){
     CALMENU_Frame.line0 = "Enter the time:";
     CALMENU_Frame.line1 = " \x0A\x0A\x0A\x0A \x0A\x0A \x0A\x0A  \x0A "; //Ox0A in this font is an up-arrow
@@ -303,24 +316,25 @@ void CALMENU_computeNextFrame(void){
     else{
         CALMENU_Frame.line8 = "      \x02\x03\x04\x05      ";  // SET unselected
     }
-    if (cursor_position <= 9){
+    if (cursor_position <= 9){ // the cursor is somewhere in the date row so we probably need to update it.
         CALMENU_Frame.refresh_L2 = true;
     }
-    else if (9 <= cursor_position <= cursor_position_set){
+    else if (9 <= cursor_position <= cursor_position_set){  // the cursor is somewhere in the time and we probably need to update that.
         CALMENU_Frame.refresh_L5 = true;
     }
-    else if ( 12 <= cursor_position == cursor_position_set){
+    else if ( 12 <= cursor_position == cursor_position_set){ // the "SET" button is highlighted (or we are one square before it) and needs to be updated.
         CALMENU_Frame.refresh_L8 = true;
     }
 
 }
 
+// This function takes all of the scene-specific date state that we just collected and passes it back to the RTC.
 void CALMENU_setGlobalCalendar(void){
     RTC_C_holdClock(RTC_C_BASE); // ALWAYS stop a clock before you set anything, ain't you know that?
 
     Calendar updatingTime;
     updatingTime.Seconds = 0x00;  // We just force back down to 0 seconds.
-    updatingTime.Minutes = RTC_C_convertBinaryToBCD(RTC_C_BASE, calendar_menu_minutes);
+    updatingTime.Minutes = RTC_C_convertBinaryToBCD(RTC_C_BASE, calendar_menu_minutes); // Doing the conversion in this way makes it faster as it uses the RTC_C's own registers.
     updatingTime.Hours = RTC_C_convertBinaryToBCD(RTC_C_BASE, calendar_menu_hours);
     updatingTime.DayOfWeek = RTC_C_convertBinaryToBCD(RTC_C_BASE, calendar_menu_dow);
     updatingTime.DayOfMonth = RTC_C_convertBinaryToBCD(RTC_C_BASE, calendar_menu_day);
@@ -331,22 +345,25 @@ void CALMENU_setGlobalCalendar(void){
     RTC_C_startClock(RTC_C_BASE); // Okay let's go!
 }
 
+// This is the function actually called by the scene manager when the scene is active. It handles the logic flow
+// to determine if we need to stay within the function as well as whether or not the function has recently been run.
 void SCENE_CalendarMenu(void){
-    if (!calmenu_init){
+    if (!calmenu_init){ // We didn't run this yet so we need to update the CALMENU struct to get it relatively recently.
         CALMENU_initCalendarStruct();
-        FORCE_REFRESH = true;
-        calmenu_init = true;
+        FORCE_REFRESH = true; // Write every line, the scene just changed and that's how we got here.
+        calmenu_init = true;  // Okay, we've localized the right variable.
     }
-    CALMENU_handleInputs();
-    CALMENU_updateInternalCalendar();
-    CALMENU_computeNextFrame();
-    DISPLAY_updatesOnly(CALMENU_Frame, MODE_MENU);
-    if (calmenu_exiting){
-        if (save_changes){
-            CALMENU_setGlobalCalendar();
-            calendar_initial_setup_completed = true;
+    CALMENU_handleInputs(); // What did the user just do?
+    CALMENU_updateInternalCalendar();  // What did what they just did change about the internal state of this scene?
+    CALMENU_computeNextFrame();  // How do we show them that change?
+    DISPLAY_updatesOnly(CALMENU_Frame, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
+    if (calmenu_exiting){ // The user has asked to leave.
+        if (save_changes){ // They have asked to leave by accepting the "SET" button.
+            CALMENU_setGlobalCalendar(); // RTC, this is the current time.
+            calendar_initial_setup_completed = true; // Globally, we have now set the calendar at LEAST once.
         }
-        SCENE_ACT = NEXT_SCENE;
+        SCENE_ACT = NEXT_SCENE; // We need to go back to wherever this leads, usually to the main game screne.
+        calmenu_init = false; // It is sane to set this back to false for the next time we get here.
     }
 
 }

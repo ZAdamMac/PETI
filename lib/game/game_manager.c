@@ -28,7 +28,7 @@ void GAME_initStateStruct(void){
     StateMachine.ACT = 0x03; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
     StateMachine.HUNGER_FUN = 0x00;
     StateMachine.DISCIPLINE = 0x00;
-    StateMachine.NAUGHTY = 0x50;
+    StateMachine.NAUGHTY = 0x50; // Reasonable starting value, may need to be tweaked during testing.
     StateMachine.STAGE_ID = 0x00; // Reserved Species ID for Eggs
     StateMachine.HEALTH_BYTE = 0x00;
 
@@ -41,6 +41,9 @@ void GAME_initStateStruct(void){
     SCENE_ACT = 0x00; // We can now play the boot screen
 }
 
+// this function is the ultimate control function for all timed events, and needs to be updated
+// if new time-based effects are added to the game, such as hunger degradation and so-forth.
+// Several of the obviously-required-in-future functions are included as comments below.
 
 void GAME_evaluateTimedEvents(void){
     unsigned int current_minutes, current_hours, current_seconds;
