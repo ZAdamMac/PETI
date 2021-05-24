@@ -18,7 +18,7 @@ This project has a number of requirements that need to be satisfied to build the
 
 Building PETI has been and will likely continue to be a time-consuming effort. Even at this early stage, some custom hardware has needed to be developed in order to develop the corresponding firmware.
 
-If you would like to contribute to the development of PETI, feel free to submit a pull request, or perhaps buy me a coffee at [ko-fi.com/KenshoSec](https://ko-fi.com/KenshoSec), or consider backing [@ZAdamMac on Github Sponsors](https://github.com/users/ZAdamMac/sponsorship.)
+If you would like to contribute to the development of PETI, feel free to submit a pull request, or perhaps buy me a coffee at [ko-fi.com/arclabs](https://ko-fi.com/arclabs), or consider backing [@ZAdamMac on Github Sponsors](https://github.com/users/ZAdamMac/sponsorship.)
 	
 ## Current State
 PETI is currently in something of a close hold until at least Q1 2021; you can think of this as a code freeze. In order to save time on refactoring and iterative development down the road, the architecture of the main game code and main device loop is being developed on a planning scale prior to implementation.
