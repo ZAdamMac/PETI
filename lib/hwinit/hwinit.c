@@ -48,16 +48,16 @@ void Init_GPIO(void) {
 // Currently we only initialize Timer_A which will raise a 1hz interrupt for wakefulness.
 // Primary timekeeping is via RTC_C
 void Init_Timers(void) {
-    // Set master clock to 1MHz; at this rate TimerA would interrupt every millisecond.
-    // This is not likely especially power performant.
+    // Set master clock to 8MHz; at this rate TimerA would interrupt roughly 2/sec
     // sets the properties to init Timer_A
-    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_0); // Set DCO frequency 1 MHz (? - experimentation suggests this is not true)
-    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1); //SMCLK = 1 Mhz
+    // Running the timer any faster than this will /break/ the animation logic in a way requiring greater complexity to operate.
+    CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_3); // Set DCO frequency 8 MHz
+    CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1); //SMCLK = 8 Mhz
     Timer_A_initUpModeParam initContParam = {0};
     initContParam.clockSource = TIMER_A_CLOCKSOURCE_SMCLK;
-    initContParam.clockSourceDivider = TIMER_A_CLOCKSOURCE_DIVIDER_16; // Should yield a freq where this counts at roughly 65kHz
+    initContParam.clockSourceDivider = TIMER_A_CLOCKSOURCE_DIVIDER_64; // Should yield a freq where this counts at roughly 125kHz
     initContParam.timerInterruptEnable_TAIE = TIMER_A_TAIE_INTERRUPT_DISABLE;
-    initContParam.timerPeriod = 0xFFFF; // Which SHOULD trigger the interrupt 1/second.
+    initContParam.timerPeriod = 0xFFFF; // Which SHOULD trigger the interrupt 2/second. This is a comfortable visual frequency.
     initContParam.timerClear = TIMER_A_DO_CLEAR;
     initContParam.captureCompareInterruptEnable_CCR0_CCIE = TIMER_A_CCIE_CCR0_INTERRUPT_DISABLE;
     initContParam.startTimer = false;

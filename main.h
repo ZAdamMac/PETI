@@ -5,7 +5,7 @@
  *      Author: patches
  */
 
-#define VERSION "     v0.0.1"           //Max 16 characters, and pad left.
+#define VERSION "     v0.0.2"           //Max 16 characters, and pad left.
 
 volatile unsigned char VCOM;            // current VCOM state
 char bufferText[17];                    // General placeholder used by all the printext functions.

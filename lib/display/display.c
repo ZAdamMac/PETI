@@ -249,6 +249,70 @@ void printTextLarge(const char* text, unsigned char line)
 }
 
 
+// write a string to display, truncated after PIXEL_X/16 characters
+// expects a 16x16 font
+// input: text      0-terminated string
+//        line      vertical position of text, 0-(PIXEL_Y-1)
+void printTextLarge_enhanced(const char* text, unsigned char line, const char* directives)
+{
+    unsigned char character, bitmap_left, bitmap_right, indexText, indexLineBuffer, indexLine, indexOfOffset, bitmap_left_out, bitmap_right_out;
+    //bool padded;
+    //For simplicity, and because we are borrowing an existing font library, we print line-by-line
+    indexLine = 0;
+    indexOfOffset = 0;
+    while(indexLine < 16 && line < PIXELS_Y)             //loop for 16 char lines within display
+    {
+        indexText = 0;
+        indexLineBuffer = 0;
+        while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
+        {
+            bitmap_right = font16x16[character][indexLine+indexOfOffset];  // Retrieves the byte defining the left side of the character.
+            bitmap_left = font16x16[character][indexLine+indexOfOffset+1];  // Retrieves the byte defining the right side of the character.
+            switch (directives[indexText]){
+                case '0' : // Print as-is
+                    bitmap_right_out = bitmap_right;
+                    bitmap_left_out = bitmap_left;
+                    break;
+                case '1' : // Reverse Character Orientation
+                    bitmap_left_out = reverse(bitmap_right); //The orientation of the two segments must also reverse, not just the bits themselves.
+                    bitmap_right_out = reverse(bitmap_left);
+                    break;
+                case '2': // Invert the character
+                    bitmap_left_out = ~bitmap_left;
+                    bitmap_right_out = ~bitmap_right;
+                    break;
+                case '3': //Reverse and Invert. Don't see a use, but I'll want it if I don't create it.
+                    bitmap_left_out = ~reverse(bitmap_right);
+                    bitmap_right_out = ~reverse(bitmap_left);
+                    break;
+            }
+            bufferLine[indexLineBuffer] = bitmap_right_out;
+            indexLineBuffer++;
+            bufferLine[indexLineBuffer] = bitmap_left_out;
+            indexLineBuffer++;
+            indexText++;
+        }
+
+        while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
+        {
+            //padded = true;
+            bufferLine[indexLineBuffer] = 0xFF;
+            indexLineBuffer++;
+        }
+
+        //if(padded) // needed because <= might break things.
+        //{
+        //    bufferLine[(PIXELS_X/8)-1] = 0x00;  // This is the line that breaks things.
+        //    padded = false;
+        //}
+
+        SPIWriteLine(line++);
+        indexLine++;
+        indexOfOffset++;
+    }
+}
+
+
 // prints whatever image is currenlty defined as splash_bitmap in splash.h.
 // This expects an image of 128x128 pixels expressed in a BIGENDIAN bit-order, thus reverse.
 // TODO/FUTURE: Refactor splash-bitmap and remove the reverse function for better performance.
@@ -378,27 +442,27 @@ void printDeltas_game(DisplayFrame incoming_frame){
         incoming_frame.refresh_L0 = false;
     }
     if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line1, 13);
+        printTextLarge_enhanced(incoming_frame.line1, 13, incoming_frame.directive_L1);
         incoming_frame.refresh_L1 = false;
     }
     if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
-        printTextLarge(incoming_frame.line2, 29);
+        printTextLarge_enhanced(incoming_frame.line2, 29, incoming_frame.directive_L2);
         incoming_frame.refresh_L2 = false;
     }
     if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line3, 45);
+        printTextLarge_enhanced(incoming_frame.line3, 45, incoming_frame.directive_L3);
         incoming_frame.refresh_L3 = false;
     }
     if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
-        printTextLarge(incoming_frame.line4, 61);
+        printTextLarge_enhanced(incoming_frame.line4, 61, incoming_frame.directive_L4);
         incoming_frame.refresh_L4 = false;
     }
     if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line5, 77);
+        printTextLarge_enhanced(incoming_frame.line5, 77, incoming_frame.directive_L5);
         incoming_frame.refresh_L5 = false;
     }
     if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line6, 93);
+        printTextLarge_enhanced(incoming_frame.line6, 93, incoming_frame.directive_L6);
         incoming_frame.refresh_L6 = false;
     }
     if (incoming_frame.refresh_L8 || FORCE_REFRESH ){
