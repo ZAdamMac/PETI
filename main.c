@@ -23,6 +23,8 @@
 #include "lib/scenes/scenes_manager.h"
 #include <msp430.h>
 #include "main.h"
+//#include "lib/game/evo_data.h"
+//#include "lib/locales/enCA_strings.h"
 
 //We need a simple function for handling the state of buttons_state as it
 //is adjusted by the ISRs.

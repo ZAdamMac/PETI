@@ -20,8 +20,32 @@
 #ifndef LIB_LOCALES_ENCA_STRINGS_H_
 #define LIB_LOCALES_ENCA_STRINGS_H_
 
-extern const char* daysOfWeek[];
+extern const char* daysOfWeek[] = {
+                      "SUN",
+                      "MON",
+                      "TUE",
+                      "WED",
+                      "THU",
+                      "FRI",
+                      "SAT"
+};
 
-extern const char* stageNames[];
+extern const char* stageNames[] = {
+                    "    Egg     ",
+                    "    Baby    ",
+                    " Hungryboi  ",
+                    " SicklySlim ",
+                    " Jellyfloat ",
+                    "  Bughound  ",
+                    " Zazenkuchi ",
+                    " Pointyboi  ",
+                    " Skullcrab  ",
+                    "  Darumite  ",
+                    "   Squid    ",
+                    " Cthulhorse ",
+                    "Ham-Monster ",
+                    "  Nautilus  ",
+                    "Axe-a-lot'l "
+};
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */
