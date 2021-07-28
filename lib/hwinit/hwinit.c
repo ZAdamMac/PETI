@@ -80,9 +80,9 @@ void Init_RTC(void){
     defaultTime.Seconds = 0x00;
     defaultTime.Minutes = 0x00;
     defaultTime.Hours = 0x00;
-    defaultTime.DayOfWeek = 0x06;  // No convention is specified, so here we treat sunday as 0.
-    defaultTime.DayOfMonth = 0x08;
-    defaultTime.Month = 0x05;
+    defaultTime.DayOfWeek = 0x02;  // No convention is specified, so here we treat sunday as 0.
+    defaultTime.DayOfMonth = 0x27;
+    defaultTime.Month = 0x07;
     defaultTime.Year = 0x2021; // Accepts values up to 4096 (lel) so no unix epoch issue here.
 
     RTC_C_initCalendar(RTC_C_BASE, &defaultTime, RTC_C_FORMAT_BCD); // Hey struct, get into your registers.
