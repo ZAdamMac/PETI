@@ -20,6 +20,14 @@
 #ifndef LIB_LOCALES_ENCA_STRINGS_H_
 #define LIB_LOCALES_ENCA_STRINGS_H_
 
+extern const char* LSTRING_HUNGER;
+extern const char* LSTRING_FUN;
+extern const char* LSTRING_DISCIPLINE;
+extern const char* LSTRING_WEIGHT;
+extern const char* LSTRING_AGE;
+extern const char* LSTRING_SPECIAL;
+extern const char* LSTRING_STATUS_HEADER;
+
 extern const char* daysOfWeek[];
 
 extern const char* stageNames[];

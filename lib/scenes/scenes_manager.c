@@ -17,6 +17,8 @@
 #include "demo_mode.h"
 #include "calendar_menu.h"
 #include "main.h"
+#include "button_proofer.h"
+#include "status_menu.h"
 #include "lib/display/display.h"
 
 volatile unsigned int SCENE_FRAME = 0x00;   // The current translational frame, used for scenes that just play out a defined animation.
@@ -44,6 +46,12 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_calendar_menu: // This is the calendar menu screen
             SCENE_CalendarMenu();
+            break;
+        case SCENEADDR_proof_text:
+            SCENE_button_proofer();
+            break;
+        case SCENEADDR_status_menu:
+            SCENE_status_menu();
             break;
     }
 }

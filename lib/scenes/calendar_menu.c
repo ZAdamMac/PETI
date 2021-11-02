@@ -35,6 +35,8 @@ unsigned int cursor_position_set = 13;          //Fourteen possible positions in
 DisplayFrame CALMENU_Frame;                     //It is convenient and acceptable for each scene to hold its own such frame. The frames are pointerwise anyway.
 char top_alterable[17];                         //An array holding text for the year, month, day, and day of week displays.
 char bottom_alterable[17];                      //an array holding the hour and minutes output displays.
+char dow_directive[17];                         // an array holding the display inversion directive for the date-and-dow row.
+char time_directive[17];                        // an array holding the display inversion directive for the time row.
 
 int lengthOfMonths[12] = {                      //An array which holds the length of the months. February is included but not used for historical reasons.
                                    31,
@@ -227,38 +229,46 @@ char * CALMENU_dateAndDow(void){
     top_alterable[13] = daysOfWeek[calendar_menu_dow][1];
     top_alterable[14] = daysOfWeek[calendar_menu_dow][2];
     top_alterable[15] = ' ';
-    switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
-        case 0 :
-            top_alterable[1] += 80; // Because of how the 8x12 font is laid out, for all characters A-Z0-9, adding 80 will give a colour-reversed version.
-            break;
-        case 1 :
-            top_alterable[2] += 80;
-            break;
-        case 2 :
-            top_alterable[3] += 80;
-            break;
-        case 3 :
-            top_alterable[4] += 80;
-            break;
-        case 4 :
-            top_alterable[6] += 80;
-            break;
-        case 5 :
-            top_alterable[7] += 80;
-            break;
-        case 6 :
-            top_alterable[9] += 80;
-            break;
-        case 7 :
-            top_alterable[10] += 80;
-            break;
-        case 8 : // This selection is multiwide
-            top_alterable[12] += 80;
-            top_alterable[13] += 80;
-            top_alterable[14] += 80;
-            break;
-    }
     return top_alterable;
+}
+
+char * CALMENU_dateAndDowDirective(void){
+    unsigned int text_index;
+    for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
+        dow_directive[text_index] = '0';
+    }
+    switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
+            case 0 :
+                dow_directive[1] = '1';
+                break;
+            case 1 :
+                dow_directive[2] = '1';
+                break;
+            case 2 :
+                dow_directive[3] = '1';
+                break;
+            case 3 :
+                dow_directive[4] = '1';
+                break;
+            case 4 :
+                dow_directive[6] = '1';
+                break;
+            case 5 :
+                dow_directive[7] = '1';
+                break;
+            case 6 :
+                dow_directive[9] = '1';
+                break;
+            case 7 :
+                dow_directive[10] = '1';
+                break;
+            case 8 : // This selection is multiwide
+                dow_directive[12] = '1';
+                dow_directive[13] = '1';
+                dow_directive[14] = '1';
+                break;
+        }
+    return dow_directive;
 }
 
 // This updates the bottom_alterable by breaking out the current 24h time.
@@ -279,21 +289,30 @@ char * CALMENU_printTime(void){
     bottom_alterable[13] = ' ';
     bottom_alterable[14] = ' ';
     bottom_alterable[15] = ' ';
+    return bottom_alterable;
+}
+
+char* CALMENU_timeDirective(void){
+    unsigned int text_index;
+    for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
+        time_directive[text_index] = '0';
+    }
     switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
         case 9 :
-            bottom_alterable[6] += 80;
+            time_directive[6] = '1';
             break;
         case 10 :
-            bottom_alterable[7] += 80;
+            time_directive[7] = '1';
             break;
         case 11 :
-            bottom_alterable[9] += 80;
+            time_directive[9] = '1';
             break;
         case 12 :
-            bottom_alterable[10] += 80;
+            time_directive[10] = '1';
             break;
     }
-    return bottom_alterable;
+
+   return time_directive;
 }
 
 // This function updates all the values in CALMENU frame by interrogating the various scene-specific
@@ -302,19 +321,29 @@ char * CALMENU_printTime(void){
 // This technically means we write too often but it's proven to be sufficiently performant not to matter.
 void CALMENU_computeNextFrame(void){
     CALMENU_Frame.line0 = "Enter the time:";
-    CALMENU_Frame.line1 = " \x0A\x0A\x0A\x0A \x0A\x0A \x0A\x0A  \x0A "; //Ox0A in this font is an up-arrow
+    CALMENU_Frame.directive_L0 = "0000000000000000";
+    CALMENU_Frame.line1 = " \x06\x06\x06\x06 \x06\x06 \x06\x06  \x06 "; //Ox0A in this font is an up-arrow
+    CALMENU_Frame.directive_L1 = "0000000000000000";
     CALMENU_Frame.line2 = CALMENU_dateAndDow();
+    CALMENU_Frame.directive_L2 = CALMENU_dateAndDowDirective();
     CALMENU_Frame.line3 = " \x01\x01\x01\x01 \x01\x01 \x01\x01  \x01 "; //0x01 in this font is a down-arrow
-    CALMENU_Frame.line4 = "      \x0A\x0A \x0A\x0A      ";
+    CALMENU_Frame.directive_L3 = "0000000000000000";
+    CALMENU_Frame.line4 = "      \x06\x06 \x06\x06      ";
+    CALMENU_Frame.directive_L4 = "0000000000000000";
     CALMENU_Frame.line5 = CALMENU_printTime();
+    CALMENU_Frame.directive_L5 = CALMENU_timeDirective();
     CALMENU_Frame.line6 = "      \x01\x01 \x01\x01     ";
+    CALMENU_Frame.directive_L6 = "0000000000000000";
     CALMENU_Frame.line7 = "";
+    CALMENU_Frame.directive_L7 = "0000000000000000";
+    CALMENU_Frame.line8 = "      \x02\x03\x04\x05      "; // The SET flag magic string
     CALMENU_Frame.line9 = "";
+    CALMENU_Frame.directive_L9 = "0000000000000000";
     if (cursor_position == cursor_position_set){
-        CALMENU_Frame.line8 = "      \x06\x07\x08\x09      ";  // SET selected
+        CALMENU_Frame.directive_L8 = "0000001111000000";  // SET selected
     }
     else{
-        CALMENU_Frame.line8 = "      \x02\x03\x04\x05      ";  // SET unselected
+        CALMENU_Frame.directive_L8 = "0000000000000000";  // SET unselected
     }
     if (cursor_position <= 9){ // the cursor is somewhere in the date row so we probably need to update it.
         CALMENU_Frame.refresh_L2 = true;
@@ -364,6 +393,7 @@ void SCENE_CalendarMenu(void){
         }
         SCENE_ACT = NEXT_SCENE; // We need to go back to wherever this leads, usually to the main game screne.
         calmenu_init = false; // It is sane to set this back to false for the next time we get here.
+        calmenu_exiting = false; // The player can come back to this menu, so we need to reset this.
     }
 
 }

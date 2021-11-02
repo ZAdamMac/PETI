@@ -16,7 +16,9 @@ volatile unsigned int SCENE_ACT;            // The current active scene
 #define SCENEADDR_boot_splash 0x00      // Address for the boot splash animation.
 #define SCENEADDR_demo_mode 0x01        // Address for the demo screen
 #define SCENEADDR_main_game 0x02        // Address to the main game standby screen
+#define SCENEADDR_status_menu 0x03      // Address to the pet's health page.
 #define SCENEADDR_calendar_menu 0x10    // Address to the calendar adjustment menu.
+#define SCENEADDR_proof_text 0xFF       // Address to the "button worked" proof message scene
 
 void SCENE_updateDisplay(void);         // Convenience function. Checks the value of SCENE_ACT globally to determine which scene's handler function to call.
 void SCENE_setTransitionTimeCondition(unsigned int delay_in_seconds); // Set a time-based delay, evaluated by the function below.

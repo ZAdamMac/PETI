@@ -13,3 +13,15 @@
 - Refactored several functions to use the printTextMedium_enhanced fuction, which supports directives for highlighting/cell inversion.
 - Adds a scene (buttonproofer.c) that simply displays a message indicating the button you hit worked. Used for testing. Should be removed prior to a major release.
 - improvements in commenting of code.
+
+# v 0.0.5 - Pet Status Screen
+- Added new characters to the font
+	- includes altering the set button sprite slightly.
+- Added scenes/status_menu, which is bounded to the status icon.
+	- Displays basic health information about the pet:
+		- Hunger
+		- Fun
+		- Weight
+		- Age
+		- Special Conditions
+- Added new values to the enCA_strings locale files.

@@ -20,12 +20,17 @@
 #include "scenes_manager.h"
 #include "main.h"
 #include "lib/scenes/main_game/metanimations.h"
+#include "lib/menus/main_game.h"
 
 DisplayFrame MainGameFrame;
 char mg_top_alterable[17];                         //Represents the top menu. Consider deprecating and using a method similar to playfield to allow cleaner code.
 char mg_bottom_alterable[17];
+char mg_top_directiove[17];                         //Represents the top menu highlight. Consider deprecating and using a method similar to playfield to allow cleaner code.
+char mg_bottom_directive[17];
 char playfield[6][8];                              //Array of arrays of characters used to set each row of the output frame programmatically rather than manually for tidiness.
 char directives_out[6][8];                         //Array of arrays of characters used for the enhance larged text print function.
+char directives_top[17];
+char directives_bottom[17];
 unsigned int mg_cursor_position = 0x00;            //Cursor position, used to track which digit is being manipulated
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
@@ -116,12 +121,147 @@ void MG_updatePlayfield(void){
     MG_currentFrame = MG_currentFrame % 4; // Automatic index rollover because manual coding sucks.
 }
 
-// Called once per cicle to update the menu and playfield based on their various subfunctions for update.
+// Boilerplate input handler, similar to those seen in all other parts of the firmware.
+void MG_handleInputs(void){
+    if (buttons_state & button_a_toggle){ // The A increments (scrolls forward) through the menu
+        buttons_state ^= button_a_toggle; // We can unset the flag as soon as it's observed.
+        mg_cursor_position++;
+        if (mg_cursor_position > MG_count_menu_icons){
+            mg_cursor_position = 0;
+        }
+        MainGameFrame.refresh_L0 = true;
+        MainGameFrame.refresh_L9 = true;
+    }
+    if (buttons_state & button_b_toggle){ // The B button decrements (scrolls backward) through the menu
+        buttons_state ^= button_b_toggle;
+        mg_cursor_position--;
+        if (mg_cursor_position > MG_count_menu_icons){
+            mg_cursor_position = 0;
+        }
+        MainGameFrame.refresh_L0 = true;
+        MainGameFrame.refresh_L9 = true;
+    }
+    if (buttons_state & button_c_toggle){ // The C button accepts the menu (change scenes!)
+        buttons_state ^= button_c_toggle;
+        SCENE_ACT = MG_menu_scene_addresses[mg_cursor_position-1]; // This will update the scene. The current frame will be drawn and the next frame will take you into the menu you picked.
+        mg_cursor_position = 0;
+        MainGameFrame.refresh_L0 = true;
+        MainGameFrame.refresh_L9 = true;
+    }
+    if (buttons_state & button_d_toggle){ // The D button clears the menu (set all state 0)
+        buttons_state ^= button_c_toggle;
+        mg_cursor_position = 0;
+        MainGameFrame.refresh_L0 = true;
+        MainGameFrame.refresh_L9 = true;
+    }
+}
+
+//Renders the top menu bar. This will have the first half of the MG_menu_icons array, rounded up.
+char* MG_printTopMenu(void){
+    unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index;
+    top_slice = MG_count_menu_icons/2;
+    if (MG_count_menu_icons % 2 != 0){
+        top_slice++; //Top row always gets the extra item
+    }
+    blank_spaces = (PIXELS_X/8) - top_slice;
+    left_pad = blank_spaces/2; // This will always round down, which we actually want
+    text_index = 0;
+    icon_index = 0;
+    while (text_index < PIXELS_X/8){
+        if (left_pad > 0){
+            mg_top_alterable[text_index] = ' '; // this is a non-printing padding space.
+            left_pad--;
+            text_index++;
+        }
+        else if (top_slice > 0){
+            mg_top_alterable[text_index] = MG_menu_icons[icon_index];
+            text_index++;
+            icon_index++;
+            top_slice--;
+        }
+        else { // We need to pad right.
+            mg_top_alterable[text_index]= ' ';
+            text_index++;
+        }
+    }
+    return mg_top_alterable;
+}
+
+//Renders the bottom menu bar. This will have the latter half of the MG_menu_icons array, rounded down.
+char* MG_printBottomMenu(void){
+    unsigned int bottom_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index;
+    bottom_slice = MG_count_menu_icons/2;
+    blank_spaces = (PIXELS_X/8) - bottom_slice;
+    left_pad = blank_spaces/2; // This will always round down, which we actually want
+    text_index = 0;
+    icon_index = bottom_slice;
+    while (text_index < PIXELS_X/8){
+        if (left_pad > 0){
+            mg_bottom_alterable[text_index] = ' '; // this is a non-printing padding space.
+            left_pad--;
+            text_index++;
+        }
+        else if (bottom_slice > 0){
+            mg_bottom_alterable[text_index] = MG_menu_icons[icon_index];
+            text_index++;
+            icon_index++;
+            bottom_slice--;
+        }
+        else { // We need to pad right.
+            mg_bottom_alterable[text_index]= ' ';
+            text_index++;
+        }
+    }
+    return mg_bottom_alterable;
+}
+
+// This, along with the function below, compute which icon is highlighted (printed inverted) for the given current cursor position.
+char* MG_computeTopDirective(void){
+    unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0;
+    top_slice = MG_count_menu_icons/2;
+    if (MG_count_menu_icons % 2 != 0){
+        top_slice++; //Top row always gets the extra item
+    }
+    blank_spaces = (PIXELS_X/8) - top_slice;
+    left_pad = blank_spaces/2; // This will always round down, which we actually want
+    text_index = 0;
+    for (text_index = 0; text_index < 17; ++text_index){
+        directives_top[text_index] = '0';
+    }
+    if (mg_cursor_position > 0){ // When the cursor position is 0, we don't need to highlight anything.
+        if (top_slice >= mg_cursor_position){
+            cursor_index = left_pad + mg_cursor_position - 1;
+            directives_top[cursor_index] = '1';
+        }
+    }
+    return directives_top;
+}
+
+char* MG_computeBottomDirective(void){
+    unsigned int bottom_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0;
+    bottom_slice = MG_count_menu_icons/2;
+    blank_spaces = (PIXELS_X/8) - bottom_slice;
+    left_pad = blank_spaces/2; // This will always round down, which we actually want
+    text_index = 0;
+    for (text_index = 0; text_index < 17; ++text_index){
+        directives_bottom[text_index] = '0';
+    }
+    if (mg_cursor_position > bottom_slice){
+        cursor_index = left_pad + mg_cursor_position - bottom_slice - 1;
+        directives_bottom[cursor_index] = '1';
+    }
+    return directives_bottom;
+}
+
+// Called once per cycle to update the menu and playfield based on their various subfunctions for update.
 // Some functions (those used for menuing) are not defined and present only as comments.
 void MG_computeNextFrame(void){
+    MG_handleInputs();
     if (StateMachine.STAGE_ID != 0x00){ // Eggs don't get menus
-        //MainGameFrame.line0 = MG_printTopMenu();
-        //MainGameFrame.line9 = MG_printBottomMenu();
+        MainGameFrame.line0 = MG_printTopMenu();
+        MainGameFrame.directive_L0 = MG_computeTopDirective();
+        MainGameFrame.line9 = MG_printBottomMenu();
+        MainGameFrame.directive_L9 = MG_computeBottomDirective();
     }
     else{
         MainGameFrame.line0 = " ";

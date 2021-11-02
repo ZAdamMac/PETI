@@ -20,6 +20,14 @@
 #ifndef LIB_LOCALES_ENCA_STRINGS_H_
 #define LIB_LOCALES_ENCA_STRINGS_H_
 
+extern const char* LSTRING_HUNGER = "Hunger";
+extern const char* LSTRING_FUN = "Fun";
+extern const char* LSTRING_DISCIPLINE = "Discipline";
+extern const char* LSTRING_WEIGHT = "Weight";
+extern const char* LSTRING_AGE = "Age";
+extern const char* LSTRING_SPECIAL = "Special";
+extern const char* LSTRING_STATUS_HEADER = "   STATS PAGE   ";
+
 extern const char* daysOfWeek[] = {
                       "SUN",
                       "MON",

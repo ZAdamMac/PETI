@@ -202,6 +202,51 @@ void printTextMedium(const char* text, unsigned char line)
     }
 }
 
+// write a string to display, truncated after PIXEL_X/8 characters
+// uses a simple directives string to control character inversion
+// expects an 8x12 font
+// input: text      0-terminated string
+//        directives 2 bytes of data.
+//        line      vertical position of text, 0-(PIXEL_Y-1)
+void printTextMedium_enhanced(const char* text, unsigned char line, const char* directives)
+{
+    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine;
+    //bool padded;
+    //For simplicity, and because we are borrowing an existing font library, we print line-by-line
+    indexLine = 0;
+    while(indexLine < 12 && line < PIXELS_Y)             //loop for 12 char lines within display
+    {
+        indexText = 0;
+        indexLineBuffer = 0;
+        while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
+        {
+            bitmap = font8x12[character][indexLine];  // Retrieves the byte defining one line of character.
+            switch (directives[indexText]){
+                case '0': // If directive 0, display as normal
+                    bitmap = bitmap;
+                    break;
+                case '1': // If directive 1, invert the character
+                    bitmap = ~bitmap;
+                    break;
+            }
+            bufferLine[indexLineBuffer] = bitmap;
+            indexLineBuffer++;
+            indexText++;
+        }
+
+        while(indexLineBuffer < (PIXELS_X/8))  //Pad line for empty characters.
+        {
+            //padded = true;
+            bufferLine[indexLineBuffer] = 0xFF;
+            indexLineBuffer++;
+        }
+
+
+        SPIWriteLine(line++);
+        indexLine++;
+    }
+}
+
 
 // write a string to display, truncated after PIXEL_X/16 characters
 // expects a 16x16 font
@@ -389,43 +434,43 @@ void printDeltas_demo(DisplayFrame incoming_frame){
 // to determine if a row should be reprinted.
 void printDeltas_menu(DisplayFrame incoming_frame){
     if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line0, 4);
+        printTextMedium_enhanced(incoming_frame.line0, 4, incoming_frame.directive_L0);
         incoming_frame.refresh_L0 = false;
     }
     if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line1, 16);
+        printTextMedium_enhanced(incoming_frame.line1, 16, incoming_frame.directive_L1);
         incoming_frame.refresh_L1 = false;
     }
     if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line2, 28);
+        printTextMedium_enhanced(incoming_frame.line2, 28, incoming_frame.directive_L2);
         incoming_frame.refresh_L2 = false;
     }
     if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line3, 40);
+        printTextMedium_enhanced(incoming_frame.line3, 40, incoming_frame.directive_L3);
         incoming_frame.refresh_L3 = false;
     }
     if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line4, 52);
+        printTextMedium_enhanced(incoming_frame.line4, 52, incoming_frame.directive_L4);
         incoming_frame.refresh_L4 = false;
     }
     if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line5, 64);
+        printTextMedium_enhanced(incoming_frame.line5, 64, incoming_frame.directive_L5);
         incoming_frame.refresh_L5 = false;
     }
     if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line6, 76);
+        printTextMedium_enhanced(incoming_frame.line6, 76, incoming_frame.directive_L6);
         incoming_frame.refresh_L6 = false;
     }
     if (incoming_frame.refresh_L7 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line7, 88);
+        printTextMedium_enhanced(incoming_frame.line7, 88, incoming_frame.directive_L7);
         incoming_frame.refresh_L7 = false;
     }
     if (incoming_frame.refresh_L8 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line8, 100);
+        printTextMedium_enhanced(incoming_frame.line8, 100, incoming_frame.directive_L8);
         incoming_frame.refresh_L8 = false;
     }
     if (incoming_frame.refresh_L9 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line9, 112);
+        printTextMedium_enhanced(incoming_frame.line9, 112, incoming_frame.directive_L9);
         incoming_frame.refresh_L9 = false;
     }
 }
@@ -438,7 +483,7 @@ void printDeltas_menu(DisplayFrame incoming_frame){
 
 void printDeltas_game(DisplayFrame incoming_frame){
     if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line0, 1);
+        printTextMedium_enhanced(incoming_frame.line0, 1, incoming_frame.directive_L0);
         incoming_frame.refresh_L0 = false;
     }
     if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
@@ -470,7 +515,7 @@ void printDeltas_game(DisplayFrame incoming_frame){
         incoming_frame.refresh_L8 = false;
     }
     if (incoming_frame.refresh_L9 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line9, 117);
+        printTextMedium_enhanced(incoming_frame.line9, 117, incoming_frame.directive_L9);
         incoming_frame.refresh_L9 = false;
     }
 }
