@@ -27,6 +27,9 @@ extern const char* LSTRING_WEIGHT;
 extern const char* LSTRING_AGE;
 extern const char* LSTRING_SPECIAL;
 extern const char* LSTRING_STATUS_HEADER;
+extern const char* LSTRING_DEBUG_HEADER;
+
+extern const char* LARRAY_DEBUG_OPTS[];
 
 extern const char* daysOfWeek[];
 

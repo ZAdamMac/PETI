@@ -20,6 +20,9 @@
 #include "button_proofer.h"
 #include "status_menu.h"
 #include "lib/display/display.h"
+#include "menu_generator.h"
+#include "lib/menus/debug_menu.h"
+#include "lib/locales/enCA_strings.h"
 
 volatile unsigned int SCENE_FRAME = 0x00;   // The current translational frame, used for scenes that just play out a defined animation.
 volatile unsigned int SCENE_TRANS_SECONDS;  // The time at which a time-based trigger should activate in seconds
@@ -53,6 +56,9 @@ void SCENE_updateDisplay(void){
         case SCENEADDR_status_menu:
             SCENE_status_menu();
             break;
+        case SCENEADDR_debug_menu: // Debug menu
+            SCENE_TextMenu(LSTRING_DEBUG_HEADER, LARRAY_DEBUG_OPTS, MENU_DEBUG_functions, MENU_DEBUG_count_options); // Calls the generalizer
+            break;
     }
 }
 
@@ -73,7 +79,7 @@ void SCENE_setTransitionTimeCondition(unsigned int delay_seconds){
 // Interrogate the RTC and determine if the delay set by SCENE_setTransitionTimeCondition has passed.
 // Principle use of this workflow would be to evaluate if it is time to leave the current scene.
 // Other mechanisms exist to determine if (e.g.) the screen is due to be rested.
-bool SCENE_checkTransitionTimeCondition(){
+int SCENE_checkTransitionTimeCondition(){
     volatile unsigned int current_seconds, current_minutes;
     volatile Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE);
     current_seconds = bcd_to_dec(currentTime.Seconds);

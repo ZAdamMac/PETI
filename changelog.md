@@ -1,8 +1,8 @@
 # v 0.0.4 - Menu Generator A
 - added generation code for the main_game.c scene:
-	- controlled by arrays in lib/menus/main_game.h
-	- code will automatically divide the available icons between the top and bottom
-	- a matching array in same file controls the destination scenes.
+ - controlled by arrays in lib/menus/main_game.h
+ - code will automatically divide the available icons between the top and bottom
+ - a matching array in same file controls the destination scenes.
 - added metanimation for the baby state
 - hatching egg now drops to the baby life stage.
  - The old demo mode is accessible through the bug-shaped icon (DEBUG).
@@ -14,14 +14,16 @@
 - Adds a scene (buttonproofer.c) that simply displays a message indicating the button you hit worked. Used for testing. Should be removed prior to a major release.
 - improvements in commenting of code.
 
-# v 0.0.5 - Pet Status Screen
+# v 0.0.5 - Pet Status Screen and Text-Oriented Menu Generator
 - Added new characters to the font
-	- includes altering the set button sprite slightly.
+ - includes altering the set button sprite slightly.
 - Added scenes/status_menu, which is bounded to the status icon.
-	- Displays basic health information about the pet:
-		- Hunger
-		- Fun
-		- Weight
-		- Age
-		- Special Conditions
+ - Displays basic health information about the pet:
+  - Hunger
+  - Fun
+  - Weight
+  - Age
+  - Special Conditions
 - Added new values to the enCA_strings locale files.
+- Added a new scene, `SCENE_TextMenu()`, via `menu_generator.c`. This new scene allows for the generation of arbitrary text based menus via several provided arguments, which exit based on a provided array of function pointers.
+- Added a new scene based on the above that provides for a debug menu. Right now, it's bare bones, but the `lib/menus/debug_menu` c source and h header files should provide a good working example of the correct definition of a menu until that process is properly documented.

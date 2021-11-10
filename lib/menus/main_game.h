@@ -27,7 +27,7 @@ const int MG_menu_scene_addresses[6] = {
                                       SCENEADDR_proof_text,
                                       SCENEADDR_proof_text,
                                       SCENEADDR_proof_text,
-                                      SCENEADDR_demo_mode,
+                                      SCENEADDR_debug_menu,
                                       SCENEADDR_calendar_menu
 };
 

@@ -27,6 +27,12 @@ extern const char* LSTRING_WEIGHT = "Weight";
 extern const char* LSTRING_AGE = "Age";
 extern const char* LSTRING_SPECIAL = "Special";
 extern const char* LSTRING_STATUS_HEADER = "   STATS PAGE   ";
+extern const char* LSTRING_DEBUG_HEADER = "   DEBUG MENU   ";
+
+extern const char* LARRAY_DEBUG_OPTS[] = {
+                                        "Demo Mode       ",
+                                        "Input Test      "
+};
 
 extern const char* daysOfWeek[] = {
                       "SUN",

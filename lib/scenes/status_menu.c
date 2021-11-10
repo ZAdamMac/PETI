@@ -93,7 +93,7 @@ char * STATMENU_renderSpecial(void){
 char * STATMENU_renderAge(void){
     str_age[0] = ' ';
     str_age[1] = ' ';
-    str_age[2] = DISPLAY_nthDigit(3, StateMachine.AGE); // Will this display 0s if no leading digit?
+    str_age[2] = DISPLAY_nthDigit(3, StateMachine.AGE); // TODO Add logic to truncate Nth digits above 0.
     str_age[3] = DISPLAY_nthDigit(2, StateMachine.AGE);
     str_age[4] = DISPLAY_nthDigit(1, StateMachine.AGE);
     str_age[5] = DISPLAY_nthDigit(0, StateMachine.AGE);
