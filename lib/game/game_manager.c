@@ -17,8 +17,10 @@
 #include "main.h"
 #include "game_manager.h"
 #include "lib/scenes/scenes_manager.h"
+#include "lib/display/display.h"
 
 unsigned int egg_delay_set;
+unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
 
 // A nice basic init function to set up the global state machine.
 // In future work we might add some functionality to look for an
@@ -28,7 +30,7 @@ void GAME_initStateStruct(void){
     StateMachine.ACT = 0x03; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
     StateMachine.HUNGER_FUN = 0x00;
     StateMachine.DISCIPLINE = 0x00;
-    StateMachine.NAUGHTY = 0x50; // Reasonable starting value, may need to be tweaked during testing.
+    StateMachine.NAUGHTY = 0x00; // Reasonable starting value, may need to be tweaked during testing.
     StateMachine.STAGE_ID = 0x00; // Reserved Species ID for Eggs
     StateMachine.HEALTH_BYTE = 0x00;
 
@@ -52,7 +54,7 @@ void GAME_evaluateTimedEvents(void){
     current_hours = RTC_C_convertBCDToBinary(RTC_C_BASE, TempTime.Hours);
     current_seconds = RTC_C_convertBCDToBinary(RTC_C_BASE, TempTime.Seconds);
     if (calendar_initial_setup_completed && !egg_delay_set){
-        NEXT_STAGE_TRANSITION_MINUTES = current_minutes+ 5; // Eggs are special, they live five minutes, which is why we need logic
+        NEXT_STAGE_TRANSITION_MINUTES = current_minutes + egg_delay; // Eggs are special, they live five minutes, which is why we need logic TODO fix
         NEXT_STAGE_TRANSITION_HOURS = current_hours;
         if (NEXT_STAGE_TRANSITION_MINUTES > 59){    // We have entered an unreachable time.
             NEXT_STAGE_TRANSITION_MINUTES = NEXT_STAGE_TRANSITION_MINUTES % 60;
@@ -62,7 +64,10 @@ void GAME_evaluateTimedEvents(void){
     }
     if ((NEXT_STAGE_TRANSITION_AGE <= StateMachine.AGE) && (NEXT_STAGE_TRANSITION_HOURS <= current_hours) && (NEXT_STAGE_TRANSITION_MINUTES <= current_minutes) && egg_delay_set){
        // GAME_EVO_incrementForEvolution(); Normally, we would call this evolution function, but I don't want to write all that before I test it. Instead:
-        SCENE_ACT = 0x01; // We just dump to the demo when the egg hatches.
+        StateMachine.STAGE_ID = 0x01; // We always hatch to the first baby.
+        FORCE_REFRESH = true; // Needed to redraw the menu on the first frame. Should be included in that evolution function.
+        NEXT_STAGE_TRANSITION_AGE = 0xFF; // needed to avoid looping in this, which causes animation problems. Normally set in the evolution function.
+        //TODO should change activity levels once those are implemented.
     }
     if (current_seconds == 0){ // At the round minute, we need to check for these several functions, none of which actually exist yet.
         //GAME_NEEDS_evaluateHungerFun();

@@ -5,12 +5,11 @@
  *      Author: patches
  */
 
-#define VERSION "     v0.0.3"           //Max 16 characters, and pad left.
+#define VERSION "     v0.0.5     "           //Max 16 characters, and pad left.
 
 volatile unsigned char VCOM;            // current VCOM state
 char bufferText[17];                    // General placeholder used by all the printext functions.
 
-char buttonsBar[9];                     // string that prints button status bar. Might not survive in prod.
 unsigned int buttons_state;             // We need to hold a whole byte to keep track of the flag state
 #define button_a_pressed BIT7           // And hit state of each button, along with the bits to control each.
 #define button_b_pressed BIT6           // These upper bits indicate the button was pressed since the last time the

@@ -55,19 +55,6 @@ void Update_Button_States(void){
         }
 }
 
-// This is chiefly only used by the demo mode (lib/scenes/demo_mode) and may be removed once more of the game is implemented, to save space.
-void Init_Buttons(void){
-    buttons_state = 0;
-    buttonsBar[0] = ' ';
-    buttonsBar[1] = ' ';
-    buttonsBar[2] = 'A';
-    buttonsBar[3] = 'B';
-    buttonsBar[4] = 'C';
-    buttonsBar[5] = 'D';
-    buttonsBar[6] = ' ';
-    buttonsBar[7] = ' ';
-    buttonsBar[8] = 0;
-}
 
 int main(void) {
     Init_Watchdog();
@@ -80,7 +67,6 @@ int main(void) {
     Init_RTC();
     Init_SPI();
     Init_LCD();
-    Init_Buttons();
     GAME_initStateStruct();
 
     while (1){
