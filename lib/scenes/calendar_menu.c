@@ -64,7 +64,7 @@ void CALMENU_initCalendarStruct(){
     calendar_menu_dow = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.DayOfWeek);
     calendar_menu_hours = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Hours);
     calendar_menu_minutes = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Minutes);
-    cursor_position = 0x00;
+    cursor_position = 0x00; // If not set early on in the menu process when arriving at the menu, it will be in the save position instead.
 
 }
 
@@ -109,7 +109,7 @@ void CALMENU_rectifyCalendar(void){
     calendar_menu_dow = calendar_menu_dow % 7;
     calendar_menu_hours = calendar_menu_hours % 24;
     calendar_menu_minutes = calendar_menu_minutes % 60;
-    if (calendar_menu_month > 12){  // The lengths of months get a lot weirder because of Pope Gregory XIII.
+    if (calendar_menu_month > 12){  // The lengths of months get a lot wierder because of Pope Gregory XIII.
         calendar_menu_month -= 12; // Faster than modular math.
     }
     else if (calendar_menu_month < 1){
@@ -225,9 +225,9 @@ char * CALMENU_dateAndDow(void){
     top_alterable[9] = DISPLAY_nthDigit(1, calendar_menu_day);
     top_alterable[10] = DISPLAY_nthDigit(0, calendar_menu_day);
     top_alterable[11] = ' ';
-    top_alterable[12] = daysOfWeek[calendar_menu_dow][0];  // Strings are arrays of chars, so the dict needs to be called out one index at a time.
-    top_alterable[13] = daysOfWeek[calendar_menu_dow][1];
-    top_alterable[14] = daysOfWeek[calendar_menu_dow][2];
+    top_alterable[12] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][0];  // Strings are arrays of chars, so the dict needs to be called out one index at a time.
+    top_alterable[13] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][1];
+    top_alterable[14] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][2];
     top_alterable[15] = ' ';
     return top_alterable;
 }
@@ -389,9 +389,9 @@ void SCENE_CalendarMenu(void){
     if (calmenu_exiting){ // The user has asked to leave.
         if (save_changes){ // They have asked to leave by accepting the "SET" button.
             CALMENU_setGlobalCalendar(); // RTC, this is the current time.
-            calendar_initial_setup_completed = true; // Globally, we have now set the calendar at LEAST once.
         }
-        SCENE_ACT = NEXT_SCENE; // We need to go back to wherever this leads, usually to the main game screne.
+        SCENE_ACT = NEXT_SCENE; // We need to go back to wherever this leads, usually to the main game screen.
+        calendar_initial_setup_completed = true; // Globally, we have now set the calendar at LEAST once.
         calmenu_init = false; // It is sane to set this back to false for the next time we get here.
         calmenu_exiting = false; // The player can come back to this menu, so we need to reset this.
     }

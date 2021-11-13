@@ -13,6 +13,13 @@
 #include "driverlib.h"
 #include <msp430.h>
 
+// Default values for the RTC must be provided.
+// The following variables are BCD, so read as decimal, but provid `0x` as though they were hex
+#define DEFAULT_DOW 0x05        //Convention is arbitrary 0 = sunday
+#define DEFAULT_DAY 0x12        //The day of the month
+#define DEFAULT_MONTH 0x11      //The current month
+#define DEFAULT_YEAR 0x2021     //The current year.
+
 //We need a simple function to initialize some GPIO pins for driving input and output.
 //Special GPIO pins for (e.g. SPI) are called out in their own functions.
 void Init_GPIO(void) {
@@ -80,10 +87,10 @@ void Init_RTC(void){
     defaultTime.Seconds = 0x00;
     defaultTime.Minutes = 0x00;
     defaultTime.Hours = 0x00;
-    defaultTime.DayOfWeek = 0x05;  // No convention is specified, so here we treat sunday as 0.
-    defaultTime.DayOfMonth = 0x29;
-    defaultTime.Month = 0x10;
-    defaultTime.Year = 0x2021; // Accepts values up to 4096 (lel) so no unix epoch issue here.
+    defaultTime.DayOfWeek = DEFAULT_DOW;  // No convention is specified, so here we treat sunday as 0.
+    defaultTime.DayOfMonth = DEFAULT_DAY;
+    defaultTime.Month = DEFAULT_MONTH;
+    defaultTime.Year = DEFAULT_YEAR; // Accepts values up to 4096 (lel) so no unix epoch issue here.
 
     RTC_C_initCalendar(RTC_C_BASE, &defaultTime, RTC_C_FORMAT_BCD); // Hey struct, get into your registers.
     RTC_C_startClock(RTC_C_BASE); // Okay let's go!

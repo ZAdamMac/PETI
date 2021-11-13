@@ -24,7 +24,7 @@ typedef struct GameState {      // A metastructure to hold the current game stat
 unsigned int NEXT_STAGE_TRANSITION_AGE;     // Shared global integer indicating the age/day value at which point the pet should trigger evolution
 unsigned int NEXT_STAGE_TRANSITION_HOURS;   // As above, for the hours.
 unsigned int NEXT_STAGE_TRANSITION_MINUTES; // As further above,f or the minutes.
-GameState StateMachine;
+GameState StateMachine;                     // Any file that includes game_manager.h can interrogate this for the current game state.
 
 void GAME_initStateStruct(void);
 void GAME_evaluateTimedEvents(void);
