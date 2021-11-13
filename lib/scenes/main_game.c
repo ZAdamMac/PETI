@@ -44,7 +44,7 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements, c
     unsigned int charindex = 0;
     unsigned int this_char_tracker;
     touched_this_row = false;
-    unsigned int reversal_array[4] = {1, 0, 3, 2};
+    unsigned int reversal_array[4] = {1, 0, 3, 2};  // This reverses a 2x2 sprite!
     while (charindex < PIXELS_X/16){ // this assumes the 16x16 graphical font is being used.
         if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_'){ // Dashes are empty cells, underscores are reversed empty cells
              playfield[which_row][charindex] = ' ';

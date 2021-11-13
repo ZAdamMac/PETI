@@ -38,26 +38,26 @@ void SCENE_updateDisplay(void){
     }
     PREVIOUS_SCENE = SCENE_ACT;
     switch(SCENE_ACT){
-        case SCENEADDR_boot_splash :  //Triggers the initial boot splash animation, defined in boot_splash.h/c
+        case SCENEADDR_boot_splash :    //Triggers the initial boot splash animation, defined in boot_splash.h/c
             SCENE_boot_splash();
             break;
-        case SCENEADDR_demo_mode :  //Triggers the demonstorator/helloworld mode defined in demo.h/c
+        case SCENEADDR_demo_mode :      //Triggers the demonstorator/helloworld mode defined in demo.h/c
             SCENE_demo_mode();
             break;
-        case SCENEADDR_main_game :  //Yooooo!
+        case SCENEADDR_main_game :      //Yooooo!
             SCENE_main_game();
             break;
-        case SCENEADDR_calendar_menu: // This is the calendar menu screen
+        case SCENEADDR_calendar_menu:   // This is the calendar menu screen
             SCENE_CalendarMenu();
             break;
-        case SCENEADDR_proof_text:
-            SCENE_button_proofer();
+        case SCENEADDR_proof_text:      // A simplistic scene used for debugging purposes as a placeholder scene.
+            SCENE_button_proofer();     // Displays a message briefly and returns to SCENEADDR_main_game
             break;
-        case SCENEADDR_status_menu:
+        case SCENEADDR_status_menu:     // The pet's health and safety status information display.
             SCENE_status_menu();
             break;
-        case SCENEADDR_debug_menu: // Debug menu
-            SCENE_TextMenu(LSTRING_DEBUG_HEADER, LARRAY_DEBUG_OPTS, MENU_DEBUG_functions, MENU_DEBUG_count_options); // Calls the generalizer
+        case SCENEADDR_debug_menu:      // Debug menu
+            SCENE_TextMenu(LSTRING_DEBUG_HEADER, LARRAY_DEBUG_OPTS, MENU_DEBUG_functions, MENU_DEBUG_count_options); // Calls the menu generator as needed.
             break;
     }
 }
@@ -70,8 +70,8 @@ void SCENE_setTransitionTimeCondition(unsigned int delay_seconds){
     delta_minutes = delay_seconds / 60;
 
     volatile Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE);
-    current_seconds = bcd_to_dec(currentTime.Seconds);
-    current_minutes = bcd_to_dec(currentTime.Minutes); // Adjust for BCD Time
+    current_seconds = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Seconds);
+    current_minutes = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Minutes); // Adjust for BCD Time
     SCENE_TRANS_SECONDS = (current_seconds + delta_seconds) % 60;
     SCENE_TRANS_MINUTES = (current_minutes + delta_minutes) % 60;
 }
@@ -82,8 +82,8 @@ void SCENE_setTransitionTimeCondition(unsigned int delay_seconds){
 int SCENE_checkTransitionTimeCondition(){
     volatile unsigned int current_seconds, current_minutes;
     volatile Calendar currentTime = RTC_C_getCalendarTime(RTC_C_BASE);
-    current_seconds = bcd_to_dec(currentTime.Seconds);
-    current_minutes = bcd_to_dec(currentTime.Minutes); // Adjust for BCD Time
+    current_seconds = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Seconds);
+    current_minutes = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Minutes); // Adjust for BCD Time
 
     if (current_seconds >= SCENE_TRANS_SECONDS && current_minutes >= SCENE_TRANS_MINUTES){
         return true;

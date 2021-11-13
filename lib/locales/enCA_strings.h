@@ -20,19 +20,19 @@
 #ifndef LIB_LOCALES_ENCA_STRINGS_H_
 #define LIB_LOCALES_ENCA_STRINGS_H_
 
-extern const char* LSTRING_HUNGER;
-extern const char* LSTRING_FUN;
-extern const char* LSTRING_DISCIPLINE;
-extern const char* LSTRING_WEIGHT;
-extern const char* LSTRING_AGE;
-extern const char* LSTRING_SPECIAL;
-extern const char* LSTRING_STATUS_HEADER;
-extern const char* LSTRING_DEBUG_HEADER;
+extern const char* LSTRING_HUNGER;          //Hunger, as in the gameplay mechanic.
+extern const char* LSTRING_FUN;             //Fun, as in the gameplay mechanic
+extern const char* LSTRING_DISCIPLINE;      //Discipline, as in the gameplay mechanic
+extern const char* LSTRING_WEIGHT;          //Weight, as in the invisible state based on the health byte
+extern const char* LSTRING_AGE;             //Age, as in the age in days of the current living pet.
+extern const char* LSTRING_SPECIAL;         //Localization of the "Special" Status Phrase
+extern const char* LSTRING_STATUS_HEADER;   //Title for the Status Menu screne
+extern const char* LSTRING_DEBUG_HEADER;    //Title for the Debug Header
 
-extern const char* LARRAY_DEBUG_OPTS[];
+extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
-extern const char* daysOfWeek[];
+extern const char* LARRAY_DAYS_OF_WEEK[];   //Three-letter abbreviations of the names of the days of the week
 
-extern const char* stageNames[];
+extern const char* LARRAY_EVO_STAGE_NAMES[]; // Names of each stage of PETI evolution
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */

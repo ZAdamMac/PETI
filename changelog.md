@@ -27,3 +27,13 @@
 - Added new values to the enCA_strings locale files.
 - Added a new scene, `SCENE_TextMenu()`, via `menu_generator.c`. This new scene allows for the generation of arbitrary text based menus via several provided arguments, which exit based on a provided array of function pointers.
 - Added a new scene based on the above that provides for a debug menu. Right now, it's bare bones, but the `lib/menus/debug_menu` c source and h header files should provide a good working example of the correct definition of a menu until that process is properly documented.
+
+
+# v 0.0.5r2 - Pre-Six Refactor
+- Fixed Bug #11 - Prior to now it was possible to softlock the game by exiting the initial calendar setup menu improperly.
+- Updated status_menu.c such that the leading zeros from the age display are now removed.
+- Changed the definitions of SCENEADDR address values to more closely indicate affiliation by grouping.
+- Changed the names of some Localization arrays to better match the style of the others.
+- Deprecated printTextLarge and printTextMedium
+- Refactored PTL and PTM to remove the _enhanced tag from the function name
+- Deprecated and outright removed bcd_to_dec; use the builtins instead.

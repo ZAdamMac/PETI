@@ -81,8 +81,8 @@ typedef struct DisplayFrame{            // A scene can initialize an instance of
 // These functions are defined fully and commentated in display.c
 void Init_LCD(void);
 void printTextSmall(const char* text, unsigned char line);
-void printTextMedium(const char* text, unsigned char line);
-void printTextLarge(const char* text, unsigned char line);
+void printTextMedium(const char* text, unsigned char line, const char* directives);
+void printTextLarge(const char* text, unsigned char line, const char* directives);
 void Init_SPI(void);
 void DisplaySplash(void);
 void ToggleVCOM(void);

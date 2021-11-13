@@ -18,7 +18,8 @@
 #include "lib/locales/enCA_strings.h"
 #include "lib/game/game_manager.h"
 
-#define NEXT_SCENE SCENEADDR_main_game // We want this scene to exit to the main game
+#define NEXT_SCENE SCENEADDR_main_game  // We want this scene to exit to the main game
+#define STATMENU_lastpage 2             // Index of the final page on the menu, for looping reasons.
 
 DisplayFrame STATMENU_Frame;
 
@@ -29,74 +30,81 @@ char str_weight[17];                // an array to hold the weight output string
 char str_age[17];                   // an array to hold the height output string
 char str_special[17];               //an array to hold the special output string.
 
+
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 // In this case, we can really only go up, down, or exit
 void STATMENU_handleInputs(void){
     if (buttons_state & button_a_toggle){  //A scrolls up by 1
         statmenu_page -= 1;
         if (statmenu_page < 0){
-            statmenu_page = 2;
+            statmenu_page = STATMENU_lastpage;
         }
         buttons_state ^= button_a_toggle;
     }
     if (buttons_state & button_b_toggle){  //B scrolls down by 1
         statmenu_page += 1;
-        if (statmenu_page > 2){
+        if (statmenu_page > STATMENU_lastpage){
             statmenu_page = 0;
         }
         buttons_state ^= button_b_toggle;
     }
-    if (buttons_state & button_c_toggle){  //C accepts this value by moving onto the next frame, OR hits the set requirement if we're on that index.
+    if (buttons_state & button_c_toggle){  //C exits the menu outright
         statmenu_exiting = true;
         buttons_state ^= button_c_toggle;
     }
-    if (buttons_state & button_d_toggle){  //D moves back a value to allow for corrections or, if at the thousands of the year, cancels without saving.
+    if (buttons_state & button_d_toggle){  //D also exits the menu outright.
         statmenu_exiting = true;
         buttons_state ^= button_d_toggle;
         }
 }
 
+
+//Render a graphical bar given a numerator and a position index for the bar.
+//The denominator is assumed to be PIXELS_X/8-1, as this uses the Font8x12 display font.
 char * STATMENU_renderBar(unsigned int numerator, int which_bar){
    unsigned int text_index;
-    if (numerator < 1){ // we need the special alert icon
-        bars[which_bar][0] = 20;
-        bars[which_bar][1] = 14;
+    if (numerator < 1){ //Check for the alert condition
+        bars[which_bar][0] = 20; // If the score is low enough, display this special warning icon
+        bars[which_bar][1] = 14; // And an empty left edge for the bar.
     }
     else {
-        bars[which_bar][0] = ' ';
-        bars[which_bar][1] = 17;
+        bars[which_bar][0] = ' '; // Conversely, show no icon
+        bars[which_bar][1] = 17; // And the filled left edge.
     }
-    for (text_index = 2; text_index <= numerator; ++text_index){
+    for (text_index = 2; text_index <= numerator; ++text_index){ // Iterate over the bar for count numerator places, drawing filled bar sections.
         bars[which_bar][text_index] = 18;
     }
-    while (text_index < 15){
+    while (text_index < (PIXELS_X/8-1)){ // Then, fill the rest of the bar with empty spots.
         bars[which_bar][text_index] = 15;
         text_index++;
     }
-    if (numerator == 15){
+    if (numerator == (PIXELS_X/8-1)){ // If the line is maximized, draw a filled right bar edge.
         bars[which_bar][15] = 19;
     }
-    else {
+    else { // Else, show empty.
         bars[which_bar][15] = 16;
     }
     return bars[which_bar];
 }
 
+// A dummy function to render the weight of the pet given State.health_byte.
 char * STATMENU_renderWeight(void){
     return "Not Implemented!";
 }
 
+// A dummy function to render special status flags given State.health_byte
 char * STATMENU_renderSpecial(void){
     return "Not Implemented!";
 }
 
+// Render the age of the pet in days and display it tidly as a line of text.
 char * STATMENU_renderAge(void){
     str_age[0] = ' ';
     str_age[1] = ' ';
-    str_age[2] = DISPLAY_nthDigit(3, StateMachine.AGE); // TODO Add logic to truncate Nth digits above 0.
-    str_age[3] = DISPLAY_nthDigit(2, StateMachine.AGE);
-    str_age[4] = DISPLAY_nthDigit(1, StateMachine.AGE);
-    str_age[5] = DISPLAY_nthDigit(0, StateMachine.AGE);
+    str_age[2] = StateMachine.AGE > 999 ? DISPLAY_nthDigit(3, StateMachine.AGE) : ' ';
+    str_age[3] = StateMachine.AGE > 99 ? DISPLAY_nthDigit(2, StateMachine.AGE) : ' ';
+    str_age[4] = StateMachine.AGE > 9 ? DISPLAY_nthDigit(1, StateMachine.AGE) : ' ';
+    str_age[5] = DISPLAY_nthDigit(0, StateMachine.AGE); // We always wish to see the 0th character/tens digit.
     str_age[6] = ' ';
     str_age[7] = 'D'; //Suboptimal for localizing. Find general solution.
     str_age[8] = 'a';
@@ -111,6 +119,7 @@ char * STATMENU_renderAge(void){
 }
 
 //Draws the first/top page of the status menu, which displays hunger and fun scores.
+// This is page index 0
 void STATMENU_renderHungerFunPage(void){
     unsigned int hunger; unsigned int fun;
     hunger = (StateMachine.HUNGER_FUN >> 4 & 0xF); // HUNGER is the upper nibble of the byte
@@ -125,9 +134,11 @@ void STATMENU_renderHungerFunPage(void){
     STATMENU_Frame.refresh_L7 = true;
 }
 
+
+// Display the Disicpline and Weight page of the menu (page index 1)
 void STATMENU_renderDisciplineWeightPage(void){
     unsigned int discipline;
-    discipline = (StateMachine.DISCIPLINE / 0xFF) * 15; // We don't want to hurt the bar system, do we?
+    discipline = (StateMachine.DISCIPLINE / 0xFF) * ((PIXELS_X/8)-1); // We don't want to hurt the bar system, so divide by the appropriate factor
     STATMENU_Frame.line2 = LSTRING_DISCIPLINE;
     STATMENU_Frame.line3 = STATMENU_renderBar(StateMachine.DISCIPLINE, 2);
     STATMENU_Frame.line6 = LSTRING_WEIGHT;
@@ -138,6 +149,8 @@ void STATMENU_renderDisciplineWeightPage(void){
     STATMENU_Frame.refresh_L7 = true;
 }
 
+
+// Display the special status and age indicators. Page index 2
 void STATMENU_renderSpecialPage(void){
     STATMENU_Frame.line2 = LSTRING_AGE;
     STATMENU_Frame.line3 = STATMENU_renderAge();

@@ -34,7 +34,7 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Input Test      "
 };
 
-extern const char* daysOfWeek[] = {
+extern const char* LARRAY_DAYS_OF_WEEK[] = {
                       "SUN",
                       "MON",
                       "TUE",
@@ -44,7 +44,7 @@ extern const char* daysOfWeek[] = {
                       "SAT"
 };
 
-extern const char* stageNames[] = {
+extern const char* LARRAY_EVO_STAGE_NAMES[] = {
                     "    Egg     ",
                     "    Baby    ",
                     " Hungryboi  ",

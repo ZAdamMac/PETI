@@ -227,7 +227,7 @@ void SCENE_demo_mode(void){
     current_demo_Frame.refresh_L8 = true;
     current_demo_Frame.refresh_L9 = false; // When we handle inputs this will change to "true" if needed.
     DEMO_handleInputs();
-    current_demo_Frame.line9 = stageNames[DEMO_stage];
+    current_demo_Frame.line9 = LARRAY_EVO_STAGE_NAMES[DEMO_stage];
     DEMO_computeAnimationFrame();
     interacted_flag = false; // we use the presence of this flag to decide to do the Mega Refresh for handling button D.
     DISPLAY_updatesOnly(current_demo_Frame, MODE_GAME);

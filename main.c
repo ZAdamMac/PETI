@@ -79,14 +79,6 @@ int main(void) {
     }
 }
 
-//BCD is a pain to work with... This function was added for convenience and is still used in odd places.
-// There is a faster implementation, RTC_C_convertBCDtoBinary(), which is preferred for usage.
-// The refactor to convert to that is not complete and so this function has to stay.
-unsigned char bcd_to_dec(unsigned char bcd)
-{
-  return bcd - 3*(bcd >> 4);
-}
-
 
 
 // interrupt service routine to handle timer A.
