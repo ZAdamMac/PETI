@@ -36,3 +36,4 @@
 - Changed the names of some Localization arrays to better match the style of the others.
 - Deprecated printTextLarge and printTextMedium
 - Refactored PTL and PTM to remove the _enhanced tag from the function name
+- Deprecated and outright removed bcd_to_dec; use the builtins instead.
