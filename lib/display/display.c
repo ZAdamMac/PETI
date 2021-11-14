@@ -12,6 +12,7 @@
 //***************************************************************************************
 
 #include "display.h"
+#include "lib/display/scene_definitions.h"
 #include "font.h"
 #include "driverlib.h"
 #include "splash.h"
@@ -435,6 +436,26 @@ void printDeltas_game(DisplayFrame incoming_frame){
     }
 }
 
+void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
+    int index;
+    for (index = 0; index < scene_rules->lines_used; index++){
+        if (incoming_frame->frame[index].refresh || FORCE_REFRESH){
+            switch (scene_rules->rows[index].text_size){
+                case TEXT_SIZE_SMALL :
+                    printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address);
+                    break;
+                case TEXT_SIZE_MEDIUM :
+                    printTextMedium(incoming_frame->frame[index].line, scene_rules->rows[index].line_address, incoming_frame->frame[index].directives);
+                    break;
+                case TEXT_SIZE_LARGE :
+                    printTextLarge(incoming_frame->frame[index].line, scene_rules->rows[index].line_address, incoming_frame->frame[index].directives);
+                    break;
+            }
+        }
+    }
+}
+
+
 //Determine which mode of changes-only screen update to use, and drop the incoming frame of output to that function.
 //Expects a displayframe object compatible with the outgoing mode (and the scene that constructed it) and calls the correct
 //printDeltas_XXXXX function depending on the value of MODE. For convenience any new modes added should be given descriptive
@@ -453,6 +474,24 @@ void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode){
     }
     FORCE_REFRESH = false;
 }
+
+
+//Determine which mode of changes-only screen update to use, and drop the incoming frame of output to that function.
+//Expects a pointer to a DisplayFrameNew compatible with the outgoing mode (and the scene that constructed it) and calls the correct
+//printDeltas_XXXXX function depending on the value of MODE. For convenience any new modes added should be given descriptive
+//symbolic names in display.h
+void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int mode){
+    switch (mode){
+        case MODE_GAME :
+            printDeltas_universal(incoming_frame, &SCENEDEF_game_mode);
+            break;
+        case MODE_MENU :
+            printDeltas_universal(incoming_frame, &SCENEDEF_menu_mode);
+            break;
+    }
+    FORCE_REFRESH = false;
+}
+
 
 
 //Convenience function for breaking out multidigit numbers for display. Automatically elevates to the correct character code (subtract '0' if you need the number):

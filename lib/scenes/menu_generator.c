@@ -13,6 +13,7 @@
 #include "lib/hwinit/hwinit.h"
 #include "driverlib.h"
 #include <msp430.h>
+#include <string.h>
 #include "main.h"
 #include "lib/locales/enCA_strings.h"
 #include "scenes_manager.h"
@@ -21,15 +22,10 @@
 #define MENU_active_lines 7                     // Defines the number of lines usable to display menu items on each page.
 #define MENU_width_buffered ((PIXELS_X/8)+1)    // Mathmatically ties the buffered menu widht to display.h's PIXELS_X
 
-DisplayFrame MENU_Frame;
-
 int actmenu_page = 0;
 int actmenu_cursor = 0;
 int MENU_page_count = 0;
 unsigned int actmenu_exiting = false;
-char bars[MENU_active_lines][MENU_width_buffered];                   // An array to hold the status
-char bars_refresh[MENU_active_lines];                                // To help compute dynamic refreshes.
-char bars_directive[MENU_active_lines][MENU_width_buffered];         // To help determine highlighting.
 
 
 
@@ -61,14 +57,14 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
             if (actmenu_page < 0){
                 actmenu_page = MENU_page_count - 1;
                 for (index=0; index<(MENU_active_lines+1); index++){
-                    bars_refresh[index] = true; // If the page changes, just redraw all 7 lines.
+                    DISPLAY_FRAME.frame[2+index].refresh = true; // If the page changes, just redraw all 7 lines.
                 }
             }
        }
             buttons_state ^= button_a_toggle;
-            bars_refresh[actmenu_cursor] = true; // We need to redraw the current line, as well as the line on either side.
-            bars_refresh[(actmenu_cursor + 1) % 7] = true;
-            bars_refresh[(actmenu_cursor - 1) % 7] = true;
+            DISPLAY_FRAME.frame[2+actmenu_cursor].refresh = true; // We need to redraw the current line, as well as the line on either side.
+            DISPLAY_FRAME.frame[2+((actmenu_cursor + 1) % MENU_active_lines)].refresh = true;
+            DISPLAY_FRAME.frame[2+((actmenu_cursor - 1) % MENU_active_lines)].refresh = true;
     }
     if (buttons_state & button_b_toggle){  //B scrolls down by 1
         actmenu_cursor += 1;
@@ -78,14 +74,14 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
             if (actmenu_page >= MENU_page_count){
                 actmenu_page = 0;
                 for (index=0; index<(MENU_active_lines+1); index++){
-                    bars_refresh[index] = true; // If the page changes, just redraw all 7 lines.
+                    DISPLAY_FRAME.frame[2+index].refresh = true; // If the page changes, just redraw all 7 lines.
                 }
             }
         }
         buttons_state ^= button_b_toggle;
-        bars_refresh[actmenu_cursor] = true;
-        bars_refresh[(actmenu_cursor + 1) % (MENU_active_lines+1)] = true;
-        bars_refresh[(actmenu_cursor - 1) % (MENU_active_lines+1)] = true;
+        DISPLAY_FRAME.frame[2+actmenu_cursor].refresh = true; // We need to redraw the current line, as well as the line on either side.
+        DISPLAY_FRAME.frame[2+((actmenu_cursor + 1) % MENU_active_lines)].refresh = true;
+        DISPLAY_FRAME.frame[2+((actmenu_cursor - 1) % MENU_active_lines)].refresh = true;
     }
     if (buttons_state & button_c_toggle){  //C accepts this value by moving onto the next frame, OR hits the set requirement if we're on that index.
         actmenu_exiting = true;
@@ -115,49 +111,39 @@ char* MENU_computeLine(int line_number, char ** options, int count_opts){
 
 // State controller based on the inputs to control which page gets drawn.
 void MENU_computeNextFrame(char* header, char * options, int count_opts){
-    int x_index;
-    MENU_Frame.line0 = header;
-    MENU_Frame.line1 = "\x06              \x16";
+    int row;
+    //Display the header row and the static icon rows.
+    //These rows are never highlighted and will only refresh when the FORCE_REFRESH bit is set, which is fine.
+    strcpy(DISPLAY_FRAME.frame[0].line, header);
+    strcpy(DISPLAY_FRAME.frame[0].directives, "0000000000000000");
+    DISPLAY_FRAME.frame[0].refresh = 0;
+    strcpy(DISPLAY_FRAME.frame[1].line, "\x06              \x16");
+    strcpy(DISPLAY_FRAME.frame[1].directives, "0000000000000000");
+    DISPLAY_FRAME.frame[1].refresh = 0;
+    strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
+    strcpy(DISPLAY_FRAME.frame[9].directives, "0000000000000000");
+    DISPLAY_FRAME.frame[9].refresh = 0;
 
-    for (x_index=0; x_index<MENU_width_buffered; x_index++){
-        bars_directive[actmenu_cursor][x_index] = '1';
+    //Iteratively set the remaining rows.
+    for (row=0; row<MENU_active_lines; row++){
+        strcpy(DISPLAY_FRAME.frame[2+row].line, MENU_computeLine(row, options, count_opts));
+        if (row == actmenu_cursor){ // In this case, print.
+            strcpy(DISPLAY_FRAME.frame[2+row].directives, "111111111111111");
+        }
+        else {
+            strcpy(DISPLAY_FRAME.frame[2+row].directives, "000000000000000");
+        }
     }
 
-    // The section below is the reason for MENU_active_lines. If adding or removing lines that must be changed.
-    MENU_Frame.line2 = MENU_computeLine(0, options, count_opts);
-    MENU_Frame.refresh_L2 = bars_refresh[0];
-    MENU_Frame.directive_L2 = bars_directive[0];
-    MENU_Frame.line3 = MENU_computeLine(1, options, count_opts);
-    MENU_Frame.refresh_L3 = bars_refresh[1];
-    MENU_Frame.directive_L3 = bars_directive[1];
-    MENU_Frame.line4 = MENU_computeLine(2, options, count_opts);
-    MENU_Frame.refresh_L4 = bars_refresh[2];
-    MENU_Frame.directive_L4 = bars_directive[2];
-    MENU_Frame.line5 = MENU_computeLine(3, options, count_opts);
-    MENU_Frame.refresh_L5 = bars_refresh[3];
-    MENU_Frame.directive_L5 = bars_directive[3];
-    MENU_Frame.line6 = MENU_computeLine(4, options, count_opts);
-    MENU_Frame.refresh_L6 = bars_refresh[4];
-    MENU_Frame.directive_L6 = bars_directive[4];
-    MENU_Frame.line7 = MENU_computeLine(5, options, count_opts);
-    MENU_Frame.refresh_L7 = bars_refresh[5];
-    MENU_Frame.directive_L7 = bars_directive[5];
-    MENU_Frame.line8 = MENU_computeLine(6, options, count_opts);
-    MENU_Frame.refresh_L8 = bars_refresh[6];
-    MENU_Frame.directive_L8 = bars_directive[6];
-    MENU_Frame.line9 = "\x01              \x15";
 }
 
 
 
 // This just loops over all of the bars_refresh ints and the bars_directive "strings" to set them all to defaults.
 void MENU_resetBarsets(void){
-    int y_index; int x_index;
-    for (y_index=0; y_index<=MENU_active_lines; y_index++){
-        bars_refresh[y_index] = false;
-        for (x_index=0; x_index<MENU_width_buffered; x_index++){
-            bars_directive[y_index][x_index] = '0';
-        }
+    int index;
+    for (index=0; index<(PIXELS_Y/FONT_SIZE_FLOOR_Y); index++){
+       DISPLAY_FRAME.frame[index].refresh = true;
     }
 }
 
@@ -171,9 +157,10 @@ void SCENE_TextMenu(char * target_LSTRING_HEADER, char ** target_LARRAY, voidFun
     MENU_page_count = MENU_computePagination(target_count_opts);
     MENU_handleInputs(target_MARRAY, target_count_opts);
     MENU_computeNextFrame(target_LSTRING_HEADER, target_LARRAY, target_count_opts);
-    DISPLAY_updatesOnly(MENU_Frame, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
+    DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
     if (actmenu_exiting){ // The user has asked to leave.
         actmenu_exiting = false; // The player can come back to this menu, so we need to reset this.
         actmenu_page = 0;
+        actmenu_cursor = 0;
     }
 }
