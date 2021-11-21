@@ -56,15 +56,9 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
             actmenu_page -= 1;
             if (actmenu_page < 0){
                 actmenu_page = MENU_page_count - 1;
-                for (index=0; index<(MENU_active_lines+1); index++){
-                    DISPLAY_FRAME.frame[2+index].refresh = true; // If the page changes, just redraw all 7 lines.
-                }
             }
        }
             buttons_state ^= button_a_toggle;
-            DISPLAY_FRAME.frame[2+actmenu_cursor].refresh = true; // We need to redraw the current line, as well as the line on either side.
-            DISPLAY_FRAME.frame[2+((actmenu_cursor + 1) % MENU_active_lines)].refresh = true;
-            DISPLAY_FRAME.frame[2+((actmenu_cursor - 1) % MENU_active_lines)].refresh = true;
     }
     if (buttons_state & button_b_toggle){  //B scrolls down by 1
         actmenu_cursor += 1;
@@ -73,15 +67,9 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
             actmenu_cursor = 0;
             if (actmenu_page >= MENU_page_count){
                 actmenu_page = 0;
-                for (index=0; index<(MENU_active_lines+1); index++){
-                    DISPLAY_FRAME.frame[2+index].refresh = true; // If the page changes, just redraw all 7 lines.
-                }
             }
         }
         buttons_state ^= button_b_toggle;
-        DISPLAY_FRAME.frame[2+actmenu_cursor].refresh = true; // We need to redraw the current line, as well as the line on either side.
-        DISPLAY_FRAME.frame[2+((actmenu_cursor + 1) % MENU_active_lines)].refresh = true;
-        DISPLAY_FRAME.frame[2+((actmenu_cursor - 1) % MENU_active_lines)].refresh = true;
     }
     if (buttons_state & button_c_toggle){  //C accepts this value by moving onto the next frame, OR hits the set requirement if we're on that index.
         actmenu_exiting = true;
@@ -116,13 +104,10 @@ void MENU_computeNextFrame(char* header, char * options, int count_opts){
     //These rows are never highlighted and will only refresh when the FORCE_REFRESH bit is set, which is fine.
     strcpy(DISPLAY_FRAME.frame[0].line, header);
     strcpy(DISPLAY_FRAME.frame[0].directives, "0000000000000000");
-    DISPLAY_FRAME.frame[0].refresh = 0;
     strcpy(DISPLAY_FRAME.frame[1].line, "\x06              \x16");
     strcpy(DISPLAY_FRAME.frame[1].directives, "0000000000000000");
-    DISPLAY_FRAME.frame[1].refresh = 0;
     strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
     strcpy(DISPLAY_FRAME.frame[9].directives, "0000000000000000");
-    DISPLAY_FRAME.frame[9].refresh = 0;
 
     //Iteratively set the remaining rows.
     for (row=0; row<MENU_active_lines; row++){
@@ -139,13 +124,6 @@ void MENU_computeNextFrame(char* header, char * options, int count_opts){
 
 
 
-// This just loops over all of the bars_refresh ints and the bars_directive "strings" to set them all to defaults.
-void MENU_resetBarsets(void){
-    int index;
-    for (index=0; index<(PIXELS_Y/FONT_SIZE_FLOOR_Y); index++){
-       DISPLAY_FRAME.frame[index].refresh = true;
-    }
-}
 
 // This is the public function of the menu generator module. By calling this with the following arguments you are drawing a menu to screen.
 //      target_LSTRING_HEADER: a char* pseudostring, ideally from your locale file, that gives the menu title.
@@ -153,7 +131,6 @@ void MENU_resetBarsets(void){
 //      target_MARRAY: a voidFuncPointer ** array of pointers to functions. This must be in the same order as target_LARRAY
 //      target_count_opts: an integer describing the number of items (not the max index!) of the two arrays above.
 void SCENE_TextMenu(char * target_LSTRING_HEADER, char ** target_LARRAY, voidFuncPointer ** target_MARRAY, int target_count_opts){
-    MENU_resetBarsets();
     MENU_page_count = MENU_computePagination(target_count_opts);
     MENU_handleInputs(target_MARRAY, target_count_opts);
     MENU_computeNextFrame(target_LSTRING_HEADER, target_LARRAY, target_count_opts);

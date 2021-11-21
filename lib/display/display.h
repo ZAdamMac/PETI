@@ -86,14 +86,16 @@ typedef struct DisplayFrame{            // A scene can initialize an instance of
 typedef struct DisplayLine{
     char line[PIXELS_X/FONT_SIZE_FLOOR_X+1];       // The text on this line to be displayed.
     char directives[PIXELS_X/FONT_SIZE_FLOOR_X+1]; // The directive to control directive-oriented print functions (i.e. highlighting)
-    int refresh;                 // A simple check if this line needs to be redrawn or not.
 } DisplayLine;
 
 typedef struct DisplayFrameNew{
-    DisplayLine frame[PIXELS_Y/8];  // The display Frame is simply an array of lines as defined above.
+    DisplayLine frame[PIXELS_Y/FONT_SIZE_FLOOR_Y];  // The display Frame is simply an array of lines as defined above.
 } DisplayFrameNew;
 
 DisplayFrameNew DISPLAY_FRAME;      // The global instance of DisplayFrameNew. Anyone using this should use THIS one.
+DisplayFrameNew PREVIOUS_FRAME;
+
+char WORK_STRING[PIXELS_X/FONT_SIZE_FLOOR_X]; // A working string to use for all string construction operations.
 
 // These functions are defined fully and commentated in display.c
 void Init_LCD(void);
@@ -105,6 +107,7 @@ void DisplaySplash(void);
 void ToggleVCOM(void);
 void LCDClearDisplay(void);
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode);
+void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int mode);
 char DISPLAY_nthDigit(int digit_index_from_least, int full_value);
 
 

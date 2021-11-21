@@ -12,6 +12,7 @@
 #include "lib/hwinit/hwinit.h"
 #include "driverlib.h"
 #include <msp430.h>
+#include <string.h>
 #include "scenes_manager.h"
 #include "calendar_menu.h"
 #include "main.h"
@@ -32,11 +33,6 @@ unsigned int calmenu_exiting;                   //Boolean store; used so that we
 unsigned int save_changes;                      //Boolean store; used to indicate we accepted the exit and the calendar should be updated.
 unsigned int cursor_position = 0x00;            //Cursor position, used to track which digit is being manipulated
 unsigned int cursor_position_set = 13;          //Fourteen possible positions indexing from 0
-DisplayFrame CALMENU_Frame;                     //It is convenient and acceptable for each scene to hold its own such frame. The frames are pointerwise anyway.
-char top_alterable[17];                         //An array holding text for the year, month, day, and day of week displays.
-char bottom_alterable[17];                      //an array holding the hour and minutes output displays.
-char dow_directive[17];                         // an array holding the display inversion directive for the date-and-dow row.
-char time_directive[17];                        // an array holding the display inversion directive for the time row.
 
 int lengthOfMonths[12] = {                      //An array which holds the length of the months. February is included but not used for historical reasons.
                                    31,
@@ -142,52 +138,42 @@ void CALMENU_updateInternalCalendar(void){
         case 0x00 : // Millenium is highlighted.
             calendar_menu_year += (change_in_digit * 1000);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x01 : // Century is highlighted.
             calendar_menu_year += (change_in_digit * 100);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x02 : // Decade is highlighted.
             calendar_menu_year += (change_in_digit * 10);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x03 : // Year is highlighted.
             calendar_menu_year += change_in_digit;
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x04 : // Tens of the Month is highlighted.
             calendar_menu_month += (change_in_digit * 10);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x05 : // Ones of the Month is highlighted.
             calendar_menu_month += change_in_digit;
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x06 : // Tens of the Date is highlighted
             calendar_menu_day += (change_in_digit * 10);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x07 : // Ones of the date is highlighted
             calendar_menu_day += change_in_digit;
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x08 : // DAY OF WEEK is highlighted
             calendar_menu_dow += change_in_digit;
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L2 = true;
             break;
         case 0x09 : // Tens of Hours is Highlighted
             calendar_menu_hours += (change_in_digit * 10);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L5 = true;
             break;
         case 0x0A : // Ones of Hours is highlighted
             calendar_menu_hours += change_in_digit;
@@ -196,16 +182,12 @@ void CALMENU_updateInternalCalendar(void){
         case 0x0B : // Tens of Mins is highlighted
             calendar_menu_minutes += (change_in_digit * 10);
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L5 = true;
             break;
         case 0x0C : // Ones of Mins is highlighted
             calendar_menu_minutes += change_in_digit;
             change_in_digit = 0;
-            CALMENU_Frame.refresh_L5 = true;
-            CALMENU_Frame.refresh_L8 = true;
             break;
         case 0x0D : // set is highlighted
-            CALMENU_Frame.refresh_L8 = true;
             break;
     }
     CALMENU_rectifyCalendar();
@@ -213,106 +195,106 @@ void CALMENU_updateInternalCalendar(void){
 
 //This updates top_alterable by breaking out the displayable version of the calendar date and day of the week.
 char * CALMENU_dateAndDow(void){
-    top_alterable[0] = ' '; // Centering Manually for Lulz.
-    top_alterable[1] = DISPLAY_nthDigit(3, calendar_menu_year); // A convenience function. It'd be nice to do this for other places where this logic is used like in the demo.
-    top_alterable[2] = DISPLAY_nthDigit(2, calendar_menu_year);
-    top_alterable[3] = DISPLAY_nthDigit(1, calendar_menu_year);
-    top_alterable[4] = DISPLAY_nthDigit(0, calendar_menu_year);
-    top_alterable[5] = '-';
-    top_alterable[6] = DISPLAY_nthDigit(1, calendar_menu_month);
-    top_alterable[7] = DISPLAY_nthDigit(0, calendar_menu_month);
-    top_alterable[8] = '-';
-    top_alterable[9] = DISPLAY_nthDigit(1, calendar_menu_day);
-    top_alterable[10] = DISPLAY_nthDigit(0, calendar_menu_day);
-    top_alterable[11] = ' ';
-    top_alterable[12] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][0];  // Strings are arrays of chars, so the dict needs to be called out one index at a time.
-    top_alterable[13] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][1];
-    top_alterable[14] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][2];
-    top_alterable[15] = ' ';
-    return top_alterable;
+    WORK_STRING[0] = ' '; // Centering Manually for Lulz.
+    WORK_STRING[1] = DISPLAY_nthDigit(3, calendar_menu_year); // A convenience function. It'd be nice to do this for other places where this logic is used like in the demo.
+    WORK_STRING[2] = DISPLAY_nthDigit(2, calendar_menu_year);
+    WORK_STRING[3] = DISPLAY_nthDigit(1, calendar_menu_year);
+    WORK_STRING[4] = DISPLAY_nthDigit(0, calendar_menu_year);
+    WORK_STRING[5] = '-';
+    WORK_STRING[6] = DISPLAY_nthDigit(1, calendar_menu_month);
+    WORK_STRING[7] = DISPLAY_nthDigit(0, calendar_menu_month);
+    WORK_STRING[8] = '-';
+    WORK_STRING[9] = DISPLAY_nthDigit(1, calendar_menu_day);
+    WORK_STRING[10] = DISPLAY_nthDigit(0, calendar_menu_day); // TODO: Resume from here, this step is mysteriously broken
+    WORK_STRING[11] = ' ';
+    WORK_STRING[12] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][0];  // Strings are arrays of chars, so the dict needs to be called out one index at a time.
+    WORK_STRING[13] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][1];
+    WORK_STRING[14] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][2];
+    WORK_STRING[15] = ' ';
+    return &WORK_STRING;
 }
 
 char * CALMENU_dateAndDowDirective(void){
     unsigned int text_index;
     for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
-        dow_directive[text_index] = '0';
+        WORK_STRING[text_index] = '0';
     }
     switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
             case 0 :
-                dow_directive[1] = '1';
+                WORK_STRING[1] = '1';
                 break;
             case 1 :
-                dow_directive[2] = '1';
+                WORK_STRING[2] = '1';
                 break;
             case 2 :
-                dow_directive[3] = '1';
+                WORK_STRING[3] = '1';
                 break;
             case 3 :
-                dow_directive[4] = '1';
+                WORK_STRING[4] = '1';
                 break;
             case 4 :
-                dow_directive[6] = '1';
+                WORK_STRING[6] = '1';
                 break;
             case 5 :
-                dow_directive[7] = '1';
+                WORK_STRING[7] = '1';
                 break;
             case 6 :
-                dow_directive[9] = '1';
+                WORK_STRING[9] = '1';
                 break;
             case 7 :
-                dow_directive[10] = '1';
+                WORK_STRING[10] = '1';
                 break;
             case 8 : // This selection is multiwide
-                dow_directive[12] = '1';
-                dow_directive[13] = '1';
-                dow_directive[14] = '1';
+                WORK_STRING[12] = '1';
+                WORK_STRING[13] = '1';
+                WORK_STRING[14] = '1';
                 break;
         }
-    return dow_directive;
+    return &WORK_STRING;
 }
 
-// This updates the bottom_alterable by breaking out the current 24h time.
+// This updates the WORK_STRING by breaking out the current 24h time.
 char * CALMENU_printTime(void){
-    bottom_alterable[0] = ' '; // Centering Manually for Lulz.
-    bottom_alterable[1] = ' ';
-    bottom_alterable[2] = ' ';
-    bottom_alterable[3] = ' ';
-    bottom_alterable[4] = ' ';
-    bottom_alterable[5] = ' ';
-    bottom_alterable[6] = DISPLAY_nthDigit(1, calendar_menu_hours);
-    bottom_alterable[7] = DISPLAY_nthDigit(0, calendar_menu_hours);
-    bottom_alterable[8] = ':';
-    bottom_alterable[9] = DISPLAY_nthDigit(1, calendar_menu_minutes);
-    bottom_alterable[10] = DISPLAY_nthDigit(0, calendar_menu_minutes);
-    bottom_alterable[11] = ' ';
-    bottom_alterable[12] = ' ';
-    bottom_alterable[13] = ' ';
-    bottom_alterable[14] = ' ';
-    bottom_alterable[15] = ' ';
-    return bottom_alterable;
+    WORK_STRING[0] = ' '; // Centering Manually for Lulz.
+    WORK_STRING[1] = ' ';
+    WORK_STRING[2] = ' ';
+    WORK_STRING[3] = ' ';
+    WORK_STRING[4] = ' ';
+    WORK_STRING[5] = ' ';
+    WORK_STRING[6] = DISPLAY_nthDigit(1, calendar_menu_hours);
+    WORK_STRING[7] = DISPLAY_nthDigit(0, calendar_menu_hours);
+    WORK_STRING[8] = ':';
+    WORK_STRING[9] = DISPLAY_nthDigit(1, calendar_menu_minutes);
+    WORK_STRING[10] = DISPLAY_nthDigit(0, calendar_menu_minutes);
+    WORK_STRING[11] = ' ';
+    WORK_STRING[12] = ' ';
+    WORK_STRING[13] = ' ';
+    WORK_STRING[14] = ' ';
+    WORK_STRING[15] = ' ';
+    return &WORK_STRING;
 }
 
 char* CALMENU_timeDirective(void){
     unsigned int text_index;
     for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
-        time_directive[text_index] = '0';
+        WORK_STRING[text_index] = '0';
     }
     switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
         case 9 :
-            time_directive[6] = '1';
+            WORK_STRING[6] = '1';
             break;
         case 10 :
-            time_directive[7] = '1';
+            WORK_STRING[7] = '1';
             break;
         case 11 :
-            time_directive[9] = '1';
+            WORK_STRING[9] = '1';
             break;
         case 12 :
-            time_directive[10] = '1';
+            WORK_STRING[10] = '1';
             break;
     }
 
-   return time_directive;
+   return &WORK_STRING;
 }
 
 // This function updates all the values in CALMENU frame by interrogating the various scene-specific
@@ -320,41 +302,32 @@ char* CALMENU_timeDirective(void){
 // Some logic is also applied to determine which rows need to be updated based on where the cursor is.
 // This technically means we write too often but it's proven to be sufficiently performant not to matter.
 void CALMENU_computeNextFrame(void){
-    CALMENU_Frame.line0 = "Enter the time:";
-    CALMENU_Frame.directive_L0 = "0000000000000000";
-    CALMENU_Frame.line1 = " \x06\x06\x06\x06 \x06\x06 \x06\x06  \x06 "; //Ox0A in this font is an up-arrow
-    CALMENU_Frame.directive_L1 = "0000000000000000";
-    CALMENU_Frame.line2 = CALMENU_dateAndDow();
-    CALMENU_Frame.directive_L2 = CALMENU_dateAndDowDirective();
-    CALMENU_Frame.line3 = " \x01\x01\x01\x01 \x01\x01 \x01\x01  \x01 "; //0x01 in this font is a down-arrow
-    CALMENU_Frame.directive_L3 = "0000000000000000";
-    CALMENU_Frame.line4 = "      \x06\x06 \x06\x06      ";
-    CALMENU_Frame.directive_L4 = "0000000000000000";
-    CALMENU_Frame.line5 = CALMENU_printTime();
-    CALMENU_Frame.directive_L5 = CALMENU_timeDirective();
-    CALMENU_Frame.line6 = "      \x01\x01 \x01\x01     ";
-    CALMENU_Frame.directive_L6 = "0000000000000000";
-    CALMENU_Frame.line7 = "";
-    CALMENU_Frame.directive_L7 = "0000000000000000";
-    CALMENU_Frame.line8 = "      \x02\x03\x04\x05      "; // The SET flag magic string
-    CALMENU_Frame.line9 = "";
-    CALMENU_Frame.directive_L9 = "0000000000000000";
+    int index;
+    for (index=0; index<PIXELS_Y/FONT_SIZE_FLOOR_Y; index++){ //It is computationally easier to blank the whole frame then just go back and update it.
+        strcpy(DISPLAY_FRAME.frame[index].line, "");
+        strcpy(DISPLAY_FRAME.frame[index].directives, "0000000000000000");
+    }
+    // There are some static lines that need to be set for icons and suchlike.
+    strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_CALMENU_HEADER);
+    strcpy(DISPLAY_FRAME.frame[1].line, " \x06\x06\x06\x06 \x06\x06 \x06\x06  \x06 "); //0x06 in this font is an up-arrow
+    strcpy(DISPLAY_FRAME.frame[3].line, " \x01\x01\x01\x01 \x01\x01 \x01\x01  \x01 "); //0x01 in this font is a down-arrow
+    strcpy(DISPLAY_FRAME.frame[4].line, "      \x06\x06 \x06\x06      "); //0x06 in this font is an up-arrow
+    strcpy(DISPLAY_FRAME.frame[6].line, "      \x01\x01 \x01\x01      "); //0x01 in this font is a down-arrow
+    strcpy(DISPLAY_FRAME.frame[8].line, "      \x02\x03\x04\x05      "); // SET flag magic string.
+
+    //Some other strings are set by various subfunctions
+    strncpy(DISPLAY_FRAME.frame[2].line, CALMENU_dateAndDow(), (PIXELS_X/FONT_SIZE_FLOOR_X));
+    strncpy(DISPLAY_FRAME.frame[2].directives, CALMENU_dateAndDowDirective(), (PIXELS_X/FONT_SIZE_FLOOR_X));
+    strncpy(DISPLAY_FRAME.frame[5].line, CALMENU_printTime(), (PIXELS_X/FONT_SIZE_FLOOR_X));
+    strncpy(DISPLAY_FRAME.frame[5].directives, CALMENU_timeDirective(), (PIXELS_X/FONT_SIZE_FLOOR_X));
+
+    //Finally, check for the set directive:
     if (cursor_position == cursor_position_set){
-        CALMENU_Frame.directive_L8 = "0000001111000000";  // SET selected
+        strcpy(DISPLAY_FRAME.frame[8].directives, "0000001111000000");  // SET selected
     }
     else{
-        CALMENU_Frame.directive_L8 = "0000000000000000";  // SET unselected
+        strcpy(DISPLAY_FRAME.frame[8].directives, "0000000000000000");  // SET unselected
     }
-    if (cursor_position <= 9){ // the cursor is somewhere in the date row so we probably need to update it.
-        CALMENU_Frame.refresh_L2 = true;
-    }
-    else if (9 <= cursor_position <= cursor_position_set){  // the cursor is somewhere in the time and we probably need to update that.
-        CALMENU_Frame.refresh_L5 = true;
-    }
-    else if ( 12 <= cursor_position == cursor_position_set){ // the "SET" button is highlighted (or we are one square before it) and needs to be updated.
-        CALMENU_Frame.refresh_L8 = true;
-    }
-
 }
 
 // This function takes all of the scene-specific date state that we just collected and passes it back to the RTC.
@@ -385,7 +358,7 @@ void SCENE_CalendarMenu(void){
     CALMENU_handleInputs(); // What did the user just do?
     CALMENU_updateInternalCalendar();  // What did what they just did change about the internal state of this scene?
     CALMENU_computeNextFrame();  // How do we show them that change?
-    DISPLAY_updatesOnly(CALMENU_Frame, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
+    DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
     if (calmenu_exiting){ // The user has asked to leave.
         if (save_changes){ // They have asked to leave by accepting the "SET" button.
             CALMENU_setGlobalCalendar(); // RTC, this is the current time.

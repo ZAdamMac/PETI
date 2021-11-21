@@ -37,3 +37,17 @@
 - Deprecated printTextLarge and printTextMedium
 - Refactored PTL and PTM to remove the _enhanced tag from the function name
 - Deprecated and outright removed bcd_to_dec; use the builtins instead.
+
+# v 0.0.6 - Display System Rewrite
+- Restructured the DisplayFrame struct such that it holds the arrays needed rather than pointers.
+ - Also is now an iterable array of DisplayFrameLine structs that have one property each for the text to be displayed, directive.
+- Modified all scenes that used the old display frame to use the new one.
+- Deprected the former Display_UpdatesOnly(), replacing wiht a new version that uses the new frame.
+- Deprecated all the former printDeltas function to replace with printDeltas_universal
+ - new functon uses a new struct called a SceneDefinition that includes the necessary data to iteratively print a screen based solely on a mode flag and the incoming display frame.
+- Scenes no longer compute their own refresh data. The current frame is compared to the previous frame and the display code determines whether or not to reprint any one given line.
+- Display modes are now defined as a struct, allowing one printout function to be shared among all display arrangements.
+- Continued removal of magic numbers particularly as tied directly to screen resolution. Several new symbols were added to the defines in display.h to help with this.
+- Closed a bug in scenes/main_game.c that would cause the following odd behaviours:
+ - Pressing the D (Cancel) button would trigger the select (c) behaviour;
+ - The select (c) behaviour would illegally set SceneAct if the cursor position was 0, locking the device in a dead state until reset

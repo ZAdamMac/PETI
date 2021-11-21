@@ -439,7 +439,7 @@ void printDeltas_game(DisplayFrame incoming_frame){
 void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
     int index;
     for (index = 0; index < scene_rules->lines_used; index++){
-        if (incoming_frame->frame[index].refresh || FORCE_REFRESH){
+        if (incoming_frame->frame[index].line != PREVIOUS_FRAME.frame[index].line || incoming_frame->frame[index].directives != PREVIOUS_FRAME.frame[index].directives || FORCE_REFRESH){
             switch (scene_rules->rows[index].text_size){
                 case TEXT_SIZE_SMALL :
                     printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address);
@@ -453,6 +453,7 @@ void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* sce
             }
         }
     }
+    PREVIOUS_FRAME = *(incoming_frame);
 }
 
 
@@ -497,7 +498,8 @@ void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int 
 //Convenience function for breaking out multidigit numbers for display. Automatically elevates to the correct character code (subtract '0' if you need the number):
 //Anywhere this method is not being used should be replaced as noticed unless there is a special-handling reason not to do so.
 char DISPLAY_nthDigit(int digit_index_from_least, int full_value){
-    while (digit_index_from_least--)
+    while (digit_index_from_least--){
         full_value /= 10;
+    }
     return full_value%10 + '0';
 }
