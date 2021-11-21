@@ -17,6 +17,9 @@
 #define PIXELS_X 128                    // display is 128x128; wherever possible refrence these symbols rather than doing direct calculation to set widths
 #define PIXELS_Y 128                    // display is 128x128; or heights
 
+#define FONT_SIZE_FLOOR_X 8             // X width of the minimum size font in pixels
+#define FONT_SIZE_FLOOR_Y 8             // Y height of the minimum size font in pixels
+
 #define MODE_DEMO 0x00                  // Used for the DISPLAY_updatesOnly if the three-font demonstrator mode is being used
 #define MODE_GAME 0x01                  // Used for the DISPLAY_updatesOnly if the multiline game display mode is active
 #define MODE_MENU 0x02                  // Used to display the 12-high menu mode in DISPLAY_UpdatesOnly
@@ -78,6 +81,22 @@ typedef struct DisplayFrame{            // A scene can initialize an instance of
     int refresh_LF;
 } DisplayFrame;
 
+// v 0.0.6 and later use a new display frame type based around a structure of `DisplayLine` structures as defined below.
+
+typedef struct DisplayLine{
+    char line[PIXELS_X/FONT_SIZE_FLOOR_X+1];       // The text on this line to be displayed.
+    char directives[PIXELS_X/FONT_SIZE_FLOOR_X+1]; // The directive to control directive-oriented print functions (i.e. highlighting)
+} DisplayLine;
+
+typedef struct DisplayFrameNew{
+    DisplayLine frame[PIXELS_Y/FONT_SIZE_FLOOR_Y];  // The display Frame is simply an array of lines as defined above.
+} DisplayFrameNew;
+
+DisplayFrameNew DISPLAY_FRAME;      // The global instance of DisplayFrameNew. Anyone using this should use THIS one.
+DisplayFrameNew PREVIOUS_FRAME;
+
+char WORK_STRING[PIXELS_X/FONT_SIZE_FLOOR_X]; // A working string to use for all string construction operations.
+
 // These functions are defined fully and commentated in display.c
 void Init_LCD(void);
 void printTextSmall(const char* text, unsigned char line);
@@ -88,6 +107,7 @@ void DisplaySplash(void);
 void ToggleVCOM(void);
 void LCDClearDisplay(void);
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode);
+void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int mode);
 char DISPLAY_nthDigit(int digit_index_from_least, int full_value);
 
 

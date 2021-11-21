@@ -15,8 +15,8 @@
 
 // Default values for the RTC must be provided.
 // The following variables are BCD, so read as decimal, but provid `0x` as though they were hex
-#define DEFAULT_DOW 0x05        //Convention is arbitrary 0 = sunday
-#define DEFAULT_DAY 0x12        //The day of the month
+#define DEFAULT_DOW 0x06        //Convention is arbitrary 0 = sunday
+#define DEFAULT_DAY 0x20        //The day of the month
 #define DEFAULT_MONTH 0x11      //The current month
 #define DEFAULT_YEAR 0x2021     //The current year.
 

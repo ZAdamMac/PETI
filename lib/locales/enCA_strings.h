@@ -28,6 +28,7 @@ extern const char* LSTRING_AGE;             //Age, as in the age in days of the 
 extern const char* LSTRING_SPECIAL;         //Localization of the "Special" Status Phrase
 extern const char* LSTRING_STATUS_HEADER;   //Title for the Status Menu screne
 extern const char* LSTRING_DEBUG_HEADER;    //Title for the Debug Header
+extern const char* LSTRING_CALMENU_HEADER;  //"Please enter the time:" or localized.
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
