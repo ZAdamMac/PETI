@@ -1,0 +1,28 @@
+Drill report for /home/patches/HardwareProjects/PETI/hardware_design/prototyping_buttons_daughterboard/prototyping_backplane/prototyping_backplane.kicad_pcb
+Created on Tue 16 Nov 2021 07:42:29 PM
+
+Copper Layer Stackup:
+    =============================================================
+    L1 :  F.Cu                      front
+    L2 :  B.Cu                      back
+
+
+Drill file 'prototyping_backplane-PTH-drl.gbr' contains
+    plated through holes:
+    =============================================================
+    T1  0.70mm  0.028"  (4 holes)
+    T2  0.80mm  0.031"  (52 holes)
+    T3  0.90mm  0.035"  (4 holes)
+    T4  1.00mm  0.039"  (2 holes)
+    T5  1.02mm  0.040"  (2 holes)
+
+    Total plated holes count 64
+
+
+Drill file 'prototyping_backplane-NPTH-drl.gbr' contains
+    unplated through holes:
+    =============================================================
+    T1  3.20mm  0.126"  (4 holes)
+    T2  3.30mm  0.130"  (2 holes)
+
+    Total unplated holes count 6
