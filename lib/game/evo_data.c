@@ -31,7 +31,7 @@ extern Stage EVO_metaStruct[] = {
                                              "\x0A"},
                                .faceRight = "\x0B",
                                .animationEating = {"\x0B", "\x0B"},
-                               .rateHF = 0x00,
+                               .rateHF = 0xFF,
                                .highEvo = 0x02,
                                .lowEvo = 0x03,
                                .secretEvo = 0x02,

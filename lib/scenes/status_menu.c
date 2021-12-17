@@ -140,7 +140,7 @@ void STATMENU_renderDisciplineWeightPage(void){
 // Display the special status and age indicators. Page index 2
 void STATMENU_renderSpecialPage(void){
     strcpy(DISPLAY_FRAME.frame[2].line, LSTRING_AGE);
-    strcpy(DISPLAY_FRAME.frame[3].line, STATMENU_renderAge()); // TODO: Proof we need STRNCPY
+    strcpy(DISPLAY_FRAME.frame[3].line, STATMENU_renderAge());
     strcpy(DISPLAY_FRAME.frame[6].line, LSTRING_SPECIAL);
     strcpy(DISPLAY_FRAME.frame[7].line, STATMENU_renderSpecial());
 }
@@ -149,11 +149,9 @@ void STATMENU_renderSpecialPage(void){
 
 // State controller based on the inputs to control which page gets drawn.
 void STATMENU_computeNextFrame(void){
+    int iterator;
     strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_STATUS_HEADER);
     strcpy(DISPLAY_FRAME.frame[1].line, "\x06               ");
-    strcpy(DISPLAY_FRAME.frame[4].line, "                ");
-    strcpy(DISPLAY_FRAME.frame[5].line, "                ");
-    strcpy(DISPLAY_FRAME.frame[8].line, "                ");
     strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
     switch (statmenu_page){
     case 0:
@@ -164,6 +162,13 @@ void STATMENU_computeNextFrame(void){
         break;
     case 2:
         STATMENU_renderSpecialPage();
+        break;
+    }
+    strcpy(DISPLAY_FRAME.frame[4].line, "                ");
+    strcpy(DISPLAY_FRAME.frame[5].line, "                ");
+    strcpy(DISPLAY_FRAME.frame[8].line, "                ");
+    for(iterator=0;iterator<11;iterator++){
+        strcpy(DISPLAY_FRAME.frame[iterator].directives, "0000000000000000");
     }
 }
 

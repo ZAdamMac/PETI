@@ -22,7 +22,13 @@
 #include "lib/display/display.h"
 #include "menu_generator.h"
 #include "lib/menus/debug_menu.h"
+#include "lib/menus/snacks_menu.h"
+#include "lib/menus/food_menu.h"
+#include "lib/menus/feeding_menu.h"
 #include "lib/locales/enCA_strings.h"
+#include "food_selector.h"
+#include "lib/game/food_data.h"
+#include "eating_animation.h"
 
 volatile unsigned int SCENE_FRAME = 0x00;   // The current translational frame, used for scenes that just play out a defined animation.
 volatile unsigned int SCENE_TRANS_SECONDS;  // The time at which a time-based trigger should activate in seconds
@@ -58,6 +64,18 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_debug_menu:      // Debug menu
             SCENE_TextMenu(LSTRING_DEBUG_HEADER, LARRAY_DEBUG_OPTS, MENU_DEBUG_functions, MENU_DEBUG_count_options); // Calls the menu generator as needed.
+            break;
+        case SCENEADDR_feed_menu:      // Top-Level Food Menu
+            SCENE_TextMenu(LSTRING_FEEDING_HEADER, LARRAY_FOOD_TOP_MENU, MENU_FEED_functions, MENU_FEED_count_options); // Calls the menu generator as needed.
+            break;
+        case SCENEADDR_food_menu:      // Food menu
+            SCENE_FoodMenu(LSTRING_FOOD_HEADER, LARRAY_FOOD_FOOD_NAMES, FOOD_array_foods, FOOD_count_foods); // Calls the menu generator as needed.
+            break;
+        case SCENEADDR_snacks_menu:      // SNACKS menu
+            SCENE_FoodMenu(LSTRING_SNACKS_HEADER, LARRAY_FOOD_SNACK_NAMES, FOOD_array_snacks, FOOD_count_snacks); // Calls the menu generator as needed.
+            break;
+        case SCENEADDR_eating: // Monch Monch
+            SCENE_eating();
             break;
     }
 }

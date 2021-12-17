@@ -29,11 +29,18 @@ extern const char* LSTRING_SPECIAL;         //Localization of the "Special" Stat
 extern const char* LSTRING_STATUS_HEADER;   //Title for the Status Menu screne
 extern const char* LSTRING_DEBUG_HEADER;    //Title for the Debug Header
 extern const char* LSTRING_CALMENU_HEADER;  //"Please enter the time:" or localized.
+extern const char* LSTRING_FEEDING_HEADER;
+extern const char* LSTRING_FOOD_HEADER;
+extern const char* LSTRING_SNACKS_HEADER;
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
 extern const char* LARRAY_DAYS_OF_WEEK[];   //Three-letter abbreviations of the names of the days of the week
 
 extern const char* LARRAY_EVO_STAGE_NAMES[]; // Names of each stage of PETI evolution
+extern const char* LARRAY_FOOD_FOOD_NAMES[]; // Names of all the foods in the food menu
+extern const char* LARRAY_FOOD_SNACK_NAMES[]; // Name of all the snacks in the snack menu.
+extern const char* LARRAY_FOOD_TOP_MENU[];
+
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */

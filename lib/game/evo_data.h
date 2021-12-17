@@ -15,7 +15,7 @@ typedef struct Stage{
     int size; // 1 for a 1x1 character, 4 for a 2x2 character, and 9 for a 3x3 If adding a new size the size of animation also needs to be adjusted
     const char animation[2][9];  // array, up to two frames, animating based on cells from the 16x16 font
     char *faceRight; // array, up to one frame, animating based on cells from the 16x16 font
-    char *animationEating[2]; //// array, up to two frames, animating based on cells from the 16x16 font
+    const char animationEating[2][9]; //// array, up to two frames, animating based on cells from the 16x16 font
     int rateHF; // Byte controls the hunger and fun degredation rates
     int highEvo; // If the high evolution condition is met, the new stage ID becomes whatever is set for this value.
     int lowEvo;  // If the high evolution condition is not met, we go here.

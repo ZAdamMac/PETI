@@ -25,7 +25,7 @@ const char MG_menu_icons[6] = {
 const int MG_menu_scene_addresses[6] = {
                                       SCENEADDR_status_menu, // Scene Address for Status Menu
                                       SCENEADDR_proof_text,  // Placeholder; when implemented, goto settings menu
-                                      SCENEADDR_proof_text,  // Placeholder; when implemented, goto feeding menu
+                                      SCENEADDR_feed_menu,  // Placeholder; when implemented, goto feeding menu
                                       SCENEADDR_proof_text,  // Placeholder; when implemented, goto feeding menu
                                       SCENEADDR_debug_menu,  // Scene Address for the Debug Menu
                                       SCENEADDR_calendar_menu// Placeholder; when implemented, goto clock screen
