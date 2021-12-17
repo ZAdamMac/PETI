@@ -51,3 +51,14 @@
 - Closed a bug in scenes/main_game.c that would cause the following odd behaviours:
  - Pressing the D (Cancel) button would trigger the select (c) behaviour;
  - The select (c) behaviour would illegally set SceneAct if the cursor position was 0, locking the device in a dead state until reset
+ 
+# v 0.0.7 - Feeding System
+- Adds a struct Food for defining foods in terms of their iconset, hunger, and fun values.
+- Adds string arrays to the locales file that control the names of foods as displayed.
+- Adds a global array of Food objects that define the list of foods included in the food or snacks subsets.
+- Adds a menu generator for reading food arrays instead of normal menu definition files.
+- Adds an eating scene (`eating_animation.c`) that accepts a food as its input, generating the appropriate animation before returning to the main game screen.
+- Adds a function to the game manager to iteratively decay Hunger and Fun meters over time based on the rateHF for the current evolutionary stage.
+- Sets a rate HF of `0xFF` to the Baby (`EVO_metaStruct[1]`).
+- Adds a function to the eating animation scene that applies the appropriate status modifiers from the food (TODO: Weight still not implemented)
+- Corrects a bug in status_menu.c that caused graphical issues due to a failure to reset the DIRECTIVES for a given line.
