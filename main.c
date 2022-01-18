@@ -101,6 +101,16 @@ __interrupt void VCOM_ISR (void){
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
+//Stop audio when the timer has elapsed.
+#pragma vector=TIMER0_B0_VECTOR
+__interrupt void TIMEOUT_ISR (void){
+    Timer_B_clearCaptureCompareInterrupt(TIMER_B0_BASE, TIMER_B_CAPTURECOMPARE_REGISTER_0);
+    Timer_B_clearTimerInterrupt(TIMER_B0_BASE);
+    Timer_B_stop(TIMER_B0_BASE);
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+}
+
 // The ISRs below handle interrupts raised by each of the input keys A through D.
 // They update the buttons_state int to indicate that they have been used, then wake
 // up the device to handle the input in main loop rather than via an ISR.
