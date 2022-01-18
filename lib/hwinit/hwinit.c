@@ -30,6 +30,15 @@ void Init_GPIO(void) {
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN1); // P1.1 is a debugging LED; currently toggles with each keypress.
     GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN1);
 
+
+    GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN5); // P1.0 is an LED for indicating the battery alert.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5);
+    GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN7); // P4.7 is the alert system visual LED.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
+
+    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN4); //P3.4 is buzzer Out.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
+
     //Inputs Block
     //This sets up the buttons as indicated below.
     GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P6, GPIO_PIN0); //A = P6.0
