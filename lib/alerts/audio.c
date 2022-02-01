@@ -34,4 +34,3 @@ void AUDIO_pulse(int pulse_length){
     GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN4); // set it up
     Timer_B_startCounter(TIMER_B0_BASE, TIMER_B_UP_MODE); // and walk away.
 }
-}

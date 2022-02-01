@@ -10,8 +10,8 @@
 #ifndef LIB_ALERTS_AUDIO_H_
 #define LIB_ALERTS_AUDIO_H_
 
-#define LONG_PULSE 0x4444
-#define SHORT_PULSE 0x4444
+#define AUDIO_LONG_PULSE 0x4444
+#define AUDIO_SHORT_PULSE 0x2222
 
 void AUDIO_pulse(int pulse_length);
 

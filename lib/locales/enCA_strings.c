@@ -28,6 +28,7 @@ extern const char* LSTRING_AGE = "Age";
 extern const char* LSTRING_SPECIAL = "Special";
 extern const char* LSTRING_STATUS_HEADER = "   STATS PAGE   ";
 extern const char* LSTRING_DEBUG_HEADER = "   DEBUG MENU   ";
+extern const char* LSTRING_SOUND_CHECK = "   SOUND CHECK";
 extern const char* LSTRING_CALMENU_HEADER = "Enter the time: ";
 extern const char* LSTRING_FEEDING_HEADER = "  FEEDING MENU  ";
 extern const char* LSTRING_FOOD_HEADER = "   FOOD  MENU   ";
@@ -35,7 +36,8 @@ extern const char* LSTRING_SNACKS_HEADER = "  SNACKS  MENU  ";
 
 extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Demo Mode       ",
-                                        "Input Test      "
+                                        "Input Test      ",
+                                        "Audio Check     "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {
@@ -77,6 +79,11 @@ extern const char* LARRAY_FOOD_FOOD_NAMES[] = {
 
 extern const char* LARRAY_FOOD_SNACK_NAMES[] = {
                               "Lollypop        "
+};
+
+extern const char* LARRAY_SOUNDCHECK_OPTS[] = {
+                              "SHORT BEEP      ",
+                              "LONG BEEP       "
 };
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */

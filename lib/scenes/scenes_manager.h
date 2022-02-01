@@ -23,6 +23,7 @@ volatile unsigned int SCENE_ACT;            // The current active scene
 #define SCENEADDR_calendar_menu 0x21    // Address to the calendar adjustment menu.
 #define SCENEADDR_debug_menu 0xF0       // Address to the debug menu
 #define SCENEADDR_demo_mode 0xF1        // Address for the demo screen
+#define SCENEADDR_sound_test 0xF2       // Address for the sound test.
 #define SCENEADDR_proof_text 0xFF       // Address to the "button worked" proof message scene
 
 void SCENE_updateDisplay(void);         // Convenience function. Checks the value of SCENE_ACT globally to determine which scene's handler function to call.

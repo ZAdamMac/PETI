@@ -17,10 +17,16 @@ void MENU_DEBUG_goto_Proofer(void){
     SCENE_ACT = SCENEADDR_proof_text;
 }
 
+void MENU_DEBUG_goto_SoundTest(void){
+    SCENE_ACT = SCENEADDR_sound_test;
+}
 
-const int MENU_DEBUG_count_options = 2;
+#pragma PERSISTENT(MENU_DEBUG_count_options);
+const int MENU_DEBUG_count_options = 3;
 
-voidFuncPointer MENU_DEBUG_functions[2] = {
+#pragma PERSISTENT(MENU_DEBUG_count_options);
+voidFuncPointer MENU_DEBUG_functions[3] = {
                                       MENU_DEBUG_goto_DemoMode,
-                                      MENU_DEBUG_goto_Proofer
+                                      MENU_DEBUG_goto_Proofer,
+                                      MENU_DEBUG_goto_SoundTest
 };

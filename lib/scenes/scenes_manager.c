@@ -25,6 +25,7 @@
 #include "lib/menus/snacks_menu.h"
 #include "lib/menus/food_menu.h"
 #include "lib/menus/feeding_menu.h"
+#include "lib/menus/sound_test.h"
 #include "lib/locales/enCA_strings.h"
 #include "food_selector.h"
 #include "lib/game/food_data.h"
@@ -76,6 +77,9 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_eating: // Monch Monch
             SCENE_eating();
+            break;
+        case SCENEADDR_sound_test:
+            SCENE_TextMenu(LSTRING_SOUND_CHECK, LARRAY_SOUNDCHECK_OPTS, MENU_SOUNDCHECK_functions, MENU_SOUNDCHECK_count_options); // Calls the audio check text menu
             break;
     }
 }

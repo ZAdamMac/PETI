@@ -32,6 +32,7 @@ extern const char* LSTRING_CALMENU_HEADER;  //"Please enter the time:" or locali
 extern const char* LSTRING_FEEDING_HEADER;
 extern const char* LSTRING_FOOD_HEADER;
 extern const char* LSTRING_SNACKS_HEADER;
+extern const char* LSTRING_SOUND_CHECK;
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
@@ -41,6 +42,7 @@ extern const char* LARRAY_EVO_STAGE_NAMES[]; // Names of each stage of PETI evol
 extern const char* LARRAY_FOOD_FOOD_NAMES[]; // Names of all the foods in the food menu
 extern const char* LARRAY_FOOD_SNACK_NAMES[]; // Name of all the snacks in the snack menu.
 extern const char* LARRAY_FOOD_TOP_MENU[];
+extern const char* LARRAY_SOUNDCHECK_OPTS[];
 
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */
