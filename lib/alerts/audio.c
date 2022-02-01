@@ -16,6 +16,8 @@
 
 
 void AUDIO_pulse(int pulse_length){
+    unsigned int hardware_audio_disable = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN7);
+    if (!hardware_audio_disable){
     Timer_B_initUpModeParam initContParam = {0};
     initContParam.clockSource = TIMER_B_CLOCKSOURCE_SMCLK;
     initContParam.clockSourceDivider = TIMER_B_CLOCKSOURCE_DIVIDER_64; // Should yield a freq where this counts at roughly 125kHz
@@ -33,4 +35,5 @@ void AUDIO_pulse(int pulse_length){
 
     GPIO_setOutputHighOnPin(GPIO_PORT_P3, GPIO_PIN4); // set it up
     Timer_B_startCounter(TIMER_B0_BASE, TIMER_B_UP_MODE); // and walk away.
+    }
 }

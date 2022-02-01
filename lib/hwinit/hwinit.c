@@ -57,6 +57,11 @@ void Init_GPIO(void) {
     GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
     GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
     GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
+
+    //DIP Switch Inputs Block
+    //These are obviously not momentary
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN6); //SW2.2 = P3.6
+    GPIO_setAsInputPinWithPullUpResistor(GPIO_PORT_P3, GPIO_PIN7); //SW2.1 = P3.7
 }
 
 
