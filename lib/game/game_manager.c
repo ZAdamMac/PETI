@@ -19,6 +19,7 @@
 #include "lib/scenes/scenes_manager.h"
 #include "lib/game/evo_data.h"
 #include "lib/display/display.h"
+#include "lib/alerts/alerts.h"
 
 unsigned int egg_delay_set;
 unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
@@ -68,6 +69,10 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
         current_fun = 0;
     }
 
+    if ((current_hunger == 0) || (current_fun == 0)){
+        ALERTS_hunger_fun_alert();
+    }
+
     StateMachine.HUNGER_FUN = (current_hunger << 4) + current_fun;
 
 }
@@ -98,7 +103,7 @@ void GAME_evaluateTimedEvents(void){
         NEXT_STAGE_TRANSITION_AGE = 0xFF; // needed to avoid looping in this, which causes animation problems. Normally set in the evolution function.
         //TODO should change activity levels once those are implemented.
     }
-    if (current_seconds == 0){ // At the round minute, we need to check for these several functions, none of which actually exist yet.
+    if ((current_seconds == 0) && egg_delay_set && (StateMachine.STAGE_ID > 0x00)){ // At the round minute, we need to check for these several functions, only if not an egg.
         GAME_NEEDS_evaluateHungerFun(current_minutes);
         //GAME_NEEDS_evaluatePooped();
         //GAME_NEEDS_evaluateIllness();

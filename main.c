@@ -53,6 +53,10 @@ void Update_Button_States(void){
             buttons_state ^= button_d_toggle;  // And alternate this flag.
             interacted_flag = true;
         }
+    if (interacted_flag)
+    {
+        BLINKENLIGHTS_lower();
+    }
 }
 
 
@@ -75,6 +79,7 @@ int main(void) {
         Update_Button_States();
         SCENE_updateDisplay();
         ToggleVCOM();
+        interacted_flag = 0x00; // By this point any interaction has been handled
         __bis_SR_register(LPM0_bits | GIE);
     }
 }
