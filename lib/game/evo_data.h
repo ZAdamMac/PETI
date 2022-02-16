@@ -8,6 +8,7 @@
 #ifndef LIB_GAME_EVO_DATA_H_
 #define LIB_GAME_EVO_DATA_H_
 
+extern unsigned int EVO_count_stages;
 
 typedef struct Stage{
     int stage_id; // This is just an ID, it doesn't get used but it's there to make the file more readable.

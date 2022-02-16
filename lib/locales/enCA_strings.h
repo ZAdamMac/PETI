@@ -33,6 +33,7 @@ extern const char* LSTRING_FEEDING_HEADER;
 extern const char* LSTRING_FOOD_HEADER;
 extern const char* LSTRING_SNACKS_HEADER;
 extern const char* LSTRING_SOUND_CHECK;
+extern const char* LSTRING_STAGE_SELECT;
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 

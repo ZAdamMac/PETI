@@ -10,6 +10,6 @@
 
 extern const int MENU_DEBUG_count_options;
 
-extern voidFuncPointer * MENU_DEBUG_functions[3];
+extern voidFuncPointer * MENU_DEBUG_functions[6];
 
 #endif /* LIB_MENUS_DEBUG_MENU_H_ */

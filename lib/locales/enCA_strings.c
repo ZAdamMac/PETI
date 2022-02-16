@@ -33,11 +33,16 @@ extern const char* LSTRING_CALMENU_HEADER = "Enter the time: ";
 extern const char* LSTRING_FEEDING_HEADER = "  FEEDING MENU  ";
 extern const char* LSTRING_FOOD_HEADER = "   FOOD  MENU   ";
 extern const char* LSTRING_SNACKS_HEADER = "  SNACKS  MENU  ";
+extern const char* LSTRING_STAGE_SELECT = "  STAGE SELECT  ";
 
 extern const char* LARRAY_DEBUG_OPTS[] = {
-                                        "Demo Mode       ",
                                         "Input Test      ",
-                                        "Audio Check     "
+                                        "Audio Check     ",
+                                        "Fill Hunger Bar ",
+                                        "Drain Hunger Bar",
+                                        "Fill Fun Bar    ",
+                                        "Drain Fun Bar   ",
+                                        "Stage Select    "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {

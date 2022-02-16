@@ -14,7 +14,6 @@
 #include "driverlib.h"
 #include "scenes_manager.h"
 #include "boot_splash.h"
-#include "demo_mode.h"
 #include "calendar_menu.h"
 #include "main.h"
 #include "button_proofer.h"
@@ -30,6 +29,7 @@
 #include "food_selector.h"
 #include "lib/game/food_data.h"
 #include "eating_animation.h"
+#include "stage_selector.h"
 
 volatile unsigned int SCENE_FRAME = 0x00;   // The current translational frame, used for scenes that just play out a defined animation.
 volatile unsigned int SCENE_TRANS_SECONDS;  // The time at which a time-based trigger should activate in seconds
@@ -47,9 +47,6 @@ void SCENE_updateDisplay(void){
     switch(SCENE_ACT){
         case SCENEADDR_boot_splash :    //Triggers the initial boot splash animation, defined in boot_splash.h/c
             SCENE_boot_splash();
-            break;
-        case SCENEADDR_demo_mode :      //Triggers the demonstorator/helloworld mode defined in demo.h/c
-            SCENE_demo_mode();
             break;
         case SCENEADDR_main_game :      //Yooooo!
             SCENE_main_game();
@@ -81,6 +78,8 @@ void SCENE_updateDisplay(void){
         case SCENEADDR_sound_test:
             SCENE_TextMenu(LSTRING_SOUND_CHECK, LARRAY_SOUNDCHECK_OPTS, MENU_SOUNDCHECK_functions, MENU_SOUNDCHECK_count_options); // Calls the audio check text menu
             break;
+        case SCENEADDR_stage_select:
+            SCENE_StageSelect(LSTRING_STAGE_SELECT, LARRAY_EVO_STAGE_NAMES, EVO_metaStruct, EVO_count_stages);
     }
 }
 

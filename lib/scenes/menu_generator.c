@@ -113,10 +113,10 @@ void MENU_computeNextFrame(char* header, char * options, int count_opts){
     for (row=0; row<MENU_active_lines; row++){
         strcpy(DISPLAY_FRAME.frame[2+row].line, MENU_computeLine(row, options, count_opts));
         if (row == actmenu_cursor){ // In this case, print.
-            strcpy(DISPLAY_FRAME.frame[2+row].directives, "111111111111111");
+            strcpy(DISPLAY_FRAME.frame[2+row].directives, "1111111111111111");
         }
         else {
-            strcpy(DISPLAY_FRAME.frame[2+row].directives, "000000000000000");
+            strcpy(DISPLAY_FRAME.frame[2+row].directives, "0000000000000000");
         }
     }
 
