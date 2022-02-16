@@ -24,6 +24,7 @@
 #include "lib/menus/main_game.h"
 
 unsigned int mg_cursor_position = 0x00;            //Cursor position, used to track which digit is being manipulated
+unsigned int MG_count_menu_icons_enabled;          //Ceiling of the cursor position
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
 unsigned int touched_this_row;                     // flag that is set each time MG_computeMeta is called and tells the parent function what to set the refresh bit to.
@@ -107,14 +108,14 @@ void MG_handleInputs(void){
     if (buttons_state & button_a_toggle){ // The A increments (scrolls forward) through the menu
         buttons_state ^= button_a_toggle; // We can unset the flag as soon as it's observed.
         mg_cursor_position++;
-        if (mg_cursor_position > MG_count_menu_icons){
+        if (mg_cursor_position > MG_count_menu_icons_enabled){
             mg_cursor_position = 0;
         }
     }
     if (buttons_state & button_b_toggle){ // The B button decrements (scrolls backward) through the menu
         buttons_state ^= button_b_toggle;
         mg_cursor_position--;
-        if (mg_cursor_position > MG_count_menu_icons){
+        if (mg_cursor_position > MG_count_menu_icons_enabled){
             mg_cursor_position = 0;
         }
     }
@@ -134,8 +135,8 @@ void MG_handleInputs(void){
 //Renders the top menu bar. This will have the first half of the MG_menu_icons array, rounded up.
 char* MG_printTopMenu(void){
     unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index; char mg_top_alterable[PIXELS_X/FONT_SIZE_FLOOR_X];
-    top_slice = MG_count_menu_icons/2;
-    if (MG_count_menu_icons % 2 != 0){
+    top_slice = MG_count_menu_icons_enabled/2;
+    if (MG_count_menu_icons_enabled % 2 != 0){
         top_slice++; //Top row always gets the extra item
     }
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - top_slice;
@@ -165,11 +166,16 @@ char* MG_printTopMenu(void){
 //Renders the bottom menu bar. This will have the latter half of the MG_menu_icons array, rounded down.
 char* MG_printBottomMenu(void){
     unsigned int bottom_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index; char mg_bottom_alterable[PIXELS_X/FONT_SIZE_FLOOR_X];
-    bottom_slice = MG_count_menu_icons/2;
+    bottom_slice = MG_count_menu_icons_enabled/2;
+    if (MG_count_menu_icons_enabled % 2 == 1){
+        icon_index = bottom_slice + 1;
+    }
+    else {
+        icon_index = bottom_slice;
+    }
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice;
     left_pad = blank_spaces/2; // This will always round down, which we actually want
     text_index = 0;
-    icon_index = bottom_slice;
     while (text_index < PIXELS_X/FONT_SIZE_FLOOR_X){
         if (left_pad > 0){
             mg_bottom_alterable[text_index] = ' '; // this is a non-printing padding space.
@@ -193,8 +199,8 @@ char* MG_printBottomMenu(void){
 // This, along with the function below, compute which icon is highlighted (printed inverted) for the given current cursor position.
 char* MG_computeTopDirective(void){
     unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0; char directives_top[PIXELS_X/FONT_SIZE_FLOOR_X];
-    top_slice = MG_count_menu_icons/2;
-    if (MG_count_menu_icons % 2 != 0){
+    top_slice = MG_count_menu_icons_enabled/2;
+    if (MG_count_menu_icons_enabled % 2 != 0){
         top_slice++; //Top row always gets the extra item
     }
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - top_slice;
@@ -213,16 +219,21 @@ char* MG_computeTopDirective(void){
 }
 
 char* MG_computeBottomDirective(void){
-    unsigned int bottom_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0; char directives_bottom[PIXELS_X/FONT_SIZE_FLOOR_X];
-    bottom_slice = MG_count_menu_icons/2;
+    unsigned int bottom_slice; unsigned int top_slice; unsigned int magic_pad; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0; char directives_bottom[PIXELS_X/FONT_SIZE_FLOOR_X];
+    bottom_slice = MG_count_menu_icons_enabled/2;
+    magic_pad = MG_count_menu_icons_enabled % 2;
+    if (magic_pad == 0) { // Special Edge case for even numbers.
+        magic_pad = 2;
+    }
+    top_slice = MG_count_menu_icons_enabled - bottom_slice;
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice;
     left_pad = blank_spaces/2; // This will always round down, which we actually want
     text_index = 0;
     for (text_index = 0; text_index < PIXELS_X/FONT_SIZE_FLOOR_X; ++text_index){
         directives_bottom[text_index] = '0';
     }
-    if (mg_cursor_position > bottom_slice){
-        cursor_index = left_pad + mg_cursor_position - bottom_slice - 1;
+    if (mg_cursor_position > top_slice){
+        cursor_index = left_pad + mg_cursor_position - bottom_slice - top_slice + magic_pad;
         directives_bottom[cursor_index] = '1';
     }
     return &directives_bottom;
@@ -249,6 +260,14 @@ void MG_computeNextFrame(void){
 // A main function to be called by the scene_manger to handle the inputs and then compute the next frame of animation, before sending all the updates to
 // DISPLAY. Handling the inputs itself can set the exit conditions for this scene so there is no need for special exit logic.
 void SCENE_main_game(void){
+    unsigned int debug_disabled;
+    debug_disabled = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN6);
+    if (debug_disabled){
+        MG_count_menu_icons_enabled = MG_count_menu_icons - 1;
+    }
+    else {
+        MG_count_menu_icons_enabled = MG_count_menu_icons;
+    }
     MG_handleInputs();
     MG_computeNextFrame();
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME);

@@ -17,8 +17,8 @@ const char MG_menu_icons[6] = {
                                0x07, // Wrench Icon - Maps to the Settings Menu
                                0x08, // Knife/Fork Icon - Maps to the Feeding Menu
                                0x0A, // Smile Icon - Maps to the Games Menu
-                               0x0B, // Beetle Icon - Maps to the Debug Menu
-                               0x0C // Calendar Menu - Maps to the Calendar Display
+                               0x0C, // Calendar Menu - Maps to the Calendar Display
+                               0x0B // Beetle Icon - Maps to the Debug Menu
 };
 
 #pragma PERSISTENT(MG_menu_scene_addresses)
@@ -27,9 +27,10 @@ const int MG_menu_scene_addresses[6] = {
                                       SCENEADDR_proof_text,  // Placeholder; when implemented, goto settings menu
                                       SCENEADDR_feed_menu,  // Placeholder; when implemented, goto feeding menu
                                       SCENEADDR_proof_text,  // Placeholder; when implemented, goto feeding menu
-                                      SCENEADDR_debug_menu,  // Scene Address for the Debug Menu
-                                      SCENEADDR_calendar_menu// Placeholder; when implemented, goto clock screen
+                                      SCENEADDR_calendar_menu,// Placeholder; when implemented, goto clock screen
+                                      SCENEADDR_debug_menu  // Scene Address for the Debug Menu
 };
+
 
 
 #endif /* LIB_MENUS_MAIN_GAME_H_ */
