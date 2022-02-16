@@ -28,12 +28,19 @@ unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gamepl
 // In future work we might add some functionality to look for an
 // existing state object and pull that instead for resumability.
 void GAME_initStateStruct(void){
+    unsigned int debug_disabled;
+    debug_disabled = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN6);
     StateMachine.AGE = 0x00;
     StateMachine.ACT = 0x03; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
     StateMachine.HUNGER_FUN = 0x00;
     StateMachine.DISCIPLINE = 0x00;
     StateMachine.NAUGHTY = 0x00; // Reasonable starting value, may need to be tweaked during testing.
-    StateMachine.STAGE_ID = 0x01; // Reserved Species ID for Eggs
+    if (debug_disabled){
+        StateMachine.STAGE_ID = 0x00; // Reserved Species ID for Eggs
+    }
+    else {
+        StateMachine.STAGE_ID = 0x01; // Skip hatching an egg for testing
+    }
     StateMachine.HEALTH_BYTE = 0x00;
 
     NEXT_STAGE_TRANSITION_AGE = 0x00;
