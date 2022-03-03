@@ -641,7 +641,7 @@ const char *font16x16[] = {
   "\xFE\x7F\xFE\x7F\xFE\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xF0\x0F\xEF\xF7\xDA\x5B\xD0\x0B\xD0\x0B\xD0\x0B\x5A\x5A\xAF\xF5\x50\x0A",  /* k */
   "\xFF\xF7\xFF\xF7\xFF\xEF\xFF\x77\xFF\x6F\xFF\x5F\xFF\x3F\xFF\x7F\xFF\xBF\xFF\xDF\xFF\xDF\xFF\xDF\xFF\xDF\xFF\xDF\xFF\xBF\xFF\x7F",  /* l */
   "\xFE\x7F\xFE\x7F\xFE\x7F\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xF0\x0F\xEF\xF7\xCB\x7B\xC1\x3B\xC1\x3B\xC1\x3B\x4B\x7A\xAF\xF5\x50\x0A",  /* m */
-  "\xEF\xFF\xEF\xFF\xF7\xFF\xEE\xFF\xF6\xFF\xFA\xFF\xFC\xFF\xFE\xFF\xFD\xFF\xF9\xFF\xF8\xFF\xF8\xFF\xF8\xFF\xF9\xFF\xFD\xFF\xFE\xFF",  /* n */
+  "\xEF\xFF\xEF\xFF\xF7\xFF\xEE\xFF\xF6\xFF\xFA\xfont16x16_1;FF\xFC\xFF\xFE\xFF\xFD\xFF\xF9\xFF\xF8\xFF\xF8\xFF\xF8\xFF\xF9\xFF\xFD\xFF\xFE\xFF",  /* n */
   "\xFD\xFF\xFB\xFF\xE7\xFF\xDF\xFF\x3F\xFE\xFF\xFD\xFF\xFD\x7F\xFE\x9E\xFF\xE1\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF",  /* o */
   "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x7F\xFF\x8F\xFF\xF3\xFF\xFC",  /* p */
   "\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\xFF\x3F\x00\x5F\xFF\x60\xFF\x7F\xFF\x7F",  /* q */
@@ -788,5 +788,78 @@ const char *font16x16[] = {
   "\xFF\xFF\xFC\xFF\xF3\xFF\xEF\xFF\xDF\xFF\xBF\xFF\x7F\xFF\xFC\xFE\xFB\xFE\xF7\xFD\xEF\xFD\xDF\xFB\xD9\xFB\xDE\xFB\xDF\xFB\xDF\xFB", /* 0xfe */
   "\x00\x00\xFF\xFF\xFF\xFF\xFF\xFF\x0F\xF8\xF1\xC7\xFE\x3F\xFF\xFF\xFF\xFF\xFC\x1F\xFB\xEF\xF4\x37\xF0\x37\xF0\x37\xFB\xEF\xFC\x1F", /* 0xff */
 };
+
+/*
+ * STOP HERE
+ *
+ * No additional fonts should be defined below this line. If you are defining one of these fonts create font_<youraddr>.h in this directory
+ * and add it to the includes at the top of this file.
+ *
+ * Direct storage of fonts in this header is deprecated and will be removed in a future build. These are included only to allow the display refactor in 0.1.0
+ * to not choke and die; until a makefile-based compilation method presents itself.
+ */
+
+#pragma PERSISTENT(font16x16_1)
+const char *font16x16_1[] = {0};
+#pragma PERSISTENT(font16x16_2)
+const char *font16x16_2[] = {0};
+#pragma PERSISTENT(font16x16_3)
+const char *font16x16_3[] = {0};
+#pragma PERSISTENT(font16x16_4)
+const char *font16x16_4[] = {0};
+#pragma PERSISTENT(font16x16_5)
+const char *font16x16_5[] = {0};
+#pragma PERSISTENT(font16x16_6)
+const char *font16x16_6[] = {0};
+#pragma PERSISTENT(font16x16_7)
+const char *font16x16_7[] = {0};
+#pragma PERSISTENT(font16x16_8)
+const char *font16x16_8[] = {0};
+#pragma PERSISTENT(font16x16_9)
+const char *font16x16_9[] = {0};
+#pragma PERSISTENT(font16x16_A)
+const char *font16x16_A[] = {0};
+#pragma PERSISTENT(font16x16_B)
+const char *font16x16_B[] = {0};
+#pragma PERSISTENT(font16x16_C)
+const char *font16x16_C[] = {0};
+#pragma PERSISTENT(font16x16_D)
+const char *font16x16_D[] = {0};
+#pragma PERSISTENT(font16x16_E)
+const char *font16x16_E[] = {0};
+#pragma PERSISTENT(font16x16_F)
+const char *font16x16_F[] = {0};
+
+#pragma PERSISTENT(font8x12_1)
+const char *font8x12_1[] = {0};
+#pragma PERSISTENT(font8x12_2)
+const char *font8x12_2[] = {0};
+#pragma PERSISTENT(font8x12_3)
+const char *font8x12_3[] = {0};
+#pragma PERSISTENT(font8x12_4)
+const char *font8x12_4[] = {0};
+#pragma PERSISTENT(font8x12_5)
+const char *font8x12_5[] = {0};
+#pragma PERSISTENT(font8x12_6)
+const char *font8x12_6[] = {0};
+#pragma PERSISTENT(font8x12_7)
+const char *font8x12_7[] = {0};
+#pragma PERSISTENT(font8x12_8)
+const char *font8x12_8[] = {0};
+#pragma PERSISTENT(font8x12_9)
+const char *font8x12_9[] = {0};
+#pragma PERSISTENT(font8x12_A)
+const char *font8x12_A[] = {0};
+#pragma PERSISTENT(font8x12_B)
+const char *font8x12_B[] = {0};
+#pragma PERSISTENT(font8x12_C)
+const char *font8x12_C[] = {0};
+#pragma PERSISTENT(font8x12_D)
+const char *font8x12_D[] = {0};
+#pragma PERSISTENT(font8x12_E)
+const char *font8x12_E[] = {0};
+#pragma PERSISTENT(font8x12_F)
+const char *font8x12_F[] = {0};
+
 
 #endif /* FONT_H_ */

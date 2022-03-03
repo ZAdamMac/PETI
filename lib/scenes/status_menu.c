@@ -150,6 +150,7 @@ void STATMENU_renderSpecialPage(void){
 // State controller based on the inputs to control which page gets drawn.
 void STATMENU_computeNextFrame(void){
     int iterator;
+    int col;
     strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_STATUS_HEADER);
     strcpy(DISPLAY_FRAME.frame[1].line, "\x06               ");
     strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
@@ -168,7 +169,9 @@ void STATMENU_computeNextFrame(void){
     strcpy(DISPLAY_FRAME.frame[5].line, "                ");
     strcpy(DISPLAY_FRAME.frame[8].line, "                ");
     for(iterator=0;iterator<11;iterator++){
-        strcpy(DISPLAY_FRAME.frame[iterator].directives, "0000000000000000");
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[iterator].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        }
     }
 }
 

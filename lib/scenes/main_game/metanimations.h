@@ -196,14 +196,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                                            "---000--",
                                            "--------",
                                            "--------"
-                                          },{
-                                             "--------",
-                                             "---000--",
-                                             "---000--",
-                                             "---000--",
-                                             "--------",
-                                             "--------"
-                                            },
+                                          }
                                     }
                             },
 };

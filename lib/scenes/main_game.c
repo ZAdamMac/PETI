@@ -68,14 +68,25 @@ char* MG_computeDirective(const char* meta_placements){
     unsigned int dirindex = 0;
     char directives_out[PIXELS_X/16+1];
     while (dirindex < PIXELS_X/16){
-        if (meta_placements[dirindex] == '-'){
-            directives_out[dirindex] = '0';
-        }
-        else if (meta_placements[dirindex] == '_'){
-            directives_out[dirindex] = '2'; // These underscores are Dark cells
-        }
-        else {
-            directives_out[dirindex] = meta_placements[dirindex];
+        switch (meta_placements[dirindex]){
+            case '-' :
+                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                break;
+            case '_' :
+                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                break;
+            case '0' :
+                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                break;
+            case '1' :
+                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                break;
+            case '2' :
+                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                break;
+            case '3' :
+                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED_NEGATIVE;
+                break;
         }
         dirindex++;
     }
@@ -207,12 +218,12 @@ char* MG_computeTopDirective(void){
     left_pad = blank_spaces/2; // This will always round down, which we actually want
     text_index = 0;
     for (text_index = 0; text_index < PIXELS_X/FONT_SIZE_FLOOR_X; ++text_index){
-        directives_top[text_index] = '0';
+        directives_top[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     if (mg_cursor_position > 0){ // When the cursor position is 0, we don't need to highlight anything.
         if (top_slice >= mg_cursor_position){
             cursor_index = left_pad + mg_cursor_position - 1;
-            directives_top[cursor_index] = '1';
+            directives_top[cursor_index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
         }
     }
     return &directives_top;
@@ -230,11 +241,11 @@ char* MG_computeBottomDirective(void){
     left_pad = blank_spaces/2; // This will always round down, which we actually want
     text_index = 0;
     for (text_index = 0; text_index < PIXELS_X/FONT_SIZE_FLOOR_X; ++text_index){
-        directives_bottom[text_index] = '0';
+        directives_bottom[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     if (mg_cursor_position > top_slice){
         cursor_index = left_pad + mg_cursor_position - bottom_slice - top_slice + magic_pad;
-        directives_bottom[cursor_index] = '1';
+        directives_bottom[cursor_index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
     }
     return &directives_bottom;
 }

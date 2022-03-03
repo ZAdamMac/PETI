@@ -217,37 +217,37 @@ char * CALMENU_dateAndDow(void){
 char * CALMENU_dateAndDowDirective(void){
     unsigned int text_index;
     for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
-        WORK_STRING[text_index] = '0';
+        WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
             case 0 :
-                WORK_STRING[1] = '1';
+                WORK_STRING[1] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 1 :
-                WORK_STRING[2] = '1';
+                WORK_STRING[2] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 2 :
-                WORK_STRING[3] = '1';
+                WORK_STRING[3] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 3 :
-                WORK_STRING[4] = '1';
+                WORK_STRING[4] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 4 :
-                WORK_STRING[6] = '1';
+                WORK_STRING[6] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 5 :
-                WORK_STRING[7] = '1';
+                WORK_STRING[7] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 6 :
-                WORK_STRING[9] = '1';
+                WORK_STRING[9] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 7 :
-                WORK_STRING[10] = '1';
+                WORK_STRING[10] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case 8 : // This selection is multiwide
-                WORK_STRING[12] = '1';
-                WORK_STRING[13] = '1';
-                WORK_STRING[14] = '1';
+                WORK_STRING[12] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[13] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[14] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
         }
     return &WORK_STRING;
@@ -277,20 +277,20 @@ char * CALMENU_printTime(void){
 char* CALMENU_timeDirective(void){
     unsigned int text_index;
     for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
-        WORK_STRING[text_index] = '0';
+        WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
         case 9 :
-            WORK_STRING[6] = '1';
+            WORK_STRING[6] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
             break;
         case 10 :
-            WORK_STRING[7] = '1';
+            WORK_STRING[7] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
             break;
         case 11 :
-            WORK_STRING[9] = '1';
+            WORK_STRING[9] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
             break;
         case 12 :
-            WORK_STRING[10] = '1';
+            WORK_STRING[10] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
             break;
     }
 
@@ -302,10 +302,12 @@ char* CALMENU_timeDirective(void){
 // Some logic is also applied to determine which rows need to be updated based on where the cursor is.
 // This technically means we write too often but it's proven to be sufficiently performant not to matter.
 void CALMENU_computeNextFrame(void){
-    int index;
+    int index, col;
     for (index=0; index<PIXELS_Y/FONT_SIZE_FLOOR_Y; index++){ //It is computationally easier to blank the whole frame then just go back and update it.
         strcpy(DISPLAY_FRAME.frame[index].line, "");
-        strcpy(DISPLAY_FRAME.frame[index].directives, "0000000000000000");
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[index].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        }
     }
     // There are some static lines that need to be set for icons and suchlike.
     strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_CALMENU_HEADER);
@@ -322,11 +324,10 @@ void CALMENU_computeNextFrame(void){
     strncpy(DISPLAY_FRAME.frame[5].directives, CALMENU_timeDirective(), (PIXELS_X/FONT_SIZE_FLOOR_X));
 
     //Finally, check for the set directive:
-    if (cursor_position == cursor_position_set){
-        strcpy(DISPLAY_FRAME.frame[8].directives, "0000001111000000");  // SET selected
-    }
-    else{
-        strcpy(DISPLAY_FRAME.frame[8].directives, "0000000000000000");  // SET unselected
+    if (cursor_position == cursor_position_set){ // SET selected
+        for (index=6; index<10; index++){
+                DISPLAY_FRAME.frame[8].directives[index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+        }
     }
 }
 

@@ -31,7 +31,6 @@ int STAGESEL_page_count = 0;
 unsigned int stagesel_exiting = false;
 
 
-
 // Computes the total number of pages needed based on the value of STAGESEL_active_lines and the argued-in count of menu options
 int STAGESEL_computePagination(int count_opts){
     int pages_needed;
@@ -46,7 +45,6 @@ int STAGESEL_computePagination(int count_opts){
     }
     return pages_needed;
 }
-
 
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 // In this case, we can really only go up, down, or exit
@@ -91,7 +89,6 @@ void STAGESEL_handleInputs(Stage *target_SARRAY, int target_count_opts){
         }
 }
 
-
 // Returns the text from `options` for the current cursor position, assuming in fact it exists.
 char* STAGESEL_computeLine(int line_number, char ** options, int count_opts){
     if (line_number + (stagesel_page*STAGESEL_active_lines) < count_opts){ // The requested index is in-bound and we can do this.
@@ -104,31 +101,30 @@ char* STAGESEL_computeLine(int line_number, char ** options, int count_opts){
 
 // State controller based on the inputs to control which page gets drawn.
 void STAGESEL_computeNextFrame(char* header, char * options, int count_opts){
-    int row;
+    int row, col;
     //Display the header row and the static icon rows.
     //These rows are never highlighted and will only refresh when the FORCE_REFRESH bit is set, which is fine.
     strcpy(DISPLAY_FRAME.frame[0].line, header);
-    strcpy(DISPLAY_FRAME.frame[0].directives, "0000000000000000");
     strcpy(DISPLAY_FRAME.frame[1].line, "\x06              \x16");
-    strcpy(DISPLAY_FRAME.frame[1].directives, "0000000000000000");
     strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
-    strcpy(DISPLAY_FRAME.frame[9].directives, "0000000000000000");
+
+    for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        }
+    }
+
 
     //Iteratively set the remaining rows.
     for (row=0; row<STAGESEL_active_lines; row++){
         strcpy(DISPLAY_FRAME.frame[2+row].line, STAGESEL_computeLine(row, options, count_opts));
         if (row == stagesel_cursor){ // In this case, print.
-            strcpy(DISPLAY_FRAME.frame[2+row].directives, "1111111111111111");
-        }
-        else {
-            strcpy(DISPLAY_FRAME.frame[2+row].directives, "0000000000000000");
+            for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+                DISPLAY_FRAME.frame[2+row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                }
+            }
         }
     }
-
-}
-
-
-
 
 // This is the public function of the menu generator module. By calling this with the following arguments you are drawing a menu to screen.
 //      target_LSTRING_HEADER: a char* pseudostring, ideally from your locale file, that gives the menu title.

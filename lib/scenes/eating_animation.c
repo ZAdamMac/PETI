@@ -22,6 +22,7 @@
 #include "main.h"
 
 unsigned int eating_frame = 0;
+int active_frame;
 
 
 void EAT_handleInputs(void){
@@ -48,7 +49,7 @@ char * EAT_computeLine(const char active_animation[], int size, unsigned int cur
 
     //Blank the line before starting.
     for (iterator = 0;iterator < PIXELS_X/FONT_SIZE_FLOOR_X; iterator++){
-        WORK_STRING[iterator] = ' '; // Let's always start blank.
+        WORK_STRING[iterator] = ' '; // Let's always start blank. <- WHY!?
     }
 
     //Animate the food first
@@ -113,22 +114,27 @@ char * EAT_computeLine(const char active_animation[], int size, unsigned int cur
 
 void EAT_computeNextFrame(void){
     int active_line;
+    int row, col;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     // We needs these lines to be blank every time.
     strcpy(DISPLAY_FRAME.frame[0].line, " ");
     strcpy(DISPLAY_FRAME.frame[7].line, " ");
-    strcpy(DISPLAY_FRAME.frame[8].line, " ");
+    strcpy(DISPLAY_FRAME.frame[8].line, " "); // TODO it's broken in here somehow
+
+    for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        }
+    }
 
     if (eating_frame > 7){ // By now the food is on the ground
         for (active_line = 0;active_line<6; active_line++){
-            strcpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animationEating[eating_frame % 2], active_species.size, eating_frame, active_line, FOODSEL_active_food.animation)); // Compute the animated text for this row.
-            strcpy(DISPLAY_FRAME.frame[active_line+1].directives, "0000000000000000"); // Compute the directive information.
+            strncpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animationEating[eating_frame % 2], active_species.size, eating_frame, active_line, FOODSEL_active_food.animation), (PIXELS_X/FONT_SIZE_FLOOR_X)); // Compute the animated text for this active_line.
         }
     }
     else { // Unless it's not
         for (active_line = 0;active_line<6; active_line++){
-            strcpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animation[eating_frame % 2], active_species.size, eating_frame, active_line, FOODSEL_active_food.animation)); // Compute the animated text for this row.
-            strcpy(DISPLAY_FRAME.frame[active_line+1].directives, "0000000000000000"); // Compute the directive information.
+            strncpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animation[eating_frame % 2], active_species.size, eating_frame, active_line, FOODSEL_active_food.animation), (PIXELS_X/FONT_SIZE_FLOOR_X)); // Compute the animated text for this active_line.
         }
     }
 }

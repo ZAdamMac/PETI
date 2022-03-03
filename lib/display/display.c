@@ -172,7 +172,8 @@ void printTextSmall(const char* text, unsigned char line)
 //        line      vertical position of text, 0-(PIXEL_Y-1)
 void printTextMedium(const char* text, unsigned char line, const char* directives)
 {
-    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine;
+    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine, fontaddr, operation;
+    char **addressed_font;
     //bool padded;
     //For simplicity, and because we are borrowing an existing font library, we print line-by-line
     indexLine = 0;
@@ -182,13 +183,73 @@ void printTextMedium(const char* text, unsigned char line, const char* directive
         indexLineBuffer = 0;
         while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
         {
-            bitmap = font8x12[character][indexLine];  // Retrieves the byte defining one line of character.
-            switch (directives[indexText]){
-                case '0': // If directive 0, display as normal
-                    bitmap = bitmap;
+            fontaddr = directives[indexText] >> 4 & 0xF;
+            operation = directives[indexText] & 0xF;
+            switch(fontaddr){
+                case FONT_ADDR_0 :
+                    addressed_font = &font8x12;
                     break;
-                case '1': // If directive 1, invert the character
+                case FONT_ADDR_1 :
+                    addressed_font = &font8x12_1;
+                    break;
+                case FONT_ADDR_2 :
+                    addressed_font = &font8x12_2;
+                    break;
+                case FONT_ADDR_3 :
+                    addressed_font = &font8x12_3;
+                    break;
+                case FONT_ADDR_4 :
+                    addressed_font = &font8x12_4;
+                    break;
+                case FONT_ADDR_5 :
+                    addressed_font = &font8x12_5;
+                    break;
+                case FONT_ADDR_6 :
+                    addressed_font = &font8x12_6;
+                    break;
+                case FONT_ADDR_7 :
+                    addressed_font = &font8x12_7;
+                    break;
+                case FONT_ADDR_8 :
+                    addressed_font = &font8x12_8;
+                    break;
+                case FONT_ADDR_9 :
+                    addressed_font = &font8x12_9;
+                    break;
+                case FONT_ADDR_A :
+                    addressed_font = &font8x12_A;
+                    break;
+                case FONT_ADDR_B :
+                    addressed_font = &font8x12_B;
+                    break;
+                case FONT_ADDR_C :
+                    addressed_font = &font8x12_C;
+                    break;
+                case FONT_ADDR_D :
+                    addressed_font = &font8x12_D;
+                    break;
+                case FONT_ADDR_E :
+                    addressed_font = &font8x12_E;
+                    break;
+                case FONT_ADDR_F :
+                    addressed_font = &font8x12_F;
+                    break;
+                default :
+                    addressed_font = &font8x12;
+                    break;
+            }
+            bitmap = addressed_font[character][indexLine];  // Retrieves the byte defining one line of character.
+            switch (operation){
+                case DIRECTIVE_NORMAL : // Print as-is
+                    break;
+                case DIRECTIVE_REVERSED : // Reverse Character Orientation
+                    bitmap = reverse(bitmap);
+                    break;
+                case DIRECTIVE_NEGATIVE: // Invert the character
                     bitmap = ~bitmap;
+                    break;
+                case DIRECTIVE_REVERSED_NEGATIVE: //Reverse and Invert. Don't see a use, but I'll want it if I don't create it.
+                    bitmap = ~reverse(bitmap);
                     break;
             }
             bufferLine[indexLineBuffer] = bitmap;
@@ -216,7 +277,8 @@ void printTextMedium(const char* text, unsigned char line, const char* directive
 //        line      vertical position of text, 0-(PIXEL_Y-1)
 void printTextLarge(const char* text, unsigned char line, const char* directives)
 {
-    unsigned char character, bitmap_left, bitmap_right, indexText, indexLineBuffer, indexLine, indexOfOffset, bitmap_left_out, bitmap_right_out;
+    unsigned char character, bitmap_left, bitmap_right, indexText, indexLineBuffer, indexLine, indexOfOffset, bitmap_left_out, bitmap_right_out, fontaddr, operation;
+    char **addressed_font;
     //bool padded;
     //For simplicity, and because we are borrowing an existing font library, we print line-by-line
     indexLine = 0;
@@ -227,22 +289,77 @@ void printTextLarge(const char* text, unsigned char line, const char* directives
         indexLineBuffer = 0;
         while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
         {
-            bitmap_right = font16x16[character][indexLine+indexOfOffset];  // Retrieves the byte defining the left side of the character.
-            bitmap_left = font16x16[character][indexLine+indexOfOffset+1];  // Retrieves the byte defining the right side of the character.
-            switch (directives[indexText]){
-                case '0' : // Print as-is
+            fontaddr = directives[indexText] >> 4 & 0xF;
+            operation = directives[indexText] & 0xF;
+            switch(fontaddr){
+                case FONT_ADDR_0 :
+                    addressed_font = &font16x16;
+                    break;
+                case FONT_ADDR_1 :
+                    addressed_font = &font16x16_1;
+                    break;
+                case FONT_ADDR_2 :
+                    addressed_font = &font16x16_2;
+                    break;
+                case FONT_ADDR_3 :
+                    addressed_font = &font16x16_3;
+                    break;
+                case FONT_ADDR_4 :
+                    addressed_font = &font16x16_4;
+                    break;
+                case FONT_ADDR_5 :
+                    addressed_font = &font16x16_5;
+                    break;
+                case FONT_ADDR_6 :
+                    addressed_font = &font16x16_6;
+                    break;
+                case FONT_ADDR_7 :
+                    addressed_font = &font16x16_7;
+                    break;
+                case FONT_ADDR_8 :
+                    addressed_font = &font16x16_8;
+                    break;
+                case FONT_ADDR_9 :
+                    addressed_font = &font16x16_9;
+                    break;
+                case FONT_ADDR_A :
+                    addressed_font = &font16x16_A;
+                    break;
+                case FONT_ADDR_B :
+                    addressed_font = &font16x16_B;
+                    break;
+                case FONT_ADDR_C :
+                    addressed_font = &font16x16_C;
+                    break;
+                case FONT_ADDR_D :
+                    addressed_font = &font16x16_D;
+                    break;
+                case FONT_ADDR_E :
+                    addressed_font = &font16x16_E;
+                    break;
+                case FONT_ADDR_F :
+                    addressed_font = &font16x16_F;
+                    break;
+                default :
+                    addressed_font = &font16x16;
+                    break;
+            }
+            bitmap_right = addressed_font[character][indexLine+indexOfOffset];  // Retrieves the byte defining the left side of the character.
+            bitmap_left = addressed_font[character][indexLine+indexOfOffset+1];  // Retrieves the byte defining the right side of the character.
+            switch (operation){
+                case DIRECTIVE_NORMAL : // Print as-is
                     bitmap_right_out = bitmap_right;
                     bitmap_left_out = bitmap_left;
                     break;
-                case '1' : // Reverse Character Orientation
+                case DIRECTIVE_REVERSED : // Reverse Character Orientation
                     bitmap_left_out = reverse(bitmap_right); //The orientation of the two segments must also reverse, not just the bits themselves.
                     bitmap_right_out = reverse(bitmap_left);
                     break;
-                case '2': // Invert the character
+                case DIRECTIVE_NEGATIVE: // Invert the character
                     bitmap_left_out = ~bitmap_left;
                     bitmap_right_out = ~bitmap_right;
                     break;
-                case '3': //Reverse and Invert. Don't see a use, but I'll want it if I don't create it.
+                case DIRECTIVE_REVERSED_NEGATIVE: //Reverse and Invert. Don't see a use, but I'll want it if I don't create it.
                     bitmap_left_out = ~reverse(bitmap_right);
                     bitmap_right_out = ~reverse(bitmap_left);
                     break;
