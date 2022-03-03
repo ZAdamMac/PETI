@@ -56,21 +56,21 @@ extern const char* LARRAY_DAYS_OF_WEEK[] = {
 };
 
 extern const char* LARRAY_EVO_STAGE_NAMES[] = {
-                    "    Egg     ",
-                    "    Baby    ",
-                    " Hungryboi  ",
-                    " SicklySlim ",
-                    " Jellyfloat ",
-                    "  Bughound  ",
-                    " Zazenkuchi ",
-                    " Pointyboi  ",
-                    " Skullcrab  ",
-                    "  Darumite  ",
-                    "   Squid    ",
-                    " Cthulhorse ",
-                    "Ham-Monster ",
-                    "  Nautilus  ",
-                    "Axe-a-lot'l "
+                    "      Egg       ",
+                    "      Baby      ",
+                    "   Hungryboi    ",
+                    "   SicklySlim   ",
+                    "   Jellyfloat   ",
+                    "    Bughound    ",
+                    "   Zazenkuchi   ",
+                    "   Pointyboi    ",
+                    "   Skullcrab    ",
+                    "    Darumite    ",
+                    "     Squid      ",
+                    "   Cthulhorse   ",
+                    "  Ham-Monster   ",
+                    "    Nautilus    ",
+                    "  Axe-a-lot'l   "
 };
 
 extern const char* LARRAY_FOOD_TOP_MENU[] = {
