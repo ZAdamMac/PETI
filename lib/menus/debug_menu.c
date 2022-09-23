@@ -44,11 +44,15 @@ void MENU_DEBUG_goto_TimeMachine(void){
     SCENE_ACT = SCENEADDR_stage_select;
 }
 
-#pragma PERSISTENT(MENU_DEBUG_count_options);
-const int MENU_DEBUG_count_options = 7;
+void MENU_DEBUG_goto_RNGDebug(void){
+    SCENE_ACT = SCENEADDR_rng_debug;
+}
 
 #pragma PERSISTENT(MENU_DEBUG_count_options);
-voidFuncPointer MENU_DEBUG_functions[7] = {
+const int MENU_DEBUG_count_options = 8;
+
+#pragma PERSISTENT(MENU_DEBUG_count_options);
+voidFuncPointer MENU_DEBUG_functions[8] = {
                                       MENU_DEBUG_goto_Proofer,
                                       MENU_DEBUG_goto_SoundTest,
                                       MENU_DEBUG_fill_hunger,
@@ -56,4 +60,5 @@ voidFuncPointer MENU_DEBUG_functions[7] = {
                                       MENU_DEBUG_fill_fun,
                                       MENU_DEBUG_deplete_fun,
                                       MENU_DEBUG_goto_TimeMachine,
+                                      MENU_DEBUG_goto_RNGDebug
 };

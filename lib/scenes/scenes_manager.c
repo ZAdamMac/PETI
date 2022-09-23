@@ -80,6 +80,11 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_stage_select:
             SCENE_StageSelect(LSTRING_STAGE_SELECT, LARRAY_EVO_STAGE_NAMES, EVO_metaStruct, EVO_count_stages);
+            break;
+        case SCENEADDR_rng_debug:
+            SCENE_DebugRNG(LSTRING_ENTROPY_INFO, LSTRING_INITIAL_SEED, LSTRING_CURRENT_RNG);
+            break;
+
     }
 }
 

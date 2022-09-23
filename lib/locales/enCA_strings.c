@@ -34,6 +34,9 @@ extern const char* LSTRING_FEEDING_HEADER = "  FEEDING MENU  ";
 extern const char* LSTRING_FOOD_HEADER = "   FOOD  MENU   ";
 extern const char* LSTRING_SNACKS_HEADER = "  SNACKS  MENU  ";
 extern const char* LSTRING_STAGE_SELECT = "  STAGE SELECT  ";
+extern const char* LSTRING_ENTROPY_INFO = "   RNG STATUS   ";
+extern const char* LSTRING_INITIAL_SEED = "  INITIAL SEED  ";
+extern const char* LSTRING_CURRENT_RNG= "CURRENT RNG CARD";
 
 extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Input Test      ",
@@ -42,7 +45,8 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Drain Hunger Bar",
                                         "Fill Fun Bar    ",
                                         "Drain Fun Bar   ",
-                                        "Stage Select    "
+                                        "Stage Select    ",
+                                        "Entropy Check   "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {

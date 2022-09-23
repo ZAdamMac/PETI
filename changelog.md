@@ -62,3 +62,13 @@
 - Sets a rate HF of `0xFF` to the Baby (`EVO_metaStruct[1]`).
 - Adds a function to the eating animation scene that applies the appropriate status modifiers from the food (TODO: Weight still not implemented)
 - Corrects a bug in status_menu.c that caused graphical issues due to a failure to reset the DIRECTIVES for a given line.
+
+# v 0.1.0 - Alert and RNG Primitives
+- Adds the alert primatives allowing simplistic LED and audio alerts if the backplane is installed (finalized back plane design not complete)
+- makes changes to GPIO init in order to suppert use of the buzzer and LED
+- Enables a debug menu and all debug functionality if switch 2.2 is closed
+  - This also bypasses the "egg" stage of life automatically.
+- Yet another display refactor: the medium and large print functions now support 16 fonts each and have the potential to allow you to define up to 16 "display modes" per character. No new fonts or display modifiers were added.
+- Adds the primitives for RNG functions based on reading the TLV and using a LCG-type non-secure Random Number Generator in order to provide "game-quality" entropy for future use in, say, a minigames mode.
+- Adds a scene to the debug menu that allows you to babysit the RNG state.
+- It's intended to "break" here to catch up with documentation and finish the development kit design, thus the 0.1.0 numbering.
