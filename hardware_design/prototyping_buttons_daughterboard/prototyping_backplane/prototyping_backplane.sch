@@ -64,9 +64,6 @@ NoConn ~ 4800 5000
 NoConn ~ 8900 4450
 NoConn ~ 8900 4550
 NoConn ~ 8900 4650
-NoConn ~ 8900 4950
-NoConn ~ 8900 5050
-NoConn ~ 8900 5150
 NoConn ~ 4800 4600
 NoConn ~ 4800 5100
 $Comp
@@ -138,32 +135,6 @@ Wire Wire Line
 	5900 5350 6150 5350
 Wire Wire Line
 	4800 4900 4400 4900
-Wire Wire Line
-	4400 4900 4400 5550
-Wire Wire Line
-	4400 5550 4250 5550
-Wire Wire Line
-	5300 5200 5300 5650
-Wire Wire Line
-	5300 5650 4250 5650
-Wire Wire Line
-	9550 6100 4250 6100
-Wire Wire Line
-	4250 6100 4250 5850
-Wire Wire Line
-	4250 5750 4450 5750
-Wire Wire Line
-	4450 5750 4450 5850
-Wire Wire Line
-	4450 5850 9300 5850
-Wire Wire Line
-	9300 5850 9300 4850
-Wire Wire Line
-	8900 4850 9300 4850
-Wire Wire Line
-	8900 4750 9550 4750
-Wire Wire Line
-	9550 4750 9550 6100
 $Comp
 L Switch:SW_DIP_x02 SW2
 U 1 1 6129185B
@@ -199,29 +170,18 @@ Wire Wire Line
 Connection ~ 9550 3750
 Wire Wire Line
 	9550 3750 9550 4350
-$Comp
-L Connector_Generic:Conn_02x10_Odd_Even J2
-U 1 1 6125A876
-P 8600 4750
-F 0 "J2" H 8650 5367 50  0000 C CNN
-F 1 "BOOSTER_RIGHT" H 8650 5276 50  0000 C CNN
-F 2 "Connector_PinHeader_2.00mm:PinHeader_2x10_P2.00mm_Vertical" H 8650 5275 50  0001 C CNN
-F 3 "~" H 8600 4750 50  0001 C CNN
-	1    8600 4750
-	1    0    0    -1  
-$EndComp
 Wire Wire Line
 	5850 2200 9550 2200
 $Comp
-L Connector:Conn_01x04_Female J3
+L Connector:Conn_01x06_Female J3
 U 1 1 6127399A
-P 4050 5750
-F 0 "J3" H 4078 5726 50  0000 L CNN
-F 1 "EXP_SPI" H 4078 5635 50  0000 L CNN
-F 2 "Connector_PinHeader_2.00mm:PinHeader_1x04_P2.00mm_Horizontal" H 4050 5750 50  0001 C CNN
-F 3 "~" H 4050 5750 50  0001 C CNN
-	1    4050 5750
-	-1   0    0    1   
+P 3850 5650
+F 0 "J3" H 3878 5626 50  0000 L CNN
+F 1 "EXP_SPI" H 3878 5535 50  0000 L CNN
+F 2 "Connector_PinHeader_2.00mm:PinHeader_1x06_P2.00mm_Horizontal" H 3850 5650 50  0001 C CNN
+F 3 "~" H 3850 5650 50  0001 C CNN
+	1    3850 5650
+	-1   0    0    -1  
 $EndComp
 Wire Wire Line
 	5450 5700 5450 5100
@@ -251,4 +211,61 @@ Wire Wire Line
 Connection ~ 6600 4400
 Wire Wire Line
 	6600 4400 7150 4400
+Wire Wire Line
+	4350 4300 4050 4300
+Wire Wire Line
+	4050 4300 4050 5450
+Connection ~ 4350 4300
+Wire Wire Line
+	4050 5950 4150 5950
+Wire Wire Line
+	4150 5950 4150 6250
+Wire Wire Line
+	4150 6250 9850 6250
+Wire Wire Line
+	9850 6250 9850 2200
+Wire Wire Line
+	9850 2200 9550 2200
+Connection ~ 9550 2200
+Wire Wire Line
+	4400 5650 4050 5650
+Wire Wire Line
+	4400 4900 4400 5650
+Wire Wire Line
+	5300 5200 5300 5550
+Wire Wire Line
+	5300 5550 4050 5550
+NoConn ~ 4400 5550
+$Comp
+L Connector_Generic:Conn_02x10_Odd_Even J2
+U 1 1 6125A876
+P 8600 4750
+F 0 "J2" H 8650 5367 50  0000 C CNN
+F 1 "BOOSTER_RIGHT" H 8650 5276 50  0000 C CNN
+F 2 "Connector_PinHeader_2.00mm:PinHeader_2x10_P2.00mm_Vertical" H 8650 5275 50  0001 C CNN
+F 3 "~" H 8600 4750 50  0001 C CNN
+	1    8600 4750
+	1    0    0    -1  
+$EndComp
+Wire Wire Line
+	9000 4950 8900 4950
+Wire Wire Line
+	9100 5850 9100 4850
+Wire Wire Line
+	9100 4850 8900 4850
+Wire Wire Line
+	9100 5850 4700 5850
+Wire Wire Line
+	4700 5850 4700 5750
+Wire Wire Line
+	4700 5750 4050 5750
+Wire Wire Line
+	9000 5950 4450 5950
+Wire Wire Line
+	4450 5950 4450 5850
+Wire Wire Line
+	4450 5850 4050 5850
+Wire Wire Line
+	9000 4950 9000 5950
+NoConn ~ 9000 5850
 $EndSCHEMATC

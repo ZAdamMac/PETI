@@ -18,11 +18,13 @@
 
 #include "driverlib.h"
 #include "lib/game/game_manager.h"
+#include "lib/game/entropy.h"
 #include "lib/display/display.h"
 #include "lib/hwinit/hwinit.h"
 #include "lib/scenes/scenes_manager.h"
 #include <msp430.h>
 #include "main.h"
+#include "lib/alerts/blinkenlights.h"
 //#include "lib/game/evo_data.h"
 //#include "lib/locales/enCA_strings.h"
 
@@ -53,6 +55,10 @@ void Update_Button_States(void){
             buttons_state ^= button_d_toggle;  // And alternate this flag.
             interacted_flag = true;
         }
+    if (interacted_flag)
+    {
+        BLINKENLIGHTS_lower();
+    }
 }
 
 
@@ -62,6 +68,8 @@ int main(void) {
     VCOM = MLCD_VCOM; // Set the initial state of the VCOM bit.
     FORCE_REFRESH = 0x00; // Force a refresh of all lines for the first scene ever called
     interacted_flag = 0x00;
+    RNG_session_seed = RNG_getSeedWord(); // Done very early to be able to use the ADC without interfering with other functions.
+    RNG_initialize(RNG_session_seed);
     Init_GPIO();
     Init_Timers();
     Init_RTC();
@@ -75,6 +83,8 @@ int main(void) {
         Update_Button_States();
         SCENE_updateDisplay();
         ToggleVCOM();
+        RNG_forceShuffle();
+        interacted_flag = 0x00; // By this point any interaction has been handled
         __bis_SR_register(LPM0_bits | GIE);
     }
 }
@@ -98,6 +108,16 @@ __interrupt void VCOM_ISR (void){
     {
         VCOM = 0x00;
     }
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+}
+
+//Stop audio when the timer has elapsed.
+#pragma vector=TIMER0_B0_VECTOR
+__interrupt void TIMEOUT_ISR (void){
+    Timer_B_clearCaptureCompareInterrupt(TIMER_B0_BASE, TIMER_B_CAPTURECOMPARE_REGISTER_0);
+    Timer_B_clearTimerInterrupt(TIMER_B0_BASE);
+    Timer_B_stop(TIMER_B0_BASE);
+    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 

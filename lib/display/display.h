@@ -24,6 +24,29 @@
 #define MODE_GAME 0x01                  // Used for the DISPLAY_updatesOnly if the multiline game display mode is active
 #define MODE_MENU 0x02                  // Used to display the 12-high menu mode in DISPLAY_UpdatesOnly
 
+#define FONT_ADDR_0 0x00                // Addresses for various fonts. Each Display_print function will interpret these vaguely differently.
+#define FONT_ADDR_1 0x10                // the naming convention for each font should provide _N after fontXxY, omitting _0.
+#define FONT_ADDR_2 0x20
+#define FONT_ADDR_3 0x30
+#define FONT_ADDR_4 0x40
+#define FONT_ADDR_5 0x50
+#define FONT_ADDR_6 0x60
+#define FONT_ADDR_7 0x70
+#define FONT_ADDR_8 0x80
+#define FONT_ADDR_9 0x90
+#define FONT_ADDR_A 0xA0
+#define FONT_ADDR_B 0xB0
+#define FONT_ADDR_C 0xC0
+#define FONT_ADDR_D 0xD0
+#define FONT_ADDR_E 0xE0
+#define FONT_ADDR_F 0xF0
+
+#define DIRECTIVE_NORMAL 0x01           // Define symbols for font operation directives; these should be universal in all three print functions.
+#define DIRECTIVE_REVERSED 0x02
+#define DIRECTIVE_NEGATIVE 0x03
+#define DIRECTIVE_REVERSED_NEGATIVE 0x04
+
+
 volatile unsigned char VCOM;            // State of VCOM (either 0x00 or 0x02)
 volatile int FORCE_REFRESH;             // Int treated as boolean to force a full refresh of the screen without the need to set each refresh bit for the DisplayFrame
                                         // Useful for example when moving from one screen to another.

@@ -7,6 +7,8 @@
 
 #include "evo_data.h"
 
+unsigned int EVO_count_stages = 16;
+
 #pragma PERSISTENT(EVO_metaStruct)
 extern Stage EVO_metaStruct[] = {
                            {// Begin entry for egg. Arguments are in order listed in stage definition above

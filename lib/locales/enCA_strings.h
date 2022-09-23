@@ -29,9 +29,14 @@ extern const char* LSTRING_SPECIAL;         //Localization of the "Special" Stat
 extern const char* LSTRING_STATUS_HEADER;   //Title for the Status Menu screne
 extern const char* LSTRING_DEBUG_HEADER;    //Title for the Debug Header
 extern const char* LSTRING_CALMENU_HEADER;  //"Please enter the time:" or localized.
-extern const char* LSTRING_FEEDING_HEADER;
-extern const char* LSTRING_FOOD_HEADER;
-extern const char* LSTRING_SNACKS_HEADER;
+extern const char* LSTRING_FEEDING_HEADER;  //Feeding Menu Header Text
+extern const char* LSTRING_FOOD_HEADER;     //Food Menu Header Text
+extern const char* LSTRING_SNACKS_HEADER;   //Snacks Menu Header Text
+extern const char* LSTRING_SOUND_CHECK;     //Sound Testing menu header text
+extern const char* LSTRING_STAGE_SELECT;    //Stage-Of-Life Selector Menu header text
+extern const char* LSTRING_ENTROPY_INFO;    //RNG state monitor menu header text
+extern const char* LSTRING_INITIAL_SEED;    //RNG state monitor initial seed label
+extern const char* LSTRING_CURRENT_RNG;     //RNG state monitor current rng state label
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
@@ -41,6 +46,7 @@ extern const char* LARRAY_EVO_STAGE_NAMES[]; // Names of each stage of PETI evol
 extern const char* LARRAY_FOOD_FOOD_NAMES[]; // Names of all the foods in the food menu
 extern const char* LARRAY_FOOD_SNACK_NAMES[]; // Name of all the snacks in the snack menu.
 extern const char* LARRAY_FOOD_TOP_MENU[];
+extern const char* LARRAY_SOUNDCHECK_OPTS[];
 
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */

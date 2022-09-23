@@ -99,29 +99,30 @@ char* MENU_computeLine(int line_number, char ** options, int count_opts){
 
 // State controller based on the inputs to control which page gets drawn.
 void MENU_computeNextFrame(char* header, char * options, int count_opts){
-    int row;
+    int row, col;
     //Display the header row and the static icon rows.
     //These rows are never highlighted and will only refresh when the FORCE_REFRESH bit is set, which is fine.
     strcpy(DISPLAY_FRAME.frame[0].line, header);
-    strcpy(DISPLAY_FRAME.frame[0].directives, "0000000000000000");
     strcpy(DISPLAY_FRAME.frame[1].line, "\x06              \x16");
-    strcpy(DISPLAY_FRAME.frame[1].directives, "0000000000000000");
     strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
-    strcpy(DISPLAY_FRAME.frame[9].directives, "0000000000000000");
+
+    for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        }
+    }
+
 
     //Iteratively set the remaining rows.
     for (row=0; row<MENU_active_lines; row++){
         strcpy(DISPLAY_FRAME.frame[2+row].line, MENU_computeLine(row, options, count_opts));
         if (row == actmenu_cursor){ // In this case, print.
-            strcpy(DISPLAY_FRAME.frame[2+row].directives, "111111111111111");
-        }
-        else {
-            strcpy(DISPLAY_FRAME.frame[2+row].directives, "000000000000000");
+            for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+                DISPLAY_FRAME.frame[2+row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                }
+            }
         }
     }
-
-}
-
 
 
 

@@ -19,20 +19,29 @@
 #include "lib/scenes/scenes_manager.h"
 #include "lib/game/evo_data.h"
 #include "lib/display/display.h"
+#include "lib/alerts/alerts.h"
 
 unsigned int egg_delay_set;
 unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
+unsigned int needs_evaluation = 0x01; // A flag used to prevent double-dipping on minute checks
 
 // A nice basic init function to set up the global state machine.
 // In future work we might add some functionality to look for an
 // existing state object and pull that instead for resumability.
 void GAME_initStateStruct(void){
+    unsigned int debug_disabled;
+    debug_disabled = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN6);
     StateMachine.AGE = 0x00;
     StateMachine.ACT = 0x03; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
     StateMachine.HUNGER_FUN = 0x00;
     StateMachine.DISCIPLINE = 0x00;
     StateMachine.NAUGHTY = 0x00; // Reasonable starting value, may need to be tweaked during testing.
-    StateMachine.STAGE_ID = 0x01; // Reserved Species ID for Eggs
+    if (debug_disabled){
+        StateMachine.STAGE_ID = 0x00; // Reserved Species ID for Eggs
+    }
+    else {
+        StateMachine.STAGE_ID = 0x01; // Skip hatching an egg for testing
+    }
     StateMachine.HEALTH_BYTE = 0x00;
 
     NEXT_STAGE_TRANSITION_AGE = 0x00;
@@ -68,6 +77,10 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
         current_fun = 0;
     }
 
+    if ((current_hunger == 0) || (current_fun == 0)){
+        ALERTS_hunger_fun_alert();
+    }
+
     StateMachine.HUNGER_FUN = (current_hunger << 4) + current_fun;
 
 }
@@ -98,10 +111,14 @@ void GAME_evaluateTimedEvents(void){
         NEXT_STAGE_TRANSITION_AGE = 0xFF; // needed to avoid looping in this, which causes animation problems. Normally set in the evolution function.
         //TODO should change activity levels once those are implemented.
     }
-    if (current_seconds == 0){ // At the round minute, we need to check for these several functions, none of which actually exist yet.
+    if ((current_seconds == 0) && egg_delay_set && (StateMachine.STAGE_ID > 0x00) && needs_evaluation){ // At the round minute, we need to check for these several functions, only if not an egg.
         GAME_NEEDS_evaluateHungerFun(current_minutes);
         //GAME_NEEDS_evaluatePooped();
         //GAME_NEEDS_evaluateIllness();
         //GAME_NEEDS_evaluateDeath();
+        needs_evaluation = false;
+    }
+    if (current_seconds == 1){
+        needs_evaluation = true; // This has been done to prevent "double dipping" on effects like hunger and so on.
     }
 }
