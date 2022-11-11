@@ -2,13 +2,7 @@
 # Version 1.0
 
 #include local_settings.mk
-
-TARGET_EXEC := PETI.out
-
-TOOLS_PATH := /home/patches/ti/ccs1020/ccs/tools/compiler/ti-cgt-msp430_20.2.2.LTS
-CCS_BASEPATH := /home/patches/ti/ccs1020/ccs/ccs_base/msp430
-CCS_BASEINCPATH := $(CCS_BASEPATH)/include
-PROJ_DIR = /home/patches/HardwareProjects/PETI/
+include local_settings.mk
 
 # Some Needed Bins
 CC		= $(TOOLS_PATH)/bin/cl430
@@ -55,11 +49,21 @@ echo:
 	echo $(OBJS)
 	echo $(LDFLAGS)
 
-.PHONY: clean
 clean:
 	rm -r $(BUILD_DIR)
 
-# Include the .pp makefiles. The - at the front suppresses the errors of missing
-# Makefiles. Initially, all the .pp files will be missing, and we don't want those
-# errors to show up.
-#-include $(DEPS)
+target-check:
+	mspdebug tilib "exit"
+
+target-flash: $(BUILD_DIR)/$(TARGET_EXEC)
+	mspdebug tilib "prog ./$(BUILD_DIR)/$(TARGET_EXEC)"
+
+target-startdebug: $(BUILD_DIR)/$(TARGET_EXEC)
+	skill mspdebug
+	mspdebug tilib "gdb"
+
+target-debug:
+	make target-startdebug &
+	msp430-gdb $(BUILD_DIR)/$(TARGET_EXEC) -ex "target remote :2000"
+
+.PHONY: clean echo target-check target-flash target-startdebug target-debug
