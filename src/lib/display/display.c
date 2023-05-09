@@ -606,6 +606,9 @@ void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int 
         case MODE_MENU :
             printDeltas_universal(incoming_frame, &SCENEDEF_menu_mode);
             break;
+        case MODE_MINIGAME :
+            printDeltas_universal(incoming_frame, &SCENEDEF_minigames);
+            break;
     }
     FORCE_REFRESH = false;
 }

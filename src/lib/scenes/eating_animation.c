@@ -20,28 +20,14 @@
 #include "eating_animation.h"
 #include "scenes_manager.h"
 #include "main.h"
-
-unsigned int eating_frame = 0;
-int active_frame;
+#include "lib/hwinit/human_input.h"
 
 
 void EAT_handleInputs(void){
-    if (buttons_state & button_a_toggle){  //A scrolls up by 1
-        eating_frame = 10;
-        buttons_state ^= button_a_toggle;
+    if (HID_input_events_queue[0] != BUTTON_NO_PRESS){ // If any button was pressed at all, skip to the end.
+        SCENE_FRAME = 10;
+        HID_input_events_queue[0] = BUTTON_NO_PRESS;
     }
-    if (buttons_state & button_b_toggle){  //B scrolls down by 1
-        eating_frame = 10;
-        buttons_state ^= button_b_toggle;
-    }
-    if (buttons_state & button_c_toggle){  //C exits the menu outright
-        eating_frame = 10;
-        buttons_state ^= button_c_toggle;
-    }
-    if (buttons_state & button_d_toggle){  //D also exits the menu outright.
-        eating_frame = 10;
-        buttons_state ^= button_d_toggle;
-        }
 }
 
 char * EAT_computeLine(const char active_animation[], int size, unsigned int current_frame, int active_line, char food_animation[]){
@@ -127,14 +113,14 @@ void EAT_computeNextFrame(void){
         }
     }
 
-    if (eating_frame > 7){ // By now the food is on the ground
+    if (SCENE_FRAME > 7){ // By now the food is on the ground
         for (active_line = 0;active_line<6; active_line++){
-            strncpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animationEating[eating_frame % 2], active_species.size, eating_frame, active_line, FOODSEL_active_food.animation), (PIXELS_X/FONT_SIZE_FLOOR_X)); // Compute the animated text for this active_line.
+            strncpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animationEating[SCENE_FRAME % 2], active_species.size, SCENE_FRAME, active_line, FOODSEL_active_food.animation), (PIXELS_X/FONT_SIZE_FLOOR_X)); // Compute the animated text for this active_line.
         }
     }
     else { // Unless it's not
         for (active_line = 0;active_line<6; active_line++){
-            strncpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animation[eating_frame % 2], active_species.size, eating_frame, active_line, FOODSEL_active_food.animation), (PIXELS_X/FONT_SIZE_FLOOR_X)); // Compute the animated text for this active_line.
+            strncpy(DISPLAY_FRAME.frame[active_line+1].line, EAT_computeLine(active_species.animation[SCENE_FRAME % 2], active_species.size, SCENE_FRAME, active_line, FOODSEL_active_food.animation), (PIXELS_X/FONT_SIZE_FLOOR_X)); // Compute the animated text for this active_line.
         }
     }
 }
@@ -166,13 +152,13 @@ void SCENE_eating(void){
     EAT_handleInputs();
     EAT_computeNextFrame();
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME);
-    if (eating_frame > 9) {
+    if (SCENE_FRAME > 9) {
         EAT_eatFood();
         SCENE_ACT = SCENEADDR_main_game;
-        eating_frame = 0;
+        SCENE_FRAME = 0;
     }
     else {
-        eating_frame++;
+        SCENE_FRAME++;
     }
 
 }

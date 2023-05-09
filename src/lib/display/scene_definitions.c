@@ -41,3 +41,17 @@ const SceneDefinition SCENEDEF_menu_mode = {
 };
 
 
+#pragma PERSISTENT(SCENEDEF_minigames)
+const SceneDefinition SCENEDEF_minigames = {
+    .rows = {
+             {1, TEXT_SIZE_LARGE},
+             {17, TEXT_SIZE_LARGE},
+             {33, TEXT_SIZE_LARGE},
+             {49, TEXT_SIZE_LARGE},
+             {65, TEXT_SIZE_LARGE},
+             {81, TEXT_SIZE_LARGE},
+             {97, TEXT_SIZE_LARGE},
+             {113, TEXT_SIZE_LARGE}
+        },
+    .lines_used = 8
+};

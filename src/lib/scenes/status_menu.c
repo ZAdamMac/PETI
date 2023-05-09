@@ -11,6 +11,7 @@
 
 #include "lib/display/display.h"
 #include "lib/hwinit/hwinit.h"
+#include "lib/hwinit/human_input.h"
 #include "driverlib.h"
 #include <msp430.h>
 #include <string.h>
@@ -22,35 +23,37 @@
 #define NEXT_SCENE SCENEADDR_main_game  // We want this scene to exit to the main game
 #define STATMENU_lastpage 2             // Index of the final page on the menu, for looping reasons.
 
-int statmenu_page = 0;
-unsigned int statmenu_exiting = false;
-
-
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 // In this case, we can really only go up, down, or exit
 void STATMENU_handleInputs(void){
-    if (buttons_state & button_a_toggle){  //A scrolls up by 1
-        statmenu_page -= 1;
-        if (statmenu_page < 0){
-            statmenu_page = STATMENU_lastpage;
+    int i;
+    unsigned int this_event;
+    for (i =0; i <= HID_input_events_queue_depth; ++i) // For every event in the event queue;
+    {
+        this_event = HID_input_events_queue[i]; //fetch the event.
+        switch (this_event){
+            case(BUTTON_A_PRESS): // Scroll up ONE PAGE
+		    SCENE_CURRENT_PAGE -= 1;
+		if (SCENE_CURRENT_PAGE < 0){
+		    SCENE_CURRENT_PAGE = STATMENU_lastpage;
+		}
+            	break;
+            case(BUTTON_B_PRESS): // scroll down the list by one per keypress
+		    SCENE_CURRENT_PAGE += 1;
+		if (SCENE_CURRENT_PAGE > STATMENU_lastpage){
+		    SCENE_CURRENT_PAGE = 0;
+		}
+                break;
+            case(BUTTON_C_PRESS): //Exit
+		        SCENE_EXIT_FLAG = true;
+                break;
+            case(BUTTON_D_PRESS): // exit 
+	            SCENE_EXIT_FLAG = true;
+                break;
         }
-        buttons_state ^= button_a_toggle;
-    }
-    if (buttons_state & button_b_toggle){  //B scrolls down by 1
-        statmenu_page += 1;
-        if (statmenu_page > STATMENU_lastpage){
-            statmenu_page = 0;
-        }
-        buttons_state ^= button_b_toggle;
-    }
-    if (buttons_state & button_c_toggle){  //C exits the menu outright
-        statmenu_exiting = true;
-        buttons_state ^= button_c_toggle;
-    }
-    if (buttons_state & button_d_toggle){  //D also exits the menu outright.
-        statmenu_exiting = true;
-        buttons_state ^= button_d_toggle;
-        }
+        HID_input_events_queue[i] = BUTTON_NO_PRESS;
+    };
+    HID_input_events_queue_depth = 0;
 }
 
 
@@ -154,7 +157,7 @@ void STATMENU_computeNextFrame(void){
     strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_STATUS_HEADER);
     strcpy(DISPLAY_FRAME.frame[1].line, "\x06               ");
     strcpy(DISPLAY_FRAME.frame[9].line, "\x01              \x15");
-    switch (statmenu_page){
+    switch (SCENE_CURRENT_PAGE){
     case 0:
         STATMENU_renderHungerFunPage();
         break;
@@ -180,9 +183,9 @@ void SCENE_status_menu(void){
     STATMENU_handleInputs(); // What did the user just do?
     STATMENU_computeNextFrame();  // How do we show them that change?
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
-    if (statmenu_exiting){ // The user has asked to leave.
+    if (SCENE_EXIT_FLAG){ // The user has asked to leave.
         SCENE_ACT = NEXT_SCENE; // We need to go back to wherever this leads, usually to the main game screne.
-        statmenu_exiting = false; // The player can come back to this menu, so we need to reset this.
-        statmenu_page = 0;
+        SCENE_EXIT_FLAG = false; // The player can come back to this menu, so we need to reset this.
+        SCENE_CURRENT_PAGE = 0;
     }
 }

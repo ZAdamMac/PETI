@@ -30,8 +30,9 @@
 #include "lib/game/food_data.h"
 #include "eating_animation.h"
 #include "stage_selector.h"
+#include "lib/menus/minigames_menu.h"
+#include "lib/scenes/minigames/rockpaperscissors.h"
 
-volatile unsigned int SCENE_FRAME = 0x00;   // The current translational frame, used for scenes that just play out a defined animation.
 volatile unsigned int SCENE_TRANS_SECONDS;  // The time at which a time-based trigger should activate in seconds
 volatile unsigned int SCENE_TRANS_MINUTES;  // the time at which a time-based transition trigger should activate in minutes
 volatile unsigned int PREVIOUS_SCENE = 0x00;
@@ -42,6 +43,13 @@ void SCENE_updateDisplay(void){
     if (SCENE_ACT != PREVIOUS_SCENE){
         LCDClearDisplay();
         FORCE_REFRESH = true;
+        // It is polite to set the global illustration variables to zero when changing scenes.
+        SCENE_FRAME = 0;
+        SCENE_CURRENT_PAGE = 0;
+        SCENE_CURSOR_POS = 0;
+        SCENE_PAGE_COUNT = 0;     
+        SCENE_EXIT_FLAG = 0;
+        SCENE_FRAME = 0;
     }
     PREVIOUS_SCENE = SCENE_ACT;
     switch(SCENE_ACT){
@@ -83,6 +91,12 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_rng_debug:
             SCENE_DebugRNG(LSTRING_ENTROPY_INFO, LSTRING_INITIAL_SEED, LSTRING_CURRENT_RNG);
+            break;
+        case SCENEADDR_minigames_menu:
+            SCENE_TextMenu(LSTRING_MINIGAME_HEADER, LARRAY_MINIGAME_TITLES, MINIGAME_array_games, MINIGAME_count_options);
+            break;
+        case SCENEADDR_minigame_rockpaperscissors:
+            SCENE_RockPaperScissors();
             break;
 
     }
