@@ -21,5 +21,4 @@ unsigned int buttons_state;             // We need to hold a whole byte to keep 
 #define button_d_toggle BIT0
 
 
-unsigned int interacted_flag;           // An int, however used effectively as a bool flag to determine if the device has been interacted with.
 unsigned int calendar_initial_setup_completed; // As interacted_flag, used to determine if the RTC has been set at least once by lib/scenes/calendar_menu
