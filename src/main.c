@@ -25,41 +25,9 @@
 #include <msp430.h>
 #include "main.h"
 #include "lib/alerts/blinkenlights.h"
+#include "lib/hwinit/human_input.h"
 //#include "lib/game/evo_data.h"
 //#include "lib/locales/enCA_strings.h"
-
-//We need a simple function for handling the state of buttons_state as it
-//is adjusted by the ISRs.
-void Update_Button_States(void){
-    if (buttons_state & button_a_pressed)
-    {
-        buttons_state &= ~button_a_pressed; // In this instance we know we can de-set this flag.
-        buttons_state ^= button_a_toggle;  // And alternate this flag.
-        interacted_flag = true;
-    }
-    if (buttons_state & button_b_pressed)
-    {
-            buttons_state &= ~button_b_pressed; // In this instance we know we can de-set this flag.
-            buttons_state ^= button_b_toggle;  // And alternate this flag.
-            interacted_flag = true;
-        }
-    if (buttons_state & button_c_pressed)
-    {
-            buttons_state &= ~button_c_pressed; // In this instance we know we can de-set this flag.
-            buttons_state ^= button_c_toggle;  // And alternate this flag.
-            interacted_flag = true;
-        }
-    if (buttons_state & button_d_pressed)
-    {
-            buttons_state &= ~button_d_pressed; // In this instance we know we can de-set this flag.
-            buttons_state ^= button_d_toggle;  // And alternate this flag.
-            interacted_flag = true;
-        }
-    if (interacted_flag)
-    {
-        BLINKENLIGHTS_lower();
-    }
-}
 
 
 int main(void) {
@@ -80,16 +48,15 @@ int main(void) {
     while (1){
         PMM_unlockLPM5();
         GAME_evaluateTimedEvents();
-        Update_Button_States();
+        if (interacted_flag){
+            BLINKENLIGHTS_lower();
+        }
         SCENE_updateDisplay();
         ToggleVCOM();
         RNG_forceShuffle();
         interacted_flag = 0x00; // By this point any interaction has been handled
         __bis_SR_register(LPM0_bits | GIE);
-    }
-}
-
-
+    }}
 
 // interrupt service routine to handle timer A.
 // Based on current configuration as of may 2021 this should be raised once per second.
@@ -119,36 +86,4 @@ __interrupt void TIMEOUT_ISR (void){
     Timer_B_stop(TIMER_B0_BASE);
     GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
-}
-
-// The ISRs below handle interrupts raised by each of the input keys A through D.
-// They update the buttons_state int to indicate that they have been used, then wake
-// up the device to handle the input in main loop rather than via an ISR.
-
-#pragma vector=PORT5_VECTOR
-__interrupt void BUTTON_C_ISR (void){
-    GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
-    buttons_state |= button_c_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
-}
-
-#pragma vector=PORT6_VECTOR
-__interrupt void BUTTON_A_ISR (void){
-    GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
-    buttons_state |= button_a_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
-}
-
-#pragma vector=PORT7_VECTOR
-__interrupt void BUTTON_B_ISR (void){
-    GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
-    buttons_state |= button_b_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
-}
-
-#pragma vector=PORT8_VECTOR
-__interrupt void BUTTON_D_ISR (void){
-    GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
-    buttons_state |= button_d_pressed;
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }

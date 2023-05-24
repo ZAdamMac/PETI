@@ -23,6 +23,7 @@
 #define MODE_DEMO 0x00                  // Used for the DISPLAY_updatesOnly if the three-font demonstrator mode is being used
 #define MODE_GAME 0x01                  // Used for the DISPLAY_updatesOnly if the multiline game display mode is active
 #define MODE_MENU 0x02                  // Used to display the 12-high menu mode in DISPLAY_UpdatesOnly
+#define MODE_MINIGAME 0x03              // Used to display the 8-row Large mode in DISPLAY_UpdatesOnly
 
 #define FONT_ADDR_0 0x00                // Addresses for various fonts. Each Display_print function will interpret these vaguely differently.
 #define FONT_ADDR_1 0x10                // the naming convention for each font should provide _N after fontXxY, omitting _0.

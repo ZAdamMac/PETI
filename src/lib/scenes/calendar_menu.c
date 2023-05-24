@@ -17,6 +17,7 @@
 #include "calendar_menu.h"
 #include "main.h"
 #include "lib/locales/enCA_strings.h"
+#include "lib/hwinit/human_input.h"
 
 #define NEXT_SCENE SCENEADDR_main_game  // Under normal use this is probably a different value than DEMOMODE
 #define SCENE_TYPE MODE_MENU            // Sets the scene type to use. Done here instead of inline so that a scene template code-page can be developed.
@@ -29,10 +30,8 @@ unsigned int calendar_menu_hours;               //Integer hours 0-23
 unsigned int calendar_menu_minutes;             //Integer minutes 0-59.
 int change_in_digit;                            //Signed int used by the input handler to change the value of the currently-selected object.
 unsigned int calmenu_init;                      //Boolean store; used so that the calendar menu doesn't reset to default 1/sec.
-unsigned int calmenu_exiting;                   //Boolean store; used so that we can indicate the SET command was issued and we can leave later.
 unsigned int save_changes;                      //Boolean store; used to indicate we accepted the exit and the calendar should be updated.
-unsigned int cursor_position = 0x00;            //Cursor position, used to track which digit is being manipulated
-unsigned int cursor_position_set = 13;          //Fourteen possible positions indexing from 0
+unsigned int CALMENU_cursor_pos_max = 13;          //Fourteen possible positions indexing from 0
 
 int lengthOfMonths[12] = {                      //An array which holds the length of the months. February is included but not used for historical reasons.
                                    31,
@@ -60,43 +59,47 @@ void CALMENU_initCalendarStruct(){
     calendar_menu_dow = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.DayOfWeek);
     calendar_menu_hours = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Hours);
     calendar_menu_minutes = RTC_C_convertBCDToBinary(RTC_C_BASE, currentTime.Minutes);
-    cursor_position = 0x00; // If not set early on in the menu process when arriving at the menu, it will be in the save position instead.
+    SCENE_CURSOR_POS = 0x00; // If not set early on in the menu process when arriving at the menu, it will be in the save position instead.
 
 }
 
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 // In this case, we have a certain way to move through the menu that is highly specific to setting the clock.
 void CALMENU_handleInputs(void){
-    if (buttons_state & button_a_toggle){  //A increases the value in this position by one.
-        change_in_digit = 1;
-        buttons_state ^= button_a_toggle; // unset the toggle for convenience. We've actioned this since we saw it last.
-    }
-    if (buttons_state & button_b_toggle){  //B decreases the value in this position by one.
-        change_in_digit = -1;
-        buttons_state ^= button_b_toggle;
-    }
-    if (buttons_state & button_c_toggle){  //C accepts this value by moving onto the next frame, OR hits the set requirement if we're on that index.
-        if (cursor_position == cursor_position_set){
-            calmenu_exiting = true;
-            save_changes = true;
-            buttons_state ^= button_c_toggle;
+    int i;
+    unsigned int this_event;
+    for (i =0; i <= HID_input_events_queue_depth; ++i) // For every event in the event queue;
+    {
+        this_event = HID_input_events_queue[i]; //fetch the event.
+        switch (this_event){
+            case(BUTTON_A_PRESS):
+                change_in_digit++; //increment the change digit upward by one.
+                break;
+            case(BUTTON_B_PRESS):
+                change_in_digit--; //increment the change digit downward by one.
+                break;
+            case(BUTTON_C_PRESS): //Exit on set; else advance the cursor
+                if (SCENE_CURSOR_POS == CALMENU_cursor_pos_max){
+                    SCENE_EXIT_FLAG = true;
+                    save_changes = true;
+                }
+                else {
+                    SCENE_CURSOR_POS++;
+                }
+                break;
+            case(BUTTON_D_PRESS): // exit outright at 0'th position, or else move back one.
+                if (SCENE_CURSOR_POS == 0){
+                SCENE_EXIT_FLAG = true;
+                save_changes = false;
+                }
+                else {
+                    SCENE_CURSOR_POS--;
+                }
+                break;
         }
-        else {
-            cursor_position++;
-            buttons_state ^= button_c_toggle;
-        }
-    }
-    if (buttons_state & button_d_toggle){  //D moves back a value to allow for corrections or, if at the thousands of the year, cancels without saving.
-        if (cursor_position == 0){
-            calmenu_exiting = true;
-            save_changes = false;
-            buttons_state ^= button_d_toggle;
-        }
-        else {
-            cursor_position--;
-            buttons_state ^= button_d_toggle;
-        }
-    }
+        HID_input_events_queue[i] = BUTTON_NO_PRESS;
+    };
+    HID_input_events_queue_depth = 0;
 }
 
 // A function is needed within CALMENU to be able to look at the menu sensibly and adjust to legal-only values before they are written to the screen or passed to the RTC itself.
@@ -134,7 +137,7 @@ void CALMENU_rectifyCalendar(void){
 //Tracked in or stored by the RTC. It also makes no effort to ensure those values are legal.
 //A later function rectifies this data before allowing it to be displayed or written to RTC C.
 void CALMENU_updateInternalCalendar(void){
-    switch (cursor_position){
+    switch (SCENE_CURSOR_POS){
         case 0x00 : // Millenium is highlighted.
             calendar_menu_year += (change_in_digit * 1000);
             change_in_digit = 0;
@@ -219,7 +222,7 @@ char * CALMENU_dateAndDowDirective(void){
     for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
         WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
-    switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
+    switch(SCENE_CURSOR_POS){ // There is an offset for highlighting based on cursor position we need to account for.
             case 0 :
                 WORK_STRING[1] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
@@ -279,7 +282,7 @@ char* CALMENU_timeDirective(void){
     for (text_index = 0; text_index < 17; ++text_index){ // begin by setting the array to "0"s.
         WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
-    switch(cursor_position){ // There is an offset for highlighting based on cursor position we need to account for.
+    switch(SCENE_CURSOR_POS){ // There is an offset for highlighting based on cursor position we need to account for.
         case 9 :
             WORK_STRING[6] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
             break;
@@ -324,7 +327,7 @@ void CALMENU_computeNextFrame(void){
     strncpy(DISPLAY_FRAME.frame[5].directives, CALMENU_timeDirective(), (PIXELS_X/FONT_SIZE_FLOOR_X));
 
     //Finally, check for the set directive:
-    if (cursor_position == cursor_position_set){ // SET selected
+    if (SCENE_CURSOR_POS == CALMENU_cursor_pos_max){ // SET selected
         for (index=6; index<10; index++){
                 DISPLAY_FRAME.frame[8].directives[index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
         }
@@ -360,14 +363,14 @@ void SCENE_CalendarMenu(void){
     CALMENU_updateInternalCalendar();  // What did what they just did change about the internal state of this scene?
     CALMENU_computeNextFrame();  // How do we show them that change?
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
-    if (calmenu_exiting){ // The user has asked to leave.
+    if (SCENE_EXIT_FLAG){ // The user has asked to leave.
         if (save_changes){ // They have asked to leave by accepting the "SET" button.
             CALMENU_setGlobalCalendar(); // RTC, this is the current time.
         }
         SCENE_ACT = NEXT_SCENE; // We need to go back to wherever this leads, usually to the main game screen.
         calendar_initial_setup_completed = true; // Globally, we have now set the calendar at LEAST once.
         calmenu_init = false; // It is sane to set this back to false for the next time we get here.
-        calmenu_exiting = false; // The player can come back to this menu, so we need to reset this.
+        SCENE_EXIT_FLAG = false; // The player can come back to this menu, so we need to reset this.
     }
 
 }

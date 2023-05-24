@@ -17,18 +17,18 @@
 
 // The PRNG at the heart of the entropy package is a simplistic LCG with an apparent period of roughly 30.
 // The enterprising could get better or worse performance simply by adjusting these numbers.
-const float multiplier = 214013; // term a
-const float modulus = 2147483648;
-const float carrier = 2531011; // term c
+const unsigned int multiplier = 75; // term a
+const unsigned int modulus = 0x8000;
+const unsigned int carrier = 1; // term c
 unsigned int increment;
 
 // Calls the ADC in order to randomly select a float from out of the Device Descriptor ROM.
 // These device descriptors are nominally per-controller trandom per TI.
 // In practical effect this seems to almost always give one result, very rarely giving a second, radically different result.
-float RNG_getSeedWord(void) {
+unsigned int RNG_getSeedWord(void) {
   //Initialize the ADC
     int seed_target;
-    float seed_result;
+    unsigned int seed_result;
     ADC12_B_initParam initParam= {0};
     initParam.sampleHoldSignalSourceSelect = ADC12_B_SAMPLEHOLDSOURCE_SC;
     initParam.clockSourceSelect = ADC12_B_CLOCKSOURCE_ADC12OSC;
@@ -63,7 +63,7 @@ float RNG_getSeedWord(void) {
   //Mod 8 that sample
     seed_target %= 16; //Wanted: An integer between 0 and 15 that we can use as a memory offset.
     seed_target += 0x01A30; // treats as offset to the TLV memory addresses
-    float *seed_pointer = (float *)seed_target; // Turn the darn thing into a pointer.
+    int *seed_pointer = (int *)seed_target; // Turn the darn thing into a pointer.
 
   //Fetch selected byte as a float from the TLV Random Number. This is specific to each individual device and is totally unknown without direct memory inspection.
     seed_result = *(seed_pointer);
@@ -75,22 +75,23 @@ float RNG_getSeedWord(void) {
 
 // A simple function that takes an input seed then passes it through the LCG before setting the state variable. This could be used to
 // Reset the RNG in future if so desired.
-void RNG_initialize(float initial_seed){
+void RNG_initialize(int initial_seed){
     RNG_session_seed = initial_seed;
-    RNG_current_state = fmodf((multiplier * RNG_session_seed + carrier), modulus);
+    RNG_current_state = (multiplier * RNG_session_seed + carrier) % modulus;
 }
 
 // Called once per program loop to update the RNG state. In doing this you make the RNG more unpredictable in spite of its low period.
 // It would take some speedrunner-style knack in order to keep track of these for RNG manipulation as they're called at irregular intervals.
 void RNG_forceShuffle(void){
-    RNG_current_state = fmodf((multiplier * RNG_current_state + carrier), modulus);
+    RNG_current_state = (multiplier * RNG_current_state + carrier) % modulus;
 }
 
 // A randomization primitive, returning a float normalled between 0 and 1 when called, and incrementing the RNG state.
 // This could be used in a later function to handle probabilistic pass fail or used raw for other situations.
 float RNG_drawFloat(void){
-    RNG_current_state = fmodf((multiplier * RNG_current_state + carrier), modulus);
+    RNG_forceShuffle();
     float rand;
-    rand = RNG_current_state / 0xFFFFFFFF;
+    rand = RNG_current_state & 0xFF00;
+    rand = rand / (modulus - 1);
     return rand;
 }

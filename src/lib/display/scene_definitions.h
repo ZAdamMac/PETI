@@ -28,4 +28,6 @@ extern const SceneDefinition SCENEDEF_game_mode;
 
 extern const SceneDefinition SCENEDEF_menu_mode;
 
+extern const SceneDefinition SCENEDEF_minigames;
+
 #endif /* LIB_DISPLAY_SCENE_DEFINITIONS_H_ */
