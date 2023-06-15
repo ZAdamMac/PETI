@@ -85,6 +85,41 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
 
 }
 
+//TODO docstring
+void GAME_applyHungerFun(int change_hunger, int change_fun){
+    unsigned int current_hunger = StateMachine.HUNGER_FUN >> 4 & 0xF;
+    unsigned int current_fun = StateMachine.HUNGER_FUN & 0xF;
+
+    current_hunger = current_hunger + change_hunger;
+    current_fun = current_fun + change_fun;
+
+    // These two statements handle bounding in a way that avoids weird wrapping;
+    // which is why don't use modular arithmetic.
+    if (change_hunger > 0){         // The risk is exceeding 15, the upper bound value.
+        if (current_hunger > 15){
+            current_hunger = 15;
+        }
+    }
+    else {
+        if (current_hunger > 15){    // The risk is wrapping around to a large value
+            current_hunger = 0;
+        }
+    }
+
+    if (change_fun > 0){
+        if (current_fun > 15){
+            current_fun = 15;
+        }
+    }
+    else {
+        if (current_fun > 15){
+            current_fun = 0;
+        }
+    }
+    //Collapse bitwise back into the magic state thing.
+    StateMachine.HUNGER_FUN = (current_hunger << 4) + current_fun;
+}
+
 // this function is the ultimate control function for all timed events, and needs to be updated
 // if new time-based effects are added to the game, such as hunger degradation and so-forth.
 // Several of the obviously-required-in-future functions are included as comments below.

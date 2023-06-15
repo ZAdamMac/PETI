@@ -126,22 +126,7 @@ void EAT_computeNextFrame(void){
 }
 
 void EAT_eatFood(void){
-    unsigned int current_hunger = StateMachine.HUNGER_FUN >> 4 & 0xF;
-    unsigned int current_fun = StateMachine.HUNGER_FUN & 0xF;
-
-    current_hunger = current_hunger + FOODSEL_active_food.hunger_value;
-    current_fun = current_fun + FOODSEL_active_food.fun_value;
-
-    // These two if statements handle the case where the value exceeds the maximum allowable of 15.
-    if (current_hunger > 15){
-        current_hunger = 15;
-    }
-    if (current_fun > 15){
-        current_fun = 15;
-    }
-
-    StateMachine.HUNGER_FUN = (current_hunger << 4) + current_fun;
-
+    GAME_applyHungerFun(FOODSEL_active_food.hunger_value, FOODSEL_active_food.fun_value);
     //TODO: Implement the weight mod stuff; this is currently unused
 
 }
