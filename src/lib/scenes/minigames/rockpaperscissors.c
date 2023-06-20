@@ -24,15 +24,26 @@
 #include "lib/game/evo_data.h"
 #include "lib/game/game_manager.h"
 #include "lib/game/entropy.h"
+#include "lib/alerts/audio.h"
 
 
 // By defining the choice values in this way, we map them directly to the
 // charater positions in FONT_ADDRESS_0 that represents their symbol.
 // This makes things cleaner when it comes to other functions later on.
-#define MINIGAME_RPS_choiceNotMade 0
+#define MINIGAME_RPS_choiceNotMade '\xF0'
 #define MINIGAME_RPS_choiceRock '\xF7'
 #define MINIGAME_RPS_choicePaper '\xF6'
 #define MINIGAME_RPS_choiceScissors '\xF5'
+
+// Might as well define some other font symbols we use too.
+// These are from font16x16 which is font_address_0 for the large font size
+#define MINIGAME_RPS_entry_arrow '\xED'
+#define MINIGAME_RPS_sb_solidbottom '\xEE'
+#define MINIGAME_RPS_sb_side '\xEF'         
+#define MINIGAME_RPS_sb_top '\xF1'
+#define MINIGAME_RPS_sb_tl '\xF2'
+#define MINIGAME_RPS_sb_bl '\xF3'
+#define MINIGAME_RPS_sb_pointbottom '\xF4'
 
 char MINIGAME_RPS_choice;
 char MINIGAME_RPS_petChoice;
@@ -52,6 +63,10 @@ signed int MINIGAME_RPS_score;
 
 /// For balance reasons, we may want to change how much happiness is granted for each successful play.
 #define MINIGAME_RPS_prize 5
+
+// Because the beeping might be annoying, we detect an idle and go back to the main game.
+// This is also good for power management later on in development
+#define MINIGAME_RPS_idleLimit 16
 
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 void MINIGAME_RPS_handleInputs(void){
@@ -89,27 +104,134 @@ void MINIGAME_RPS_handleInputs(void){
 
 //
 void MINIGAME_RPS_attractFrame(void){
-    int active_line;
     int row, col;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
-    strcpy(DISPLAY_FRAME.frame[0].line, "Make a choice!");
-    strcpy(DISPLAY_FRAME.frame[1].line, "\xF7      \xF5"); //TODO Define these characters and below on symbols.
-    strcpy(DISPLAY_FRAME.frame[6].line, "\xF6      \xF0");
-
-    //placeholder logic
-    //TODO: Replace with the real stuff
-    for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
-        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
-            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+    if ( SCENE_FRAME == 0 ) {   // This is the "first" frame so we want to treat it as such.
+        
+        for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
+            for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+                DISPLAY_FRAME.frame[row].line[col] = ' ';
+                DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
         }
+    }   //Draw in the permanent static assets, starting with the title bar.
+        strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MINIGAME_PICK); // Set line zero's full text to the attract prompt.
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[1].line[col] = MINIGAME_RPS_sb_solidbottom;
+        }
+        DISPLAY_FRAME.frame[1].line[3] = MINIGAME_RPS_sb_pointbottom; // It is not possible to exactly center this, so
+
+        //The next four lines add in the choice icons to prompt the player which buttons do what.
+        DISPLAY_FRAME.frame[2].line[1] = MINIGAME_RPS_choiceRock;
+        DISPLAY_FRAME.frame[2].line[6] = MINIGAME_RPS_choiceScissors;
+        DISPLAY_FRAME.frame[6].line[1] = MINIGAME_RPS_choicePaper;
+        DISPLAY_FRAME.frame[6].line[6] = MINIGAME_RPS_choiceNotMade;
+        //The next four lines add the corresponding arrow icons.
+        DISPLAY_FRAME.frame[2].line[0] = MINIGAME_RPS_entry_arrow;
+        DISPLAY_FRAME.frame[2].directives[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;  // The font provides no left arrow.
+        DISPLAY_FRAME.frame[2].line[7] = MINIGAME_RPS_entry_arrow;
+        DISPLAY_FRAME.frame[6].line[0] = MINIGAME_RPS_entry_arrow;
+        DISPLAY_FRAME.frame[6].directives[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+        DISPLAY_FRAME.frame[6].line[7] = MINIGAME_RPS_entry_arrow;
+
+        //Draw in the character figure. We can do this because the character model is only ever in FaceRight, and
+        //FaceRight has only a single frame of animation data.
+        switch (active_species.size) {
+            case EVO_size_small:
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
+                break;
+                
+        }
+        // Let's never do this again until the next time scene-frame is reset.
+        SCENE_FRAME = 1;
     }
 
-    strcpy(DISPLAY_FRAME.frame[2].line, "  \xF2\xF1\xF2   "); // TODO it'd be nice to have this as a function itself.
-    strcpy(DISPLAY_FRAME.frame[3].line, "  \xEF\xF7\xEF   ");
-    strcpy(DISPLAY_FRAME.frame[4].line, "  \xF3\xF4\xF3   ");
-    DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-    DISPLAY_FRAME.frame[2].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-    DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+    if ((SCENE_FRAME % 2) == 0) {
+        // Set the character to face RIGHT.
+        switch (active_species.size) {
+            case EVO_size_small:
+                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                break;
+            case EVO_size_med:
+                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[0];
+                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[2];
+                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[3];
+                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                break;
+            case EVO_size_large:
+                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[0];
+                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
+                DISPLAY_FRAME.frame[3].line[5] = active_species.faceRight[2];
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[3];
+                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[4];
+                DISPLAY_FRAME.frame[4].line[5] = active_species.faceRight[5];
+                DISPLAY_FRAME.frame[5].line[3] = active_species.faceRight[6];
+                DISPLAY_FRAME.frame[5].line[4] = active_species.faceRight[7];
+                DISPLAY_FRAME.frame[5].line[5] = active_species.faceRight[8];
+                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[5] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[5] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[5].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[5].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[5].directives[5] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                break;      
+        }
+        SCENE_FRAME++;
+        AUDIO_pulse(AUDIO_LONG_PULSE);
+    }
+    else {
+        //set the character to face LEFT
+        switch (active_species.size) {
+            case EVO_size_small:
+                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                break;
+            case EVO_size_med:
+                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[0];
+                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[1];
+                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[2];
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[3];
+                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                break;
+            case EVO_size_large:
+                DISPLAY_FRAME.frame[3].line[5] = active_species.faceRight[0];
+                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
+                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[2];
+                DISPLAY_FRAME.frame[4].line[5] = active_species.faceRight[3];
+                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[4];
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[5];
+                DISPLAY_FRAME.frame[5].line[5] = active_species.faceRight[6];
+                DISPLAY_FRAME.frame[5].line[4] = active_species.faceRight[7];
+                DISPLAY_FRAME.frame[5].line[3] = active_species.faceRight[8];
+                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[5] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[5] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[5].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[5].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[5].directives[5] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                break;
+        }
+        SCENE_FRAME++;
+        AUDIO_pulse(AUDIO_SHORT_PULSE);
+    }
+
+    
+    
+    if (SCENE_FRAME >= MINIGAME_RPS_idleLimit) {
+        SCENE_ACT = SCENEADDR_main_game;
+    }
+
 
 }
 
@@ -226,17 +348,17 @@ void SCENE_RockPaperScissors(void){
     }
     if (SCENE_FRAME == 0) {
         MINIGAME_RPS_choice = MINIGAME_RPS_choiceNotMade; // By Default
-        MINIGAME_RPS_handleInputs(); // Will override a MINIGAME_RPS_choice if chosen
     }
     switch (SCENE_CURRENT_PAGE){
         case MINIGAME_RPS_attract :
+            MINIGAME_RPS_handleInputs(); // Will override a MINIGAME_RPS_choice if chosen
             MINIGAME_RPS_attractFrame();
             break;
         case MINIGAME_RPS_eval :
-            MINIGAME_RPS_evaluateFrame();
+            MINIGAME_RPS_evaluateFrame(); // TODO resume by doing illustration improvements here
             break;
-        case MINIGAME_RPS_final_page : // #TODO resume!
-            MINIGAME_RPS_finalScoreFrame(); // TODO implement correctly
+        case MINIGAME_RPS_final_page :
+            MINIGAME_RPS_finalScoreFrame(); 
             break;
     }
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.

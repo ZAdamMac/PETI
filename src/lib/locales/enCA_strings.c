@@ -37,7 +37,8 @@ extern const char* LSTRING_MINIGAME_HEADER = "     GAMES      ";
 extern const char* LSTRING_STAGE_SELECT = "  STAGE SELECT  ";
 extern const char* LSTRING_ENTROPY_INFO = "   RNG STATUS   ";
 extern const char* LSTRING_INITIAL_SEED = "  INITIAL SEED  ";
-extern const char* LSTRING_CURRENT_RNG= "CURRENT RNG CARD";
+extern const char* LSTRING_CURRENT_RNG = "CURRENT RNG CARD";
+extern const char* LSTRING_MINIGAME_PICK = " Make A Choice! ";
 
 extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Input Test      ",

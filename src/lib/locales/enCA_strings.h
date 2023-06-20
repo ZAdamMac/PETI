@@ -36,8 +36,9 @@ extern const char* LSTRING_SOUND_CHECK;     //Sound Testing menu header text
 extern const char* LSTRING_STAGE_SELECT;    //Stage-Of-Life Selector Menu header text
 extern const char* LSTRING_ENTROPY_INFO;    //RNG state monitor menu header text
 extern const char* LSTRING_INITIAL_SEED;    //RNG state monitor initial seed label
-extern const char* LSTRING_MINIGAME_HEADER;
+extern const char* LSTRING_MINIGAME_HEADER; //Header for the minigames selection menu.
 extern const char* LSTRING_CURRENT_RNG;     //RNG state monitor current rng state label
+extern const char* LSTRING_MINIGAME_PICK;   //Invitation to make a selection.
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
