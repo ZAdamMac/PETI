@@ -349,9 +349,12 @@ void SCENE_RockPaperScissors(void){
     if (SCENE_FRAME == 0) {
         MINIGAME_RPS_choice = MINIGAME_RPS_choiceNotMade; // By Default
     }
+    if (SCENE_CURRENT_PAGE == MINIGAME_RPS_attract){
+        MINIGAME_RPS_handleInputs(); // Will override a MINIGAME_RPS_choice if chosen
+        // not to occur in the switch or we never enter other scenes at SCENE_FRAME == 0!
+    }
     switch (SCENE_CURRENT_PAGE){
         case MINIGAME_RPS_attract :
-            MINIGAME_RPS_handleInputs(); // Will override a MINIGAME_RPS_choice if chosen
             MINIGAME_RPS_attractFrame();
             break;
         case MINIGAME_RPS_eval :
