@@ -85,7 +85,11 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
 
 }
 
-//TODO docstring
+//provided with signed integers for the change in hunger and change in fun
+//desired, this function extracts those values from StateMachine.HUNGER_FUN,
+//modifies them within their boundary sizes, then puts them back together on
+//the state machine. Provided for convenience when writing scenes that modify
+//this value or game state functions that do the same.
 void GAME_applyHungerFun(int change_hunger, int change_fun){
     unsigned int current_hunger = StateMachine.HUNGER_FUN >> 4 & 0xF;
     unsigned int current_fun = StateMachine.HUNGER_FUN & 0xF;
@@ -144,7 +148,7 @@ void GAME_evaluateTimedEvents(void){
         StateMachine.STAGE_ID = 0x01; // We always hatch to the first baby.
         FORCE_REFRESH = true; // Needed to redraw the menu on the first frame. Should be included in that evolution function.
         NEXT_STAGE_TRANSITION_AGE = 0xFF; // needed to avoid looping in this, which causes animation problems. Normally set in the evolution function.
-        //TODO should change activity levels once those are implemented.
+        //FUTURE: should change activity levels once those are implemented.
     }
     if ((current_seconds == 0) && egg_delay_set && (StateMachine.STAGE_ID > 0x00) && needs_evaluation){ // At the round minute, we need to check for these several functions, only if not an egg.
         GAME_NEEDS_evaluateHungerFun(current_minutes);

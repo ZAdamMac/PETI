@@ -68,6 +68,10 @@ signed int MINIGAME_RPS_score;
 // This is also good for power management later on in development
 #define MINIGAME_RPS_idleLimit 16
 
+//This defines the length in frames of each of the three phases of the Evaluation screen.
+//At time of writing this is roughly the number of half-seconds each screen should last.
+#define MINIGAME_RPS_EVALSCREENLENGTH 4
+
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 void MINIGAME_RPS_handleInputs(void){
     int i;
@@ -102,7 +106,10 @@ void MINIGAME_RPS_handleInputs(void){
     HID_input_events_queue_depth = 0;
 }
 
-//
+
+//Called without argument, this function draws one frame of the attract mode
+//animation. On frame zero it also draws the LSTRING_MINIGAME_PICK and decorates
+//it alongside the legend of button choices.
 void MINIGAME_RPS_attractFrame(void){
     int row, col;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
@@ -235,6 +242,9 @@ void MINIGAME_RPS_attractFrame(void){
 
 }
 
+//Fed a random float, translates to an MINIGAME_RPS_choice Binding.
+//WARN: Not necessarily balanced because the homogeneity of the randomness
+//generator is not understood.
 void MINIGAME_RPS_drawChoice(float random){
         if (random > 0.6666){
             MINIGAME_RPS_petChoice = MINIGAME_RPS_choiceRock;
@@ -247,63 +257,121 @@ void MINIGAME_RPS_drawChoice(float random){
         }
 }
 
-void MINIGAME_RPS_evaluateForScoring(void){
+//Checks the player choice against the pet's random selection and modifies
+//MINIGAME_RPS_score accordingly. The score is positively incremented on a win
+//for the player.
+int MINIGAME_RPS_evaluateForScoring(void){
     SCENE_PAGE_COUNT++;
     if (MINIGAME_RPS_choice == MINIGAME_RPS_petChoice){ // This is the general case of a draw.
         MINIGAME_RPS_score += 0;
-        return;
+        return 0;
     }
     else { // Handling actual disparities is a little more branchy
         switch(MINIGAME_RPS_choice){
             case (MINIGAME_RPS_choiceRock):
                 if (MINIGAME_RPS_petChoice == MINIGAME_RPS_choiceScissors) {
                     MINIGAME_RPS_score += 1; // You won the hand
+                    return 1;
                 }
                 else {
                     MINIGAME_RPS_score += -1; // You have necessarily lost the hand
+                    return -1;
                 }
                 break;
             case (MINIGAME_RPS_choicePaper):
                 if (MINIGAME_RPS_petChoice == MINIGAME_RPS_choiceRock) {
                     MINIGAME_RPS_score += 1; // You won the hand
+                    return 1;
                 }
                 else {
                     MINIGAME_RPS_score += -1; // You have necessarily lost the hand
+                    return -1;
                 }
                 break;
             case (MINIGAME_RPS_choiceScissors):
                 if (MINIGAME_RPS_petChoice == MINIGAME_RPS_choicePaper) {
                     MINIGAME_RPS_score += 1; // You won the hand
+                    return 1;
                 }
                 else {
                     MINIGAME_RPS_score += -1; // You have necessarily lost the hand
+                    return -1;
                 }
                 break;
         }
     }
 }
 
-//
+//Minimalistic evaluation function that displays the two choices made by the
+//player and the pet. Future work will expand this to include a visual
+//legend of which player is on which side.
+void MINIGAME_RPS_evaluateFrame_choices(void){
+    int row;
+    DISPLAY_FRAME.frame[2].line[0] = MINIGAME_RPS_sb_tl;
+    DISPLAY_FRAME.frame[2].line[1] = MINIGAME_RPS_sb_top;
+    DISPLAY_FRAME.frame[2].line[2] = MINIGAME_RPS_sb_tl;
+    DISPLAY_FRAME.frame[2].line[5] = MINIGAME_RPS_sb_tl;
+    DISPLAY_FRAME.frame[2].line[6] = MINIGAME_RPS_sb_top;
+    DISPLAY_FRAME.frame[2].line[7] = MINIGAME_RPS_sb_tl;
+    DISPLAY_FRAME.frame[3].line[0] = MINIGAME_RPS_sb_side;
+    DISPLAY_FRAME.frame[3].line[1] = MINIGAME_RPS_choice;
+    DISPLAY_FRAME.frame[3].line[2] = MINIGAME_RPS_sb_side;
+    DISPLAY_FRAME.frame[3].line[5] = MINIGAME_RPS_sb_side;
+    DISPLAY_FRAME.frame[3].line[6] = MINIGAME_RPS_petChoice;
+    DISPLAY_FRAME.frame[3].line[7] = MINIGAME_RPS_sb_side;
+    DISPLAY_FRAME.frame[4].line[0] = MINIGAME_RPS_sb_bl;
+    DISPLAY_FRAME.frame[4].line[1] = MINIGAME_RPS_sb_pointbottom;
+    DISPLAY_FRAME.frame[4].line[2] = MINIGAME_RPS_sb_bl;
+    DISPLAY_FRAME.frame[4].line[5] = MINIGAME_RPS_sb_bl;
+    DISPLAY_FRAME.frame[4].line[6] = MINIGAME_RPS_sb_pointbottom;
+    DISPLAY_FRAME.frame[4].line[7] = MINIGAME_RPS_sb_bl;
+    for (row=2; row<5; row++){ // Right hand sides of speech bubbles involve reversal.
+        DISPLAY_FRAME.frame[row].directives[2] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+        DISPLAY_FRAME.frame[row].directives[7] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+    }
+    //FUTURE not really done, should probably draw the monster under its choice, and a player icon under the other.
+}
+
+
+// A dummied function provided so that space could be left for it inside the
+// main evaluateFrame function. It currently does nothing.
+void MINIGAME_RPS_evaluateFrame_dance(int winloss){
+    //FUTURE fully implement this using winloss to draw win/loss/draw animations.
+    return;
+}
+
+// Parent function for the evaluate frame subscene. Consults the SCENE_FRAME
+// globalvar and the MINIGAME_RPS_EVALSCREENLENGTH to determine whether to call
+// choices or dance animation phases.
+// FUTURE: when tunes support is added to audio, each of those phases needs a
+// jingle.
 void MINIGAME_RPS_evaluateFrame(void){
-    int active_line;
-    int row, col;
-    if (SCENE_FRAME == 0) { // In such an event, we need to "blank" the frame directives and lines
+    int row, col, victory;
+    if (SCENE_FRAME % MINIGAME_RPS_EVALSCREENLENGTH == 0) { // In such an event, we need to "blank" the frame directives and lines
             for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
                 for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
                     DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
                     DISPLAY_FRAME.frame[row].line[col]=' ';
                 }
         }
-        MINIGAME_RPS_drawChoice(RNG_drawFloat());
-        MINIGAME_RPS_evaluateForScoring();
+        if (SCENE_FRAME == 0){ // Specifically on frame 0 we need to do the actual maths.
+            MINIGAME_RPS_drawChoice(RNG_drawFloat());
+            victory = MINIGAME_RPS_evaluateForScoring();
+        }
     }
 
-    //TODO eventually this will be animated, but I'm trying to get the logo for now.
-    DISPLAY_FRAME.frame[3].line[1] = MINIGAME_RPS_choice;
-    DISPLAY_FRAME.frame[3].line[6] = MINIGAME_RPS_petChoice;
+    //Determine if we are in the second or first half of the evaluation page animations.
+    //This is done to simplify the animation by handling each half as their own function for clarity.
+    if (SCENE_FRAME <= MINIGAME_RPS_EVALSCREENLENGTH){ //First lap around the EVALSCREENLENGTH, show the player what was chosen.
+        MINIGAME_RPS_evaluateFrame_choices();
+    }
+    else if (MINIGAME_RPS_EVALSCREENLENGTH < SCENE_FRAME <= (2 * MINIGAME_RPS_EVALSCREENLENGTH)){
+        MINIGAME_RPS_evaluateFrame_dance(victory); // Second lap around, character does a little dance.
+    }
+    
 
     SCENE_FRAME++;
-    if (SCENE_FRAME >= 4){
+    if (SCENE_FRAME >= (2 * MINIGAME_RPS_EVALSCREENLENGTH)){
         SCENE_FRAME = 0;
         if (SCENE_PAGE_COUNT >= MINIGAME_RPS_best_of){
             SCENE_CURRENT_PAGE = MINIGAME_RPS_final_page;
@@ -315,8 +383,12 @@ void MINIGAME_RPS_evaluateFrame(void){
     }
 }
 
-// TODO docstring
+// A simplistic function that either diplays a victory or loss message. Players
+// win on draw, see internal comment. It's not finished, but is finished enough
+// for a minigame prototype.
+// FUTURE work will add jingles when the tune system works.
 void MINIGAME_RPS_finalScoreFrame(void){
+    //FUTURE a prettier version of this, possibly making use of MINIGAME_RPS_evaluateFrame_dance();
     int row, col;
     if (SCENE_FRAME == 0) { // In such an event, we need to "blank" the frame directives and lines
             for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
@@ -325,12 +397,12 @@ void MINIGAME_RPS_finalScoreFrame(void){
                     DISPLAY_FRAME.frame[row].line[col]=' ';
                 }
             }
-        if (MINIGAME_RPS_score >= 0) {
+        if (MINIGAME_RPS_score >= 0) { //Players win on a draw. Replace with straight greater-than to make them lose.
             GAME_applyHungerFun(0, MINIGAME_RPS_prize);
-            strcpy(DISPLAY_FRAME.frame[0].line, "You Win!      ");  //TODO placeholder only
+            strcpy(DISPLAY_FRAME.frame[0].line, "You Win!      ");
         }
         else {
-            strcpy(DISPLAY_FRAME.frame[0].line, "You lost...   "); // TODO placeholder only
+            strcpy(DISPLAY_FRAME.frame[0].line, "You lost...   ");
         }
     }
 
@@ -340,8 +412,8 @@ void MINIGAME_RPS_finalScoreFrame(void){
     }
 }
 
-// This is the public function of the minigame. Since it's purely icon-based there are no localization strings to load,
-// meaning this can be made more simply
+// This is the public function of the minigame. Any needed localization is in 
+//the child functions.
 void SCENE_RockPaperScissors(void){
     if (SCENE_PAGE_COUNT == 0){
         MINIGAME_RPS_score = 0;
@@ -358,7 +430,7 @@ void SCENE_RockPaperScissors(void){
             MINIGAME_RPS_attractFrame();
             break;
         case MINIGAME_RPS_eval :
-            MINIGAME_RPS_evaluateFrame(); // TODO resume by doing illustration improvements here
+            MINIGAME_RPS_evaluateFrame();
             break;
         case MINIGAME_RPS_final_page :
             MINIGAME_RPS_finalScoreFrame(); 
