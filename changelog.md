@@ -72,3 +72,14 @@
 - Adds the primitives for RNG functions based on reading the TLV and using a LCG-type non-secure Random Number Generator in order to provide "game-quality" entropy for future use in, say, a minigames mode.
 - Adds a scene to the debug menu that allows you to babysit the RNG state.
 - It's intended to "break" here to catch up with documentation and finish the development kit design, thus the 0.1.0 numbering.
+
+# v 0.2.0 - Minigame Prototype
+- Adds a basic "Rock Paper Scissors" Minigame to serve as a prototype for the minigames system and as a base minigame for testing purposes. Future work will refine this minigame as other relied-upon work is completed first.
+- Corrections have been made to the RNG to make it more reliably unpredictable to the average human player.
+- Species size magic numbers have been replaced with defined symbols in EVO_data as part of the overall work to eliminate magic numbers.
+- GAME_applyHungerFun was added to game_manager to provide a convenience function for applying signed-integer changes to the HUNGER_FUN score without needing to redefine the guard rails and bitwise operations every time.
+  - Some older functions were refactored to use this.
+- The input handler was replaced with a more performant input queue system that will no longer drop inputs when multiple inputs are generated between calls to the "evaluate input" function in any given scene or scenes.
+  - All existing scenes were refactored to support this new system. The change is especially noticable in menus.
+- Localization strings were added to enCA_strings to support the changes above.
+- The default date was moved to a date closer to the release of 0.2.0.
