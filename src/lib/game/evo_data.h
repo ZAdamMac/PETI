@@ -8,6 +8,10 @@
 #ifndef LIB_GAME_EVO_DATA_H_
 #define LIB_GAME_EVO_DATA_H_
 
+#define EVO_size_small 1
+#define EVO_size_med 4
+#define EVO_size_large 9
+
 extern unsigned int EVO_count_stages;
 
 typedef struct Stage{

@@ -5,12 +5,12 @@
  *      Author: patches
  */
 
-#define VERSION "   2023-05-08"           //Max 16 characters, and pad left.
+#define VERSION "     v0.2.0"             //Max 16 characters, and pad left.
 
 volatile unsigned char VCOM;            // current VCOM state
-char bufferText[17];                    // General placeholder used by all the printext functions.
+char bufferText[17];                    // General placeholder used by all the printext functions. TODO does this really still exist?
 
-unsigned int buttons_state;             // We need to hold a whole byte to keep track of the flag state
+unsigned int buttons_state;             // We need to hold a whole byte to keep track of the flag state TODO can we yeet this?
 #define button_a_pressed BIT7           // And hit state of each button, along with the bits to control each.
 #define button_b_pressed BIT6           // These upper bits indicate the button was pressed since the last time the
 #define button_c_pressed BIT5           // Update_Button_States function was called.
@@ -21,5 +21,4 @@ unsigned int buttons_state;             // We need to hold a whole byte to keep 
 #define button_d_toggle BIT0
 
 
-unsigned int interacted_flag;           // An int, however used effectively as a bool flag to determine if the device has been interacted with.
 unsigned int calendar_initial_setup_completed; // As interacted_flag, used to determine if the RTC has been set at least once by lib/scenes/calendar_menu

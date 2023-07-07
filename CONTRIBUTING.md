@@ -34,10 +34,16 @@ In general though, we're super happy to have any help that we can. People who co
 ## Branching
 For the sake of convenience we have three different kinds of branch, with a two-character prefix on the branch name to denote them:
 - `h/` (mnemonic: housekeeping) branches for adding and maintaining documentation, licensing, or other paperwork tasks that don't affect the main source files located in /src. This can include maintaining or upgrading the build pipeline tooling, changing doxygen configs, and so on. Merging `h/` branches does not change the firmware version numbering for obvious reasons.
-- `f/` (mnemonic: feature) branches for adding functionality to the PETI firmware itself. An `f/` branch should introduce a new scene, feature, font, etc but may also include bug-fixes depending on timing constraints. This usually changes the `middle digit` of the firmware version number, for example an `f/` branched off of `0.1.0` would be merged to create `0.2.0`. (Prior to 2022/10/12 this was not the expected behaviour.)
-- `b/` (mnemonic: bugfix) branches for quickly correcting issues. If branched from a different branch and merged back to that branch they have no impact on the version numbering. If branched off of and back into `master`, they increment the least significant digit of the firmware version number, e.g. `0.1.0 -> 0.1.1`.
+- `f/` (mnemonic: feature) branches for adding functionality to the PETI firmware itself. An `f/` branch should introduce a new scene, feature, font, etc but may also include bug-fixes depending on timing constraints. 
+- `b/` (mnemonic: bugfix) branches for quickly correcting issues. If branched from a different branch and merged back to that branch they have no impact on the version numbering. If branched off of and back into `main`, they increment the least significant digit of the firmware version number, e.g. `0.1.0 -> 0.1.1`.
+- `v/` (mnemonic: version). Versions are based from `main` at a certain moment in time and set aside for feature work. Feature branches should branch off of the current `v/` branch. This usually changes the `middle digit` of the firmware version number, for example an `f/` branched off of `0.1.0` would be merged to create `0.2.0`. (Prior to 2022/10/12 this was not the expected behaviour.)
 
-If you're unclear on this convention please ask in the `#peti` channel on the lab discord. In general, you should almost always fork from and PR against `master`.
+If you're unclear on this convention please ask in the `#peti` channel on the lab discord. In general, you should almost always fork from and PR against `main`.
+
+## Comment Convention
+`TODO and FIXME` are comment prefixes indicating immediate action is required. FIXME comments should never be commited to any branch of the main repo but are naturally permitted on your private fork as suits your development practice. TODO commits are permitted on all branches *except* on `v/` version compliation branches.
+
+A special convention exists for TODO comments that for one reason or another are not resolvable in the next feature release: `FUTURE`. These are to be used for features that would be "too heavy" to implement immediately or are hard gated behind other work not yet in scope. 
 
 ## Testing
 A full suite of tests is desired but not currently on the roadmap. Current functional testing is the responsibility of the person handling the merge request and should include a comprehensive test of both new and old functionality for a compiled version of the code being submitted on a PETI development kit.

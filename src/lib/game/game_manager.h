@@ -28,6 +28,7 @@ GameState StateMachine;                     // Any file that includes game_manag
 
 void GAME_initStateStruct(void);
 void GAME_evaluateTimedEvents(void);
+void GAME_applyHungerFun(int change_hunger, int change_fun);
 
 
 #endif /* LIB_GAME_GAME_MANAGER_H_ */

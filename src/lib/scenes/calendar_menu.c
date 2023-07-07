@@ -208,7 +208,7 @@ char * CALMENU_dateAndDow(void){
     WORK_STRING[7] = DISPLAY_nthDigit(0, calendar_menu_month);
     WORK_STRING[8] = '-';
     WORK_STRING[9] = DISPLAY_nthDigit(1, calendar_menu_day);
-    WORK_STRING[10] = DISPLAY_nthDigit(0, calendar_menu_day); // TODO: Resume from here, this step is mysteriously broken
+    WORK_STRING[10] = DISPLAY_nthDigit(0, calendar_menu_day);
     WORK_STRING[11] = ' ';
     WORK_STRING[12] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][0];  // Strings are arrays of chars, so the dict needs to be called out one index at a time.
     WORK_STRING[13] = LARRAY_DAYS_OF_WEEK[calendar_menu_dow][1];

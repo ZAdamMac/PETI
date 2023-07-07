@@ -35,7 +35,7 @@ int main(void) {
     PMM_unlockLPM5();
     VCOM = MLCD_VCOM; // Set the initial state of the VCOM bit.
     FORCE_REFRESH = 0x00; // Force a refresh of all lines for the first scene ever called
-    interacted_flag = 0x00;
+    HID_interacted_flag = 0x00;
     RNG_session_seed = RNG_getSeedWord(); // Done very early to be able to use the ADC without interfering with other functions.
     RNG_initialize(RNG_session_seed);
     Init_GPIO();
@@ -48,13 +48,13 @@ int main(void) {
     while (1){
         PMM_unlockLPM5();
         GAME_evaluateTimedEvents();
-        if (interacted_flag){
+        if (HID_interacted_flag){
             BLINKENLIGHTS_lower();
         }
         SCENE_updateDisplay();
         ToggleVCOM();
         RNG_forceShuffle();
-        interacted_flag = 0x00; // By this point any interaction has been handled
+        HID_interacted_flag = 0x00; // By this point any interaction has been handled
         __bis_SR_register(LPM0_bits | GIE);
     }}
 

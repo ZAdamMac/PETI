@@ -15,7 +15,7 @@
 #include <msp430.h>
 #include "human_input.h"
 
-unsigned int HID_input_events_queue[8] = {
+unsigned int HID_input_events_queue[8] = { //A default-empty queue to insert the human input events into.
     BUTTON_NO_PRESS,
     BUTTON_NO_PRESS,
     BUTTON_NO_PRESS,
@@ -37,6 +37,7 @@ __interrupt void BUTTON_C_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
     HID_input_events_queue[HID_input_events_queue_depth] = BUTTON_C_PRESS;
     HID_input_events_queue_depth++;
+    HID_interacted_flag = 1;
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
 
@@ -45,6 +46,7 @@ __interrupt void BUTTON_A_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P6, GPIO_PIN0);
     HID_input_events_queue[HID_input_events_queue_depth] = BUTTON_A_PRESS;
     HID_input_events_queue_depth++;
+    HID_interacted_flag = 1;
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
 
@@ -53,6 +55,7 @@ __interrupt void BUTTON_B_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
     HID_input_events_queue[HID_input_events_queue_depth] = BUTTON_B_PRESS;
     HID_input_events_queue_depth++;
+    HID_interacted_flag = 1;
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
 
@@ -61,5 +64,6 @@ __interrupt void BUTTON_D_ISR (void){
     GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
     HID_input_events_queue[HID_input_events_queue_depth] = BUTTON_D_PRESS;
     HID_input_events_queue_depth++;
+    HID_interacted_flag = 1;
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop
 }
