@@ -16,9 +16,9 @@
 // Default values for the RTC must be provided.
 // The following variables are BCD, so read as decimal, but provid `0x` as though they were hex
 #define DEFAULT_DOW 0x05        //Convention is arbitrary 0 = sunday
-#define DEFAULT_DAY 0x23       //The day of the month
-#define DEFAULT_MONTH 0x09      //The current month
-#define DEFAULT_YEAR 0x2022     //The current year.
+#define DEFAULT_DAY 0x07       //The day of the month
+#define DEFAULT_MONTH 0x07      //The current month
+#define DEFAULT_YEAR 0x2023     //The current year.
 
 //We need a simple function to initialize some GPIO pins for driving input and output.
 //Special GPIO pins for (e.g. SPI) are called out in their own functions.
