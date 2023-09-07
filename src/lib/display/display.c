@@ -556,7 +556,7 @@ void printDeltas_game(DisplayFrame incoming_frame){
 void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
     int index;
     for (index = 0; index < scene_rules->lines_used; index++){
-        if (incoming_frame->frame[index].line != PREVIOUS_FRAME.frame[index].line || incoming_frame->frame[index].directives != PREVIOUS_FRAME.frame[index].directives || FORCE_REFRESH){
+        if ((incoming_frame->frame[index].line != PREVIOUS_FRAME.frame[index].line) || (incoming_frame->frame[index].directives != PREVIOUS_FRAME.frame[index].directives) || FORCE_REFRESH){
             switch (scene_rules->rows[index].text_size){
                 case TEXT_SIZE_SMALL :
                     printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address);
