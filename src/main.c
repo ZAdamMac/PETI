@@ -43,7 +43,6 @@ int main(void) {
     Init_RTC();
     Init_SPI();
     Init_LCD();
-    GAME_initStateStruct();
 
     while (1){
         PMM_unlockLPM5();
@@ -85,5 +84,5 @@ __interrupt void TIMEOUT_ISR (void){
     Timer_B_clearTimerInterrupt(TIMER_B0_BASE);
     Timer_B_stop(TIMER_B0_BASE);
     GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
+    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every 0.5 second
 }
