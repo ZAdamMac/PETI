@@ -83,3 +83,10 @@
   - All existing scenes were refactored to support this new system. The change is especially noticable in menus.
 - Localization strings were added to enCA_strings to support the changes above.
 - The default date was moved to a date closer to the release of 0.2.0.
+
+# v 0.3.0 - Power Management Updates
+- StateMachine - and thus the user progress data, are now persisted to FRAM.
+  - Saves will persist between loss of power or BOR.
+  - On BOR, user is prompted to confirm whether to clear the data or not using a localizeable warning.
+- Fixed a small logic bug that was increasing frame render times.
+- The battery LED and alert LED can now blink at one of two rates. This uses less power than leaving them on continuously.

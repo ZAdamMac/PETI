@@ -16,7 +16,7 @@
 
 
 
-#include "driverlib.h"
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include "lib/game/game_manager.h"
 #include "lib/game/entropy.h"
 #include "lib/display/display.h"
@@ -48,7 +48,7 @@ int main(void) {
         PMM_unlockLPM5();
         GAME_evaluateTimedEvents();
         if (HID_interacted_flag){
-            BLINKENLIGHTS_lower();
+            BLINKENLIGHTS_stopAlertLED();
         }
         SCENE_updateDisplay();
         ToggleVCOM();
@@ -57,7 +57,9 @@ int main(void) {
         __bis_SR_register(LPM0_bits | GIE);
     }}
 
-// interrupt service routine to handle timer A.
+// TODO: Move Timer Interrupts to HWINIT or similar
+
+// interrupt service routine to handle timer A0.
 // Based on current configuration as of may 2021 this should be raised once per second.
 // Raising this alert flips the VCOM flag at the manufacturer-recommended rate of 1/sec
 // And wakes up the main loop.
@@ -77,6 +79,27 @@ __interrupt void VCOM_ISR (void){
     __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every second
 }
 
+// interrupt service routine to handle timer A.
+// This is configured through BLINKENLIGHTS_blinkAlertLED(); The interrupt simply toggles the state of the
+// Alert LED's GPIO pin.
+#pragma vector=TIMER1_A0_VECTOR
+__interrupt void BLINK_ALERT_ISR (void){
+    Timer_A_clearCaptureCompareInterrupt(TIMER_A1_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
+    Timer_A_clearTimerInterrupt(TIMER_A1_BASE);
+    GPIO_toggleOutputOnPin(LED_ALERT_PORT, LED_ALERT_PIN);
+}
+
+// interrupt service routine to handle timer A.
+// This is configured through BLINKENLIGHTS_blinkBatteryLED(); The interrupt simply toggles the state of the
+// Low Battery LED's GPIO pin.
+#pragma vector=TIMER4_A0_VECTOR
+__interrupt void BLINK_BATTERY_ISR (void){
+    Timer_A_clearCaptureCompareInterrupt(TIMER_A4_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
+    Timer_A_clearTimerInterrupt(TIMER_A4_BASE);
+    GPIO_toggleOutputOnPin(LED_BATTERY_PORT, LED_BATTERY_PIN);
+}
+
+
 //Stop audio when the timer has elapsed.
 #pragma vector=TIMER0_B0_VECTOR
 __interrupt void TIMEOUT_ISR (void){
@@ -84,5 +107,4 @@ __interrupt void TIMEOUT_ISR (void){
     Timer_B_clearTimerInterrupt(TIMER_B0_BASE);
     Timer_B_stop(TIMER_B0_BASE);
     GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
-    __bic_SR_register_on_exit(LPM0_bits);            // wake up main loop every 0.5 second
 }
