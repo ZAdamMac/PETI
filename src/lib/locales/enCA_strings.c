@@ -52,7 +52,8 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Fill Fun Bar    ",
                                         "Drain Fun Bar   ",
                                         "Stage Select    ",
-                                        "Entropy Check   "
+                                        "Entropy Check   ",
+                                        "Sleep the LCD   "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {

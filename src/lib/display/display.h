@@ -51,6 +51,7 @@
 volatile unsigned char VCOM;            // State of VCOM (either 0x00 or 0x02)
 volatile int FORCE_REFRESH;             // Int treated as boolean to force a full refresh of the screen without the need to set each refresh bit for the DisplayFrame
                                         // Useful for example when moving from one screen to another.
+volatile int DISPLAY_STATUS;            // Useful for tracking if the display is currently awake or asleep.
 
 unsigned char bufferLine[PIXELS_X/8];   // Textmode Line Buffer
 
@@ -133,7 +134,8 @@ void LCDClearDisplay(void);
 void DISPLAY_updatesOnly(DisplayFrame incoming_frame, unsigned int mode);
 void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int mode);
 char DISPLAY_nthDigit(int digit_index_from_least, int full_value);
-
+void DISPLAY_wakeLCD(void);
+void DISPLAY_sleepLCD(void);
 
 
 #endif /* LIB_DISPLAY_DISPLAY_H_ */

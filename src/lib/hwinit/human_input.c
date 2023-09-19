@@ -28,6 +28,17 @@ unsigned int HID_input_events_queue[8] = { //A default-empty queue to insert the
 unsigned int HID_input_events_queue_depth = 0;
 unsigned int HID_interacted_flag = 0;
 
+//For convenience there are some situations where it is best to dump the human inputs without handling them further;
+//Some scenes may use this or display-on-wake
+void HID_dumpQueue(void){
+    int i;
+    for (i =0; i <= HID_input_events_queue_depth; ++i){
+        HID_input_events_queue[i] = BUTTON_NO_PRESS;
+    }
+    HID_input_events_queue_depth = 0;
+}
+
+
 // The ISRs below handle interrupts raised by each of the input keys A through D.
 // They update the buttons_state int to indicate that they have been used, then wake
 // up the device to handle the input in main loop rather than via an ISR.

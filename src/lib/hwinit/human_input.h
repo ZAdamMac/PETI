@@ -20,4 +20,6 @@ extern unsigned int HID_input_events_queue[8];
 extern unsigned int HID_input_events_queue_depth;
 extern unsigned int HID_interacted_flag;
 
+void HID_dumpQueue(void);
+
 #endif /* LIB_HWINIT_HID_H_ */

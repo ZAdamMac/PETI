@@ -21,6 +21,7 @@
 
 // Initiates the eUSCI_B #1 module to act as the SPI controller.
 // Used exclusively to drive the LCD but could be used as a general SPI controller as needed.
+// FUTURE: Move to hwinit, it better belongs there.
 void Init_SPI(void) {
     EUSCI_B_SPI_disable(EUSCI_B1_BASE); // disable the EUSCI to be programme
 
@@ -76,6 +77,7 @@ void LCDClearDisplay(void){
     EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, (MLCD_CM | VCOM));
     EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, 0);
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN3);
+    FORCE_REFRESH = 0x01; // If coming back from sleep, this is needed. If first boot, harmless.
 }
 
 // Provides the LCD controller power and LCD display power to the LCD in the order
@@ -88,6 +90,29 @@ void Init_LCD(void) {
     GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN2);
     GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN2); // Provide display power to the LCD.
     LCDClearDisplay();
+    DISPLAY_STATUS = 0x01;
+}
+
+
+// Provides the LCD controller power and LCD display power to the LCD in the order
+// Specified by SHARP, and then sends the clear screen command, which is recommended.
+// Differs from Init_LCD in that we assume the control registers for GPIO are already
+// set up.
+void DISPLAY_wakeLCD(void) {
+    GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN2);// Provide power to the LCD's controller.
+    GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN2); // Provide display power to the LCD.
+    LCDClearDisplay();
+    DISPLAY_STATUS = 0x01;
+}
+
+
+// Provides the LCD controller power and LCD display power to the LCD in the order
+// Specified by SHARP, and then sends the clear screen command, which is recommended.
+void DISPLAY_sleepLCD(void) {
+    // We need a function to initialize the LCD, which is non-automatic.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN2);// Provide power to the LCD's controller.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN2); // Provide display power to the LCD.
+    DISPLAY_STATUS = 0x00;
 }
 
 // Reverse the bit order of a byte to resolve the mirroring issue. Likely used in all SPI sends.

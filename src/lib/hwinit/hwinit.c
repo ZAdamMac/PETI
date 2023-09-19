@@ -12,6 +12,7 @@
 
 #include "driverlib.h"
 #include <msp430.h>
+#include "hwinit.h"
 
 // Default values for the RTC must be provided.
 // The following variables are BCD, so read as decimal, but provid `0x` as though they were hex
@@ -22,7 +23,7 @@
 
 //We need a simple function to initialize some GPIO pins for driving input and output.
 //Special GPIO pins for (e.g. SPI) are called out in their own functions.
-void Init_GPIO(void) {
+void Init_GPIO(void){
     //We have a couple GPIO pins that most make sense to set up individually.
     // Some are explicitly or implicitly set up during Init_SPI.
     GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN0); // P1.0 is an LED for indicating VCOM state.
@@ -68,7 +69,7 @@ void Init_GPIO(void) {
 // There are some very important global timers that we need
 // Currently we only initialize Timer_A which will raise a 1hz interrupt for wakefulness.
 // Primary timekeeping is via RTC_C
-void Init_Timers(void) {
+void Init_Timers(void){
     // Set master clock to 8MHz; at this rate TimerA would interrupt roughly 2/sec
     // sets the properties to init Timer_A
     // Running the timer any faster than this will /break/ the animation logic in a way requiring greater complexity to operate.

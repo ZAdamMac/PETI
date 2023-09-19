@@ -49,9 +49,16 @@ int main(void) {
         GAME_evaluateTimedEvents();
         if (HID_interacted_flag){
             BLINKENLIGHTS_stopAlertLED();
+            if (!DISPLAY_STATUS){
+                SCENE_ACT = SCENEADDR_main_game;
+                DISPLAY_wakeLCD();
+                HID_dumpQueue();
+            }
         }
-        SCENE_updateDisplay();
-        ToggleVCOM();
+        if (DISPLAY_STATUS){
+            SCENE_updateDisplay();
+            ToggleVCOM();
+        }
         RNG_forceShuffle();
         HID_interacted_flag = 0x00; // By this point any interaction has been handled
         __bis_SR_register(LPM0_bits | GIE);

@@ -8,11 +8,9 @@
 #ifndef LIB_HWINIT_HWINIT_H_
 #define LIB_HWINIT_HWINIT_H_
 
-#include "driverlib.h"
-
 /*
-/ The following lines define several symbols that are used to configure hardware pins.
-/ //TODO: Standardize this practice.
+ * The following lines define several symbols that are used to configure hardware pins.
+ * //TODO: Standardize this practice.
 */
 
 #define LED_ALERT_PORT GPIO_PORT_P4

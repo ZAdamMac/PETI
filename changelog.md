@@ -90,3 +90,8 @@
   - On BOR, user is prompted to confirm whether to clear the data or not using a localizeable warning.
 - Fixed a small logic bug that was increasing frame render times.
 - The battery LED and alert LED can now blink at one of two rates. This uses less power than leaving them on continuously.
+- Implemented DISPLAY_sleepLCD and DISPLAY_wakeLCD to turn on and off the display respectively. A new state integer is being used to determine if it is necessary to run the display update code. A full refresh is called when waking the display.
+  - Implemented a debug callable to sleep the LCD.
+  - Alerts currently trigger when the display is asleep and will wake the LCD.
+- Adds a new function `HID_dumpQueue` which blindly empties the input queue without handling it. This is useful in a variety of cases.
+  - Currently called when waking the screen from sleep mode.
