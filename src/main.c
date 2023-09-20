@@ -26,6 +26,7 @@
 #include "main.h"
 #include "lib/alerts/blinkenlights.h"
 #include "lib/hwinit/human_input.h"
+#include "lib/hwinit/battery.h"
 //#include "lib/game/evo_data.h"
 //#include "lib/locales/enCA_strings.h"
 
@@ -46,6 +47,7 @@ int main(void) {
 
     while (1){
         PMM_unlockLPM5();
+        BATTERY_checkForSigLBO();
         GAME_evaluateTimedEvents();
         if (HID_interacted_flag){
             BLINKENLIGHTS_stopAlertLED();

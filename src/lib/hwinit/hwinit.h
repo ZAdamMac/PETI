@@ -17,6 +17,8 @@
 #define LED_ALERT_PIN  GPIO_PIN7
 #define LED_BATTERY_PORT GPIO_PORT_P1
 #define LED_BATTERY_PIN GPIO_PIN5
+#define SENSOR_BATTERY_PORT GPIO_PORT_P3
+#define SENSOR_BATTERY_PIN  GPIO_PIN5
 
 void Init_GPIO(void);
 void Init_Timers(void);

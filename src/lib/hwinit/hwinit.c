@@ -16,9 +16,9 @@
 
 // Default values for the RTC must be provided.
 // The following variables are BCD, so read as decimal, but provid `0x` as though they were hex
-#define DEFAULT_DOW 0x05        //Convention is arbitrary 0 = sunday
-#define DEFAULT_DAY 0x07       //The day of the month
-#define DEFAULT_MONTH 0x07      //The current month
+#define DEFAULT_DOW 0x02        //Convention is arbitrary 0 = sunday
+#define DEFAULT_DAY 0x19       //The day of the month
+#define DEFAULT_MONTH 0x09      //The current month
 #define DEFAULT_YEAR 0x2023     //The current year.
 
 //We need a simple function to initialize some GPIO pins for driving input and output.
@@ -32,10 +32,10 @@ void Init_GPIO(void){
     GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN1);
 
 
-    GPIO_setAsOutputPin(GPIO_PORT_P1, GPIO_PIN5); // P1.0 is an LED for indicating the battery alert.
-    GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN5);
-    GPIO_setAsOutputPin(GPIO_PORT_P4, GPIO_PIN7); // P4.7 is the alert system visual LED.
-    GPIO_setOutputLowOnPin(GPIO_PORT_P4, GPIO_PIN7);
+    GPIO_setAsOutputPin(LED_BATTERY_PORT, LED_BATTERY_PIN); // P1.0 is an LED for indicating the battery alert.
+    GPIO_setOutputLowOnPin(LED_BATTERY_PORT, LED_BATTERY_PIN);
+    GPIO_setAsOutputPin(LED_ALERT_PORT, LED_ALERT_PIN); // P4.7 is the alert system visual LED.
+    GPIO_setOutputLowOnPin(LED_ALERT_PORT, LED_ALERT_PIN);
 
     GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN4); //P3.4 is buzzer Out.
     GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
@@ -58,6 +58,11 @@ void Init_GPIO(void){
     GPIO_clearInterrupt(GPIO_PORT_P7, GPIO_PIN1);
     GPIO_clearInterrupt(GPIO_PORT_P5, GPIO_PIN7);
     GPIO_clearInterrupt(GPIO_PORT_P8, GPIO_PIN3);
+
+    //LBO Signal Block
+    GPIO_setAsInputPinWithPullUpResistor(SENSOR_BATTERY_PORT, SENSOR_BATTERY_PIN);
+    GPIO_disableInterrupt(SENSOR_BATTERY_PORT, SENSOR_BATTERY_PIN);
+    GPIO_clearInterrupt(SENSOR_BATTERY_PORT, SENSOR_BATTERY_PIN);
 
     //DIP Switch Inputs Block
     //These are obviously not momentary

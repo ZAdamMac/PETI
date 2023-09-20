@@ -23,6 +23,7 @@
 #include "lib/scenes/main_game/metanimations.h"
 #include "lib/menus/main_game.h"
 #include "lib/hwinit/human_input.h"
+#include "lib/hwinit/battery.h"
 
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
@@ -106,6 +107,9 @@ void MG_updatePlayfield(void){
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
+    if (BATTERY_LOW){
+        DISPLAY_FRAME.frame[1].line[0] = 0xF9; //TODO: Replace with a much prettier version of the same operation.
+    }
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.

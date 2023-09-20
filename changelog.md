@@ -95,3 +95,8 @@
   - Alerts currently trigger when the display is asleep and will wake the LCD.
 - Adds a new function `HID_dumpQueue` which blindly empties the input queue without handling it. This is useful in a variety of cases.
   - Currently called when waking the screen from sleep mode.
+- Adds Low Battery Detection near start of the main gameplay loop. Sets the global flag `BATTERY_LOW` from battery.h to a true-ish value if the battery has been detected to be low.
+  - This exposed issue #35 in the hardware, which needs to be corrected.
+  - When detected, the low battery will blink the LED.
+  - Adds support for the LBO sensor to HWINIT
+  - Adds crude support for showing the Low Battery Icon on the main game screen.
