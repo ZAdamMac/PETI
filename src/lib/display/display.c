@@ -17,6 +17,7 @@
 #include "driverlib.h"
 #include "splash.h"
 #include <msp430.h>
+#include <string.h>
 
 
 // Initiates the eUSCI_B #1 module to act as the SPI controller.
@@ -579,9 +580,19 @@ void printDeltas_game(DisplayFrame incoming_frame){
 }
 
 void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
-    int index;
+    int index; int line_changed; int directives_changed; 
+    char current_string[PIXELS_Y/FONT_SIZE_FLOOR_Y]; int previous_string[PIXELS_Y/FONT_SIZE_FLOOR_Y];
+    const int len = PIXELS_Y/FONT_SIZE_FLOOR_Y;
     for (index = 0; index < scene_rules->lines_used; index++){
-        if ((incoming_frame->frame[index].line != PREVIOUS_FRAME.frame[index].line) || (incoming_frame->frame[index].directives != PREVIOUS_FRAME.frame[index].directives) || FORCE_REFRESH){
+
+        strcpy(current_string, incoming_frame->frame[index].line);
+        strcpy(previous_string, PREVIOUS_FRAME.frame[index].line);
+        line_changed = memcmp(current_string, previous_string, len);
+        strcpy(current_string, incoming_frame->frame[index].directives);
+        strcpy(previous_string, PREVIOUS_FRAME.frame[index].directives);
+        directives_changed = memcmp(current_string, previous_string, len);
+
+        if (line_changed || directives_changed || FORCE_REFRESH){
             switch (scene_rules->rows[index].text_size){
                 case TEXT_SIZE_SMALL :
                     printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address);
