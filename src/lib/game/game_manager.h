@@ -16,6 +16,7 @@ typedef struct GameState {      // A metastructure to hold the current game stat
     unsigned int NAUGHTY;       // bounded to 100, variable intended to influence the likelihood the pet alerts the user for no reason.
     unsigned int STAGE_ID;      // Corresponds to the index of EVO_metaStruct at which the currently-active "stage" or species of PET is stored.
     unsigned int HEALTH_BYTE;   // Holds various bits or nibbles as indicators of various other health elements.
+    unsigned int INIT;          // non-zero value indicates structure initialized
 } GameState;
 
 // These three globals are not technically part of the original state spec but needed to determine the next time at which evolution mechanics need to be calculated.
@@ -24,7 +25,9 @@ typedef struct GameState {      // A metastructure to hold the current game stat
 unsigned int NEXT_STAGE_TRANSITION_AGE;     // Shared global integer indicating the age/day value at which point the pet should trigger evolution
 unsigned int NEXT_STAGE_TRANSITION_HOURS;   // As above, for the hours.
 unsigned int NEXT_STAGE_TRANSITION_MINUTES; // As further above,f or the minutes.
-GameState StateMachine;                     // Any file that includes game_manager.h can interrogate this for the current game state.
+
+#pragma PERSISTENT(StateMachine)
+extern GameState StateMachine;                     // Any file that includes game_manager.h can interrogate this for the current game state.
 
 void GAME_initStateStruct(void);
 void GAME_evaluateTimedEvents(void);

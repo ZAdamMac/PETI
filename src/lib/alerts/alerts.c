@@ -14,9 +14,13 @@
 #include <msp430.h>
 #include "blinkenlights.h"
 #include "audio.h"
+#include "lib/display/display.h"
 
 
 void ALERTS_hunger_fun_alert(void){
-    BLINKENLIGHTS_raise();
+    if (!BLINKENLIGHTS_ALERT_LED_HOT){
+        BLINKENLIGHTS_blinkAlertLED(BLINKENLIGHTS_SLOW_PULSES);
+    }
     AUDIO_pulse(AUDIO_LONG_PULSE);
+    DISPLAY_wakeLCD();
 }

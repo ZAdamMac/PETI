@@ -39,6 +39,9 @@ extern const char* LSTRING_INITIAL_SEED;    //RNG state monitor initial seed lab
 extern const char* LSTRING_MINIGAME_HEADER; //Header for the minigames selection menu.
 extern const char* LSTRING_CURRENT_RNG;     //RNG state monitor current rng state label
 extern const char* LSTRING_MINIGAME_PICK;   //Invitation to make a selection.
+extern const char* LSTRING_YES;             //Statement of affirmation
+extern const char* LSTRING_NO;              //Statement of negation
+extern const char* LSTRING_WARNING;         //Statement of Warning
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 
@@ -50,6 +53,9 @@ extern const char* LARRAY_FOOD_SNACK_NAMES[]; // Name of all the snacks in the s
 extern const char* LARRAY_FOOD_TOP_MENU[];
 extern const char* LARRAY_SOUNDCHECK_OPTS[];
 extern const char* LARRAY_MINIGAME_TITLES[];
+
+extern const char* LARRAY_RESET_WARNING[];
+
 
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */

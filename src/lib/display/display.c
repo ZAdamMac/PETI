@@ -17,10 +17,12 @@
 #include "driverlib.h"
 #include "splash.h"
 #include <msp430.h>
+#include <string.h>
 
 
 // Initiates the eUSCI_B #1 module to act as the SPI controller.
 // Used exclusively to drive the LCD but could be used as a general SPI controller as needed.
+// FUTURE: Move to hwinit, it better belongs there.
 void Init_SPI(void) {
     EUSCI_B_SPI_disable(EUSCI_B1_BASE); // disable the EUSCI to be programme
 
@@ -76,6 +78,7 @@ void LCDClearDisplay(void){
     EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, (MLCD_CM | VCOM));
     EUSCI_B_SPI_transmitData(EUSCI_B1_BASE, 0);
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN3);
+    FORCE_REFRESH = 0x01; // If coming back from sleep, this is needed. If first boot, harmless.
 }
 
 // Provides the LCD controller power and LCD display power to the LCD in the order
@@ -88,6 +91,29 @@ void Init_LCD(void) {
     GPIO_setAsOutputPin(GPIO_PORT_P6, GPIO_PIN2);
     GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN2); // Provide display power to the LCD.
     LCDClearDisplay();
+    DISPLAY_STATUS = 0x01;
+}
+
+
+// Provides the LCD controller power and LCD display power to the LCD in the order
+// Specified by SHARP, and then sends the clear screen command, which is recommended.
+// Differs from Init_LCD in that we assume the control registers for GPIO are already
+// set up.
+void DISPLAY_wakeLCD(void) {
+    GPIO_setOutputHighOnPin(GPIO_PORT_P1, GPIO_PIN2);// Provide power to the LCD's controller.
+    GPIO_setOutputHighOnPin(GPIO_PORT_P6, GPIO_PIN2); // Provide display power to the LCD.
+    LCDClearDisplay();
+    DISPLAY_STATUS = 0x01;
+}
+
+
+// Provides the LCD controller power and LCD display power to the LCD in the order
+// Specified by SHARP, and then sends the clear screen command, which is recommended.
+void DISPLAY_sleepLCD(void) {
+    // We need a function to initialize the LCD, which is non-automatic.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P1, GPIO_PIN2);// Provide power to the LCD's controller.
+    GPIO_setOutputLowOnPin(GPIO_PORT_P6, GPIO_PIN2); // Provide display power to the LCD.
+    DISPLAY_STATUS = 0x00;
 }
 
 // Reverse the bit order of a byte to resolve the mirroring issue. Likely used in all SPI sends.
@@ -393,7 +419,7 @@ void printTextLarge(const char* text, unsigned char line, const char* directives
 
 // prints whatever image is currenlty defined as splash_bitmap in splash.h.
 // This expects an image of 128x128 pixels expressed in a BIGENDIAN bit-order, thus reverse.
-// TODO/FUTURE: Refactor splash-bitmap and remove the reverse function for better performance.
+// FUTURE: Refactor splash-bitmap and remove the reverse function for better performance.
 void DisplaySplash(void){
     volatile unsigned char bitmap, indexLineBuffer, indexLine;
     volatile unsigned int line, indexByte, this_line, sent_line;
@@ -554,9 +580,19 @@ void printDeltas_game(DisplayFrame incoming_frame){
 }
 
 void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
-    int index;
+    int index; int line_changed; int directives_changed; 
+    char current_string[PIXELS_Y/FONT_SIZE_FLOOR_Y]; int previous_string[PIXELS_Y/FONT_SIZE_FLOOR_Y];
+    const int len = PIXELS_Y/FONT_SIZE_FLOOR_Y;
     for (index = 0; index < scene_rules->lines_used; index++){
-        if (incoming_frame->frame[index].line != PREVIOUS_FRAME.frame[index].line || incoming_frame->frame[index].directives != PREVIOUS_FRAME.frame[index].directives || FORCE_REFRESH){
+
+        strcpy(current_string, incoming_frame->frame[index].line);
+        strcpy(previous_string, PREVIOUS_FRAME.frame[index].line);
+        line_changed = memcmp(current_string, previous_string, len);
+        strcpy(current_string, incoming_frame->frame[index].directives);
+        strcpy(previous_string, PREVIOUS_FRAME.frame[index].directives);
+        directives_changed = memcmp(current_string, previous_string, len);
+
+        if (line_changed || directives_changed || FORCE_REFRESH){
             switch (scene_rules->rows[index].text_size){
                 case TEXT_SIZE_SMALL :
                     printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address);

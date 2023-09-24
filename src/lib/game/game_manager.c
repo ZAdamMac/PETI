@@ -25,11 +25,13 @@ unsigned int egg_delay_set;
 unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
 unsigned int needs_evaluation = 0x01; // A flag used to prevent double-dipping on minute checks
 
+GameState StateMachine = {0, 3, 0, 0, 0, 0x00, 0, 0}; 
+
 // A nice basic init function to set up the global state machine.
 // In future work we might add some functionality to look for an
 // existing state object and pull that instead for resumability.
 void GAME_initStateStruct(void){
-    unsigned int debug_disabled;
+    unsigned int debug_disabled; // FUTURE: Replace with a call seperate to this one.
     debug_disabled = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN6);
     StateMachine.AGE = 0x00;
     StateMachine.ACT = 0x03; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
@@ -49,8 +51,7 @@ void GAME_initStateStruct(void){
     NEXT_STAGE_TRANSITION_MINUTES = 0x00;
     calendar_initial_setup_completed = false;  // we need this flag and the next one so that we can have the state incrementer do special egg handling AFTER the RTC scene is finished
     egg_delay_set = false;                    // Normally we can do with an evolution function but that dog doesn't hunt with eggs.
-
-    SCENE_ACT = 0x00; // We can now play the boot screen
+    StateMachine.INIT = true;
 }
 
 void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){

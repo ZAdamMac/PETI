@@ -5,7 +5,7 @@
  *      Author: patches
  */
 
-#define VERSION "     v0.2.0"             //Max 16 characters, and pad left.
+#define VERSION "     v0.3.0     "             //Max 16 characters, and pad left.
 
 volatile unsigned char VCOM;            // current VCOM state
 char bufferText[17];                    // General placeholder used by all the printext functions. TODO does this really still exist?

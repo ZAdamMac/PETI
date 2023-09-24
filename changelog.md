@@ -83,3 +83,21 @@
   - All existing scenes were refactored to support this new system. The change is especially noticable in menus.
 - Localization strings were added to enCA_strings to support the changes above.
 - The default date was moved to a date closer to the release of 0.2.0.
+
+# v 0.3.0 - Power Management Updates
+- StateMachine - and thus the user progress data, are now persisted to FRAM.
+  - Saves will persist between loss of power or BOR.
+  - On BOR, user is prompted to confirm whether to clear the data or not using a localizeable warning.
+- Fixed a small logic bug that was increasing frame render times.
+- The battery LED and alert LED can now blink at one of two rates. This uses less power than leaving them on continuously.
+- Implemented DISPLAY_sleepLCD and DISPLAY_wakeLCD to turn on and off the display respectively. A new state integer is being used to determine if it is necessary to run the display update code. A full refresh is called when waking the display.
+  - Implemented a debug callable to sleep the LCD.
+  - Alerts currently trigger when the display is asleep and will wake the LCD.
+- Adds a new function `HID_dumpQueue` which blindly empties the input queue without handling it. This is useful in a variety of cases.
+  - Currently called when waking the screen from sleep mode.
+- Adds Low Battery Detection near start of the main gameplay loop. Sets the global flag `BATTERY_LOW` from battery.h to a true-ish value if the battery has been detected to be low.
+  - This exposed issue #35 in the hardware, which needs to be corrected.
+  - When detected, the low battery will blink the LED.
+  - Adds support for the LBO sensor to HWINIT
+  - Adds crude support for showing the Low Battery Icon on the main game screen.
+- Corrects a longstanding issue that was causing full screen refreshes instead of the promised by-line refreshes. Should help with display-driven power usage.

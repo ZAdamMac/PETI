@@ -39,6 +39,10 @@ extern const char* LSTRING_ENTROPY_INFO = "   RNG STATUS   ";
 extern const char* LSTRING_INITIAL_SEED = "  INITIAL SEED  ";
 extern const char* LSTRING_CURRENT_RNG = "CURRENT RNG CARD";
 extern const char* LSTRING_MINIGAME_PICK = " Make A Choice! ";
+extern const char* LSTRING_YES = "    YES ";
+extern const char* LSTRING_NO = "    NO ";
+extern const char* LSTRING_WARNING = "    WARNING    ";
+
 
 extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Input Test      ",
@@ -48,7 +52,8 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Fill Fun Bar    ",
                                         "Drain Fun Bar   ",
                                         "Stage Select    ",
-                                        "Entropy Check   "
+                                        "Entropy Check   ",
+                                        "Sleep the LCD   "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {
@@ -99,6 +104,11 @@ extern const char* LARRAY_SOUNDCHECK_OPTS[] = {
 
 extern const char* LARRAY_MINIGAME_TITLES[] = {
     "Rock Paper Game"
+};
+
+extern const char* LARRAY_RESET_WARNING[] = {
+    "Really clear the",
+    "saved game data?"
 };
 
 #endif /* LIB_LOCALES_ENCA_STRINGS_H_ */

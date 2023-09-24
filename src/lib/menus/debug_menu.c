@@ -8,6 +8,7 @@
 #include "lib/scenes/scenes_manager.h"
 #include "lib/scenes/menu_generator.h"
 #include "lib/game/game_manager.h"
+#include "lib/display/display.h"
 
 
 void MENU_DEBUG_goto_Proofer(void){
@@ -48,11 +49,15 @@ void MENU_DEBUG_goto_RNGDebug(void){
     SCENE_ACT = SCENEADDR_rng_debug;
 }
 
-#pragma PERSISTENT(MENU_DEBUG_count_options);
-const int MENU_DEBUG_count_options = 8;
+void MENU_DEBUG_sleepDisplay(void){
+    DISPLAY_sleepLCD();
+}
 
 #pragma PERSISTENT(MENU_DEBUG_count_options);
-voidFuncPointer MENU_DEBUG_functions[8] = {
+const int MENU_DEBUG_count_options = 9;
+
+#pragma PERSISTENT(MENU_DEBUG_count_options);
+voidFuncPointer MENU_DEBUG_functions[9] = {
                                       MENU_DEBUG_goto_Proofer,
                                       MENU_DEBUG_goto_SoundTest,
                                       MENU_DEBUG_fill_hunger,
@@ -60,5 +65,6 @@ voidFuncPointer MENU_DEBUG_functions[8] = {
                                       MENU_DEBUG_fill_fun,
                                       MENU_DEBUG_deplete_fun,
                                       MENU_DEBUG_goto_TimeMachine,
-                                      MENU_DEBUG_goto_RNGDebug
+                                      MENU_DEBUG_goto_RNGDebug,
+                                      MENU_DEBUG_sleepDisplay
 };

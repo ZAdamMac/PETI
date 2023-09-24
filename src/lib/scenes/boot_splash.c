@@ -16,7 +16,7 @@
 #include "lib/display/display.h"
 #include "main.h"
 
-#define NEXT_SCENE SCENEADDR_calendar_menu  // This is where we need to redirect after the boot splash.
+#define NEXT_SCENE SCENEADDR_reset_save  // This is where we need to redirect after the boot splash.
 
 volatile bool SPLASH_SENT = false; // A simple local flag to help us figure out if we're waiting on the exit time condition or actually writing to screen.
 
