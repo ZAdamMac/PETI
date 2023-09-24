@@ -66,7 +66,7 @@ int main(void) {
         __bis_SR_register(LPM0_bits | GIE);
     }}
 
-// TODO: Move Timer Interrupts to HWINIT or similar
+// FUTURE: Move Timer Interrupts to HWINIT or similar
 
 // interrupt service routine to handle timer A0.
 // Based on current configuration as of may 2021 this should be raised once per second.

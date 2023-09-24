@@ -100,3 +100,4 @@
   - When detected, the low battery will blink the LED.
   - Adds support for the LBO sensor to HWINIT
   - Adds crude support for showing the Low Battery Icon on the main game screen.
+- Corrects a longstanding issue that was causing full screen refreshes instead of the promised by-line refreshes. Should help with display-driven power usage.
