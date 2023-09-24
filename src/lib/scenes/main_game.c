@@ -108,7 +108,7 @@ void MG_updatePlayfield(void){
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
     if (BATTERY_LOW){
-        DISPLAY_FRAME.frame[1].line[0] = 0xF9; //TODO: Replace with a much prettier version of the same operation. (Pref with provision for other statuses)
+        DISPLAY_FRAME.frame[1].line[0] = 0xF9; //FUTURE: Replace with a much prettier version of the same operation. (Pref with provision for other statuses)
     }
 }
 

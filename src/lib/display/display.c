@@ -419,7 +419,7 @@ void printTextLarge(const char* text, unsigned char line, const char* directives
 
 // prints whatever image is currenlty defined as splash_bitmap in splash.h.
 // This expects an image of 128x128 pixels expressed in a BIGENDIAN bit-order, thus reverse.
-// TODO/FUTURE: Refactor splash-bitmap and remove the reverse function for better performance.
+// FUTURE: Refactor splash-bitmap and remove the reverse function for better performance.
 void DisplaySplash(void){
     volatile unsigned char bitmap, indexLineBuffer, indexLine;
     volatile unsigned int line, indexByte, this_line, sent_line;
