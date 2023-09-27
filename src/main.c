@@ -48,7 +48,12 @@ int main(void) {
     while (1){
         PMM_unlockLPM5();
         BATTERY_checkForSigLBO();
-        GAME_evaluateTimedEvents();
+        if (StateMachine.ACT > 0){
+            GAME_evaluateTimedEvents();
+        }
+        else {
+            GAME_evaluateWakeUpEvent();
+        }
         if (HID_interacted_flag){
             BLINKENLIGHTS_stopAlertLED();
             if (!DISPLAY_STATUS){

@@ -12,6 +12,13 @@
 #define EVO_size_med 4
 #define EVO_size_large 9
 
+#define EVO_phase_egg 0x00
+#define EVO_phase_baby 0x01
+#define EVO_phase_teen 0x02
+#define EVO_phase_adult 0x03
+#define EVO_phase_senior 0x04
+#define EVO_phase_final 0x05
+
 extern unsigned int EVO_count_stages;
 
 typedef struct Stage{

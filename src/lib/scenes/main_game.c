@@ -88,6 +88,19 @@ char* MG_computeDirective(const char* meta_placements){
     return &directives_out;
 }
 
+//TODO: magic docu-string
+void MG_placeStatusIcons(void){
+    if (BATTERY_LOW){
+        DISPLAY_FRAME.frame[1].line[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
+    }
+    if (StateMachine.ACT == 0){
+        DISPLAY_FRAME.frame[1].line[1] = 0xFA; // Display the sleep icon while sleeping.
+    }
+    if (StateMachine.ACT > 0){
+        DISPLAY_FRAME.frame[1].line[1] = ' '; //FUTURE: Fix this you coward.
+    }
+}
+
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfield
 // to determine the content of each output frame in the main 6 rows of the display, as well as which
 // of those flags need to be reset.
@@ -107,9 +120,7 @@ void MG_updatePlayfield(void){
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
-    if (BATTERY_LOW){
-        DISPLAY_FRAME.frame[1].line[0] = 0xF9; //FUTURE: Replace with a much prettier version of the same operation. (Pref with provision for other statuses)
-    }
+    MG_placeStatusIcons();
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.
