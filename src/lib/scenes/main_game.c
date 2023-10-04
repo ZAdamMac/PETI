@@ -88,10 +88,54 @@ char* MG_computeDirective(const char* meta_placements){
     return &directives_out;
 }
 
+
+// TODO Magic Docu-String
+char* MG_computeLineSleep(const char * sleep_animation){
+    unsigned int column;
+    char results[PIXELS_X/FONT_SIZE_FLOOR_X + 1]; // We need to briefly fill SOME var with the text we're computing
+    for (column=0; column<(PIXELS_X/FONT_SIZE_FLOOR_X); column++){
+        results[column] = ' ';
+    }
+    if (icon_size == EVO_size_small){
+        results[(PIXELS_X/16)/2] = sleep_animation[0]; // In this specific case, it really is that easy.
+    }
+    else if (icon_size  == EVO_size_med) {
+        results[(PIXELS_X/16)/2 - 1] = sleep_animation[char_tracker];
+        char_tracker++;
+        results[(PIXELS_X/16)/2] = sleep_animation[char_tracker];
+        char_tracker++;
+    }
+    else if (icon_size == EVO_size_large){
+        results[((PIXELS_X/16)/2) - 1] = sleep_animation[char_tracker];
+        char_tracker++;
+        results[((PIXELS_X/16)/2)] = sleep_animation[char_tracker];
+        char_tracker++;
+        results[((PIXELS_X/16)/2) + 1] = sleep_animation[char_tracker];
+        char_tracker++;
+    }
+    return &results; // We only want to return the /pointer/ here, which is all strcpy wants.
+}
+
+
+//TODO magic Docu-String
+char* MG_computeDirectiveSleep(void){
+    unsigned int dirindex = 0;
+    char directives_out[PIXELS_X/16+1];
+    while (dirindex < PIXELS_X/16){
+        directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        dirindex++;
+    }
+    return &directives_out;
+}
+
+
 //TODO: magic docu-string
-void MG_placeStatusIcons(void){
+void MG_placeStatusIcons(void){ // TODO: give a root positional coordinate
     if (BATTERY_LOW){
         DISPLAY_FRAME.frame[1].line[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
+    }
+    else {
+        DISPLAY_FRAME.frame[1].line[0] = ' ';
     }
     if (StateMachine.ACT == 0){
         DISPLAY_FRAME.frame[1].line[1] = 0xFA; // Display the sleep icon while sleeping.
@@ -101,11 +145,11 @@ void MG_placeStatusIcons(void){
     }
 }
 
-//Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfield
+//Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
 // to determine the content of each output frame in the main 6 rows of the display, as well as which
 // of those flags need to be reset.
-void MG_updatePlayfield(void){
-    int active_line;
+void MG_updatePlayfieldIdle(void){
+    unsigned int active_line;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     icon_size = active_species.size; // This will either be 1 or 4 in the current spec.
     if (FORCE_REFRESH){ // In this case we're freshly arriving so let's start at 0
@@ -120,6 +164,41 @@ void MG_updatePlayfield(void){
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
+    MG_placeStatusIcons();
+}
+
+// TODO: Magic docu-string
+void MG_updatePlayfieldSleeping(void){
+    unsigned int row;
+    Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
+    const char * sleep_animation = active_species.animationSleeping;
+    icon_size = active_species.size;
+    // Blank the top three lines since none of the sleep animations use them.
+    strcpy(DISPLAY_FRAME.frame[1].line, " ");
+    strcpy(DISPLAY_FRAME.frame[2].line, " ");
+    strcpy(DISPLAY_FRAME.frame[3].line, " ");
+    char_tracker = 0;
+    switch (icon_size){
+        case EVO_size_small:
+            strcpy(DISPLAY_FRAME.frame[4].line, " ");
+            strcpy(DISPLAY_FRAME.frame[5].line, " ");
+            strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
+            break;
+        case EVO_size_med:
+            strcpy(DISPLAY_FRAME.frame[4].line, " ");
+            strcpy(DISPLAY_FRAME.frame[5].line, MG_computeLineSleep(sleep_animation));
+            strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
+            break;
+        case EVO_size_large:
+            strcpy(DISPLAY_FRAME.frame[4].line, MG_computeLineSleep(sleep_animation));
+            strcpy(DISPLAY_FRAME.frame[5].line, MG_computeLineSleep(sleep_animation));
+            strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
+            break;
+    }
+
+    for (row=1;row<8;row++){
+        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep());
+    }
     MG_placeStatusIcons();
 }
 
@@ -280,7 +359,17 @@ void MG_computeNextFrame(void){
         strcpy(DISPLAY_FRAME.frame[7].line, " ");
         strcpy(DISPLAY_FRAME.frame[8].line, " ");
     }
-    MG_updatePlayfield(); // Animations are gross, so this also handles the
+    switch (StateMachine.ACT){
+        case GM_ACTIVITY_IDLE:
+            MG_updatePlayfieldIdle(); // Animations are gross, so this also handles the
+            break;
+        case GM_ACTIVITY_ISEGG: // For pure legacy reasons, IDLE can also handle this state.
+            MG_updatePlayfieldIdle();
+            break;
+        case GM_ACTIVITY_SLEEPING:
+            MG_updatePlayfieldSleeping();
+            break;
+    }
 }
 
 // A main function to be called by the scene_manger to handle the inputs and then compute the next frame of animation, before sending all the updates to

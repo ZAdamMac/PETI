@@ -101,3 +101,11 @@
   - Adds support for the LBO sensor to HWINIT
   - Adds crude support for showing the Low Battery Icon on the main game screen.
 - Corrects a longstanding issue that was causing full screen refreshes instead of the promised by-line refreshes. Should help with display-driven power usage.
+
+# v 0.4.0 - Sleep and Growth Update
+- Adds functionality that allows the pet to fall asleep between wall-clock times defined by their age group through `game_manager.h`
+  - Sleeping pets do not have the game state recompute while sleeping and accordingly do not experience stat depletion.
+  - Hunger and Fun degradation now occur retroactively when the pet wakes.
+  - The main game screen displays a status icon and special pet animations when the pet is sleeping.
+    - `evo_data.h`'s `struct Stage` was ammended to add a `animationSleeping` character pointer that holds sleeping animations. This shares the limitation with all other animation data that font addressing is not currently implemented at this level.
+    - Minor font changes for `font16x16` to correct the misalignment of zazenkuchi's sleeping head from his body.

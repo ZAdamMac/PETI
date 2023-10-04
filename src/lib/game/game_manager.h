@@ -17,6 +17,11 @@
 #define GAME_NEEDS_senior_wakeup 9
 #define GAME_NEEDS_final_wakeup 9
 
+#define GM_ACTIVITY_SLEEPING 0x00
+#define GM_ACTIVITY_IDLE 0x01
+#define GM_ACTIVITY_SICK 0x02
+#define GM_ACTIVITY_ISEGG 0x03
+
 typedef struct GameState {      // A metastructure to hold the current game state as one structure. Contains most of the relevant data about the active PET.
     unsigned int AGE;           // Integer number indicating the time in days-past-midnight of the PET having been hatched, starting from 0
     unsigned int ACT;           // Activity state of the PET. 0 for sleeping, 1 for awake and normal, 2 for sick, and 3 for the egg life state.

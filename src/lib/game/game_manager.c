@@ -187,7 +187,9 @@ void GAME_evaluateTimedEvents(void){
     }
     if ((NEXT_STAGE_TRANSITION_AGE <= StateMachine.AGE) && (NEXT_STAGE_TRANSITION_HOURS <= current_hours) && (NEXT_STAGE_TRANSITION_MINUTES <= current_minutes) && egg_delay_set){
        // GAME_EVO_incrementForEvolution(); Normally, we would call this evolution function, but I don't want to write all that before I test it. Instead:
-        StateMachine.STAGE_ID = 0x01; // We always hatch to the first baby.
+        if (StateMachine.STAGE_ID == 0){ // N.B.: This is a temporary bugfix but a similar check is needed when doing the full version of this function.
+            StateMachine.STAGE_ID = 0x01; // We always hatch to the first baby.
+        }
         FORCE_REFRESH = true; // Needed to redraw the menu on the first frame. Should be included in that evolution function.
         NEXT_STAGE_TRANSITION_AGE = 0xFF; // needed to avoid looping in this, which causes animation problems. Normally set in the evolution function.
         //FUTURE: should change activity levels once those are implemented.
