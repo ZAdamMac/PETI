@@ -21,9 +21,11 @@
 #include "scenes_manager.h"
 #include "main.h"
 #include "lib/scenes/main_game/metanimations.h"
+#include "lib/scenes/menu_generator.h"
 #include "lib/menus/main_game.h"
 #include "lib/hwinit/human_input.h"
 #include "lib/hwinit/battery.h"
+
 
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
@@ -131,18 +133,14 @@ char* MG_computeDirectiveSleep(void){
 
 //TODO: magic docu-string
 void MG_placeStatusIcons(void){ // TODO: give a root positional coordinate
+    char status_string[PIXELS_X/16] = '          '; // Create an empty string to use for the status lines by default.
     if (BATTERY_LOW){
-        DISPLAY_FRAME.frame[1].line[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
-    }
-    else {
-        DISPLAY_FRAME.frame[1].line[0] = ' ';
+        status_string[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
     }
     if (StateMachine.ACT == 0){
-        DISPLAY_FRAME.frame[1].line[1] = 0xFA; // Display the sleep icon while sleeping.
+        status_string[1] = 0xFA; // Display the sleep icon while sleeping.
     }
-    if (StateMachine.ACT > 0){
-        DISPLAY_FRAME.frame[1].line[1] = ' '; //FUTURE: Fix this you coward.
-    }
+    strcpy(DISPLAY_FRAME.frame[1].line, &status_string);
 }
 
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
@@ -224,7 +222,7 @@ void MG_handleInputs(void){
                 break;
             case(BUTTON_C_PRESS): //Make a selection of the current icon
 		if (SCENE_CURSOR_POS != 0){
-		    SCENE_ACT = MG_menu_scene_addresses[SCENE_CURSOR_POS-1]; // This will update the scene. The current frame will be drawn and the next frame will take you into the menu you picked.
+		    MG_menu_options_array[SCENE_CURSOR_POS-1](); // This will update the scene. The current frame will be drawn and the next frame will take you into the menu you picked.
 		    SCENE_CURSOR_POS = 0;
         	}
                 break;

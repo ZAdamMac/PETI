@@ -109,3 +109,5 @@
   - The main game screen displays a status icon and special pet animations when the pet is sleeping.
     - `evo_data.h`'s `struct Stage` was ammended to add a `animationSleeping` character pointer that holds sleeping animations. This shares the limitation with all other animation data that font addressing is not currently implemented at this level.
     - Minor font changes for `font16x16` to correct the misalignment of zazenkuchi's sleeping head from his body.
+  - The Food and Minigame menus are not accessible when the pet is sleeping, as is appropriate.
+    - `menus/main_game.c/h` were refactored to use a function-derived model similar to menu_generator in order to achieve this.

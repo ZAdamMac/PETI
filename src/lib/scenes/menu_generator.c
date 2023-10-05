@@ -41,7 +41,7 @@ int MENU_computePagination(int count_opts){
 
 // We need our own scene-specific input handling, which will probably almost always be the case for scenes.
 // In this case, we can really only go up, down, or exit
-void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
+void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){ // TODO: What the hell is this indentation?
     int index; int selection;
     int i;
     unsigned int this_event;
