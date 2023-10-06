@@ -20,6 +20,7 @@
 #include "lib/game/evo_data.h"
 #include "lib/display/display.h"
 #include "lib/alerts/alerts.h"
+#include "lib/scenes/main_game.h"
 
 unsigned int egg_delay_set;
 unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
@@ -291,8 +292,10 @@ void GAME_evaluateWakeUpEvent(void){
         }
         if (wake_hour <= current_hour){
             GAME_NEEDS_evaluateSleepHungerFun(EVO_metaStruct[StateMachine.STAGE_ID].rateHF, EVO_metaStruct[StateMachine.STAGE_ID].phase);
-            StateMachine.ACT = 1;
+            StateMachine.ACT = GM_ACTIVITY_IDLE;
             needs_evaluation = 0;
+            MG_lights_on = 1;
+            DISPLAY_wakeLCD();
         }
     }
 }

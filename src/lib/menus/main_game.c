@@ -9,6 +9,7 @@
 #include "lib/scenes/menu_generator.h"
 #include "lib/game/game_manager.h"
 #include "lib/display/display.h"
+#include "lib/scenes/main_game.h"
 
 
 void MENU_MG_gotoStatusMenu(void){
@@ -40,13 +41,23 @@ void MENU_MG_gotoDebugMenu(void){
     SCENE_ACT = SCENEADDR_debug_menu;
 }
 
+void MENU_MG_toggleLightsMenu(void){
+    if (MG_lights_on == 1){ // Flippy Bit!
+        MG_lights_on = 0; 
+    }
+    else {
+        MG_lights_on = 1;
+    }
+}
+
 
 #pragma PERSISTENT(MG_menu_options_array);
-voidFuncPointer MG_menu_options_array[6] = {
+voidFuncPointer MG_menu_options_array[7] = {
     MENU_MG_gotoStatusMenu,
-    MENU_MG_gotoSettingsMenu,
     MENU_MG_gotoFeedingMenu,
     MENU_MG_gotoMinigamesMenu,
+    MENU_MG_toggleLightsMenu,
     MENU_MG_gotoClockMenu,
+    MENU_MG_gotoSettingsMenu,
     MENU_MG_gotoDebugMenu
 };

@@ -29,6 +29,7 @@
 
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
+unsigned int MG_lights_on = 1;                     //Lights are on by default
 
 // For a given input species_charset (being the animation data from the EVO object) and meta_placements (a string from the metaanimation),
 // compute a given row. This function is going to be subject to further development that is likely to add arguments, which is why it is not exposed outside
@@ -133,7 +134,7 @@ char* MG_computeDirectiveSleep(void){
 
 //TODO: magic docu-string
 void MG_placeStatusIcons(void){ // TODO: give a root positional coordinate
-    char status_string[PIXELS_X/16] = '          '; // Create an empty string to use for the status lines by default.
+    char status_string[PIXELS_X/16] = "         "; // Create an empty string to use for the status lines by default.
     if (BATTERY_LOW){
         status_string[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
     }
@@ -342,6 +343,19 @@ char* MG_computeBottomDirective(void){
     return &directives_bottom;
 }
 
+
+//TODO magic-docu-string
+void MG_LightsOut(){
+    unsigned int row, col;
+    for (row = 1; row < 8; row++){
+        //It is too dark to get ye flask.
+        for (col = 0; col < PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            DISPLAY_FRAME.frame[row].line[col] = ' '; // NOTHING TO SEE HERE.
+            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE; // IT'S JUST SO DARK GUYS
+        }
+    }
+}
+
 // Called once per cycle to update the menu and playfield based on their various subfunctions for update.
 // Some functions (those used for menuing) are not defined and present only as comments.
 void MG_computeNextFrame(void){
@@ -357,16 +371,28 @@ void MG_computeNextFrame(void){
         strcpy(DISPLAY_FRAME.frame[7].line, " ");
         strcpy(DISPLAY_FRAME.frame[8].line, " ");
     }
-    switch (StateMachine.ACT){
-        case GM_ACTIVITY_IDLE:
-            MG_updatePlayfieldIdle(); // Animations are gross, so this also handles the
-            break;
-        case GM_ACTIVITY_ISEGG: // For pure legacy reasons, IDLE can also handle this state.
-            MG_updatePlayfieldIdle();
-            break;
-        case GM_ACTIVITY_SLEEPING:
-            MG_updatePlayfieldSleeping();
-            break;
+    if (MG_lights_on){
+        switch (StateMachine.ACT){
+            case GM_ACTIVITY_IDLE:
+                MG_updatePlayfieldIdle(); // Animations are gross, so this also handles the
+                break;
+            case GM_ACTIVITY_ISEGG: // For pure legacy reasons, IDLE can also handle this state.
+                MG_updatePlayfieldIdle();
+                break;
+            case GM_ACTIVITY_SLEEPING:
+                MG_updatePlayfieldSleeping();
+                break;
+        }
+    }
+    else {
+        MG_LightsOut();
+        MG_placeStatusIcons();
+        if (StateMachine.ACT == GM_ACTIVITY_SLEEPING){
+            if (SCENE_CURRENT_PAGE >= MG_sleep_display_cycles){ // Piggybacking on an unusued scene-wide var to handle
+                DISPLAY_sleepLCD();
+            }
+            SCENE_CURRENT_PAGE++;
+        }
     }
 }
 
