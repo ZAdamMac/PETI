@@ -387,6 +387,8 @@ void MG_computeNextFrame(void){
         if (StateMachine.ACT == GM_ACTIVITY_SLEEPING){
             if (SCENE_CURRENT_PAGE >= MG_sleep_display_cycles){ // Piggybacking on an unusued scene-wide var to handle
                 DISPLAY_sleepLCD();
+                //we can put this back now; this function won't really do anything elsewise.
+                SCENE_CURRENT_PAGE = 0;
             }
             SCENE_CURRENT_PAGE++;
         }

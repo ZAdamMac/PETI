@@ -295,7 +295,7 @@ void GAME_evaluateWakeUpEvent(void){
             StateMachine.ACT = GM_ACTIVITY_IDLE;
             needs_evaluation = 0;
             MG_lights_on = 1;
-            DISPLAY_wakeLCD();
+            ALERTS_wake_up_alert();
         }
     }
 }
