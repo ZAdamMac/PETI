@@ -114,3 +114,4 @@
 - Rearranges the main game idle screen's menu to be more logically accessible to the player in terms of icon order.
 - Adds an icon to the main game menu that allows the pet to be put to bed by turning the lights off.
   - A pet that has freshly woken up will turn the lights back on.
+- Fixes unreported bug that caused odd-numbered main menu menus to render the cursor on the bottom row one square earlier than it should.

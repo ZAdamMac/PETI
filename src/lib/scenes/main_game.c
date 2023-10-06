@@ -325,10 +325,7 @@ char* MG_computeTopDirective(void){
 char* MG_computeBottomDirective(void){
     unsigned int bottom_slice; unsigned int top_slice; unsigned int magic_pad; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0; char directives_bottom[PIXELS_X/FONT_SIZE_FLOOR_X];
     bottom_slice = SCENE_PAGE_COUNT/2;
-    magic_pad = SCENE_PAGE_COUNT % 2;
-    if (magic_pad == 0) { // Special Edge case for even numbers.
-        magic_pad = 2;
-    }
+    magic_pad = 2;
     top_slice = SCENE_PAGE_COUNT - bottom_slice;
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice;
     left_pad = blank_spaces/2; // This will always round down, which we actually want
