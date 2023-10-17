@@ -50,35 +50,35 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
         this_event = HID_input_events_queue[i]; //fetch the event.
         switch (this_event){
             case(BUTTON_A_PRESS): // Scroll up the list but one per keypress.
-	       SCENE_CURSOR_POS -= 1;
-	       if (SCENE_CURSOR_POS < 0){
-		    SCENE_CURSOR_POS = MENU_active_lines;
-		    SCENE_CURRENT_PAGE -= 1;
-		    if (SCENE_CURRENT_PAGE < 0){
-			SCENE_CURRENT_PAGE = SCENE_PAGE_COUNT - 1;
-		    }
-	       }
+	            SCENE_CURSOR_POS -= 1;
+                if (SCENE_CURSOR_POS < 0){
+                    SCENE_CURSOR_POS = MENU_active_lines;
+                    SCENE_CURRENT_PAGE -= 1;
+                    if (SCENE_CURRENT_PAGE < 0){
+                    SCENE_CURRENT_PAGE = SCENE_PAGE_COUNT - 1;
+                    }
+                }
             	break;
             case(BUTTON_B_PRESS): // scroll down the list by one per keypress
-		SCENE_CURSOR_POS += 1;
-		if (SCENE_CURSOR_POS >= MENU_active_lines){
-		    SCENE_CURRENT_PAGE += 1;
-		    SCENE_CURSOR_POS = 0;
-		    if (SCENE_CURRENT_PAGE >= SCENE_PAGE_COUNT){
-		        SCENE_CURRENT_PAGE = 0;
-		    }
-		}
+                SCENE_CURSOR_POS += 1;
+                if (SCENE_CURSOR_POS >= MENU_active_lines){
+                    SCENE_CURRENT_PAGE += 1;
+                    SCENE_CURSOR_POS = 0;
+                    if (SCENE_CURRENT_PAGE >= SCENE_PAGE_COUNT){
+                        SCENE_CURRENT_PAGE = 0;
+                    }
+                }
                 break;
             case(BUTTON_C_PRESS): //Make a selection of the current line.
-		SCENE_EXIT_FLAG = true;
-		if (SCENE_CURSOR_POS + (SCENE_CURRENT_PAGE*MENU_active_lines) < target_count_opts){
-		    selection = SCENE_CURSOR_POS+(SCENE_CURRENT_PAGE*7);
-		    target_MARRAY[selection]();
-		}
+                SCENE_EXIT_FLAG = true;
+                if (SCENE_CURSOR_POS + (SCENE_CURRENT_PAGE*MENU_active_lines) < target_count_opts){
+                    selection = SCENE_CURSOR_POS+(SCENE_CURRENT_PAGE*7);
+                    target_MARRAY[selection]();
+                }
                 break;
             case(BUTTON_D_PRESS): // exit back to the main game page
-		SCENE_EXIT_FLAG = true;
-		SCENE_ACT = SCENEADDR_main_game; // We are cancelling, get me outta here.
+                SCENE_EXIT_FLAG = true;
+                SCENE_ACT = SCENEADDR_main_game; // We are cancelling, get me outta here.
                 break;
         }
         HID_input_events_queue[i] = BUTTON_NO_PRESS;

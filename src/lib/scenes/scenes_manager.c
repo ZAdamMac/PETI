@@ -50,7 +50,6 @@ void SCENE_updateDisplay(void){
         SCENE_CURSOR_POS = 0;
         SCENE_PAGE_COUNT = 0;     
         SCENE_EXIT_FLAG = 0;
-        SCENE_FRAME = 0;
     }
     PREVIOUS_SCENE = SCENE_ACT;
     switch(SCENE_ACT){

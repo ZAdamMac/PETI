@@ -581,8 +581,8 @@ void printDeltas_game(DisplayFrame incoming_frame){
 
 void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
     int index; int line_changed; int directives_changed; 
-    char current_string[PIXELS_Y/FONT_SIZE_FLOOR_Y]; int previous_string[PIXELS_Y/FONT_SIZE_FLOOR_Y];
-    const int len = PIXELS_Y/FONT_SIZE_FLOOR_Y;
+    char current_string[PIXELS_X/FONT_SIZE_FLOOR_X]; int previous_string[PIXELS_X/FONT_SIZE_FLOOR_X];
+    const int len = PIXELS_X/FONT_SIZE_FLOOR_X;
     for (index = 0; index < scene_rules->lines_used; index++){
 
         strcpy(current_string, incoming_frame->frame[index].line);

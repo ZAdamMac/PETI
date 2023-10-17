@@ -101,3 +101,23 @@
   - Adds support for the LBO sensor to HWINIT
   - Adds crude support for showing the Low Battery Icon on the main game screen.
 - Corrects a longstanding issue that was causing full screen refreshes instead of the promised by-line refreshes. Should help with display-driven power usage.
+
+# v 0.4.0 - Sleep and Growth Update
+- Adds functionality that allows the pet to fall asleep between wall-clock times defined by their age group through `game_manager.h`
+  - Sleeping pets do not have the game state recompute while sleeping and accordingly do not experience stat depletion.
+  - Hunger and Fun degradation now occur retroactively when the pet wakes.
+  - The main game screen displays a status icon and special pet animations when the pet is sleeping.
+    - `evo_data.h`'s `struct Stage` was ammended to add a `animationSleeping` character pointer that holds sleeping animations. This shares the limitation with all other animation data that font addressing is not currently implemented at this level.
+    - Minor font changes for `font16x16` to correct the misalignment of zazenkuchi's sleeping head from his body.
+  - The Food and Minigame menus are not accessible when the pet is sleeping, as is appropriate.
+    - `menus/main_game.c/h` were refactored to use a function-derived model similar to menu_generator in order to achieve this.
+  - The baby pet now correctly naps one hour after the game is started, for one hour.
+- Rearranges the main game idle screen's menu to be more logically accessible to the player in terms of icon order.
+- Adds an icon to the main game menu that allows the pet to be put to bed by turning the lights off.
+  - A pet that has freshly woken up will turn the lights back on.
+- A sleeping pet with the lights off will cause the screen to turn off after roughly 15 seconds.
+  - A waking pet, or the human touching the buttons, will turn the screen back on.
+- Sets the egg delay correctly back to 5 minutes.
+- Fixes unreported bug that caused odd-numbered main menu menus to render the cursor on the bottom row one square earlier than it should.
+- Refactors the main_game screen to use the shared WORK_STRING mutable char array rather than per-function strings, for memory savings.
+  - As a knock-on impact, this corrects #37
