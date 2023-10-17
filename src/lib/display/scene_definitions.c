@@ -18,7 +18,7 @@ const SceneDefinition SCENEDEF_game_mode = {
         {77, TEXT_SIZE_LARGE},
         {93, TEXT_SIZE_LARGE},
         {109, TEXT_SIZE_SMALL},
-        {117, TEXT_SIZE_MEDIUM}
+        {116, TEXT_SIZE_MEDIUM}
      },
      .lines_used = 9
 };

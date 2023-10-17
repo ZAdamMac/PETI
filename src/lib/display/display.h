@@ -120,7 +120,7 @@ typedef struct DisplayFrameNew{
 DisplayFrameNew DISPLAY_FRAME;      // The global instance of DisplayFrameNew. Anyone using this should use THIS one.
 DisplayFrameNew PREVIOUS_FRAME;
 
-char WORK_STRING[PIXELS_X/FONT_SIZE_FLOOR_X]; // A working string to use for all string construction operations.
+char WORK_STRING[PIXELS_X/FONT_SIZE_FLOOR_X+1]; // A working string to use for all string construction operations.
 
 // These functions are defined fully and commentated in display.c
 void Init_LCD(void);

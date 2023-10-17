@@ -8,11 +8,11 @@
 #ifndef LIB_GAME_GAME_MANAGER_H_
 #define LIB_GAME_GAME_MANAGER_H_
 
-#define GAME_NEEDS_teen_bedtime 20      //TODO: consider moving to evo_data.h
+#define GAME_NEEDS_teen_bedtime 20      
 #define GAME_NEEDS_adult_bedtime 21
 #define GAME_NEEDS_senior_bedtime 21
 #define GAME_NEEDS_final_bedtime 21
-#define GAME_NEEDS_teen_wakeup 8      //TODO: consider moving to evo_data.h
+#define GAME_NEEDS_teen_wakeup 8      
 #define GAME_NEEDS_adult_wakeup 8
 #define GAME_NEEDS_senior_wakeup 9
 #define GAME_NEEDS_final_wakeup 9

@@ -37,111 +37,116 @@ unsigned int MG_lights_on = 1;                     //Lights are on by default
 char* MG_computeMeta(const char* species_charset, const char* meta_placements){
     unsigned int charindex = 0;
     unsigned int this_char_tracker;
-    char  results[PIXELS_X/16+1]; // We need to briefly fill SOME var with the text we're computing
     unsigned int reversal_array[4] = {1, 0, 3, 2};  // This reverses a 2x2 sprite!
     while (charindex < PIXELS_X/16){ // this assumes the 16x16 graphical font is being used.
         if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_'){ // Dashes are empty cells, underscores are reversed empty cells
-            results[charindex] = ' ';
+            WORK_STRING[charindex] = ' ';
         }
         else if (meta_placements[charindex] == '0' || meta_placements[charindex] == '2'){ // Zeros say "put the character here, unmodified", 2 is color inverted
-            results[charindex] = species_charset[char_tracker];
+            WORK_STRING[charindex] = species_charset[char_tracker];
             char_tracker++; // we can go to the next character in the frame
             char_tracker = char_tracker % icon_size; // Here to prevent out of index crashes. You should never define an animation that violates this.
         }
         else if (meta_placements[charindex] == '1' || meta_placements[charindex] == '3'){ // 1 says to put the character here, reversed along the x; 3 says to do that and color invert
             this_char_tracker = reversal_array[char_tracker]; // In this case the characters need to arrange differently.
             this_char_tracker = this_char_tracker % icon_size;
-            results[charindex] = species_charset[this_char_tracker];
+            WORK_STRING[charindex] = species_charset[this_char_tracker];
             char_tracker++; // we can go to the next character in the frame
             char_tracker = char_tracker % icon_size; // Here to prevent out of index crashes. You should never define an animation that violates this.
         }
         charindex++;
 
     }
-    return &results; // We only want to return the /pointer/ here, which is all strcpy wants.
+    return &WORK_STRING; // We only want to return the /pointer/ here, which is all strcpy wants.
 }
 
 //Computes a printTextLarge display directives string based on the metanimation string provided
 char* MG_computeDirective(const char* meta_placements){
     unsigned int dirindex = 0;
-    char directives_out[PIXELS_X/16+1];
     while (dirindex < PIXELS_X/16){
         switch (meta_placements[dirindex]){
             case '-' :
-                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
                 break;
             case '_' :
-                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case '0' :
-                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
                 break;
             case '1' :
-                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
                 break;
             case '2' :
-                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
                 break;
             case '3' :
-                directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED_NEGATIVE;
                 break;
         }
         dirindex++;
     }
-    return &directives_out;
+    return &WORK_STRING;
 }
 
 
 // TODO Magic Docu-String
 char* MG_computeLineSleep(const char * sleep_animation){
     unsigned int column;
-    char results[PIXELS_X/FONT_SIZE_FLOOR_X + 1]; // We need to briefly fill SOME var with the text we're computing
-    for (column=0; column<(PIXELS_X/FONT_SIZE_FLOOR_X); column++){
-        results[column] = ' ';
+
+    for (column=0; column<(PIXELS_X/16); column++){
+        WORK_STRING[column] = ' ';
     }
-    if (icon_size == EVO_size_small){
-        results[(PIXELS_X/16)/2] = sleep_animation[0]; // In this specific case, it really is that easy.
+
+    switch (icon_size){
+        case EVO_size_small: // TODO: Resume from here.
+            WORK_STRING[(PIXELS_X/16)/2] = sleep_animation[char_tracker];
+            break;
+        case EVO_size_med:
+            WORK_STRING[(PIXELS_X/16)/2 - 1] = sleep_animation[char_tracker];
+            char_tracker++;
+            WORK_STRING[(PIXELS_X/16)/2] = sleep_animation[char_tracker];
+            char_tracker++;
+            break;
+        case EVO_size_large:
+            WORK_STRING[((PIXELS_X/16)/2) - 1] = sleep_animation[char_tracker];
+            char_tracker++;
+            WORK_STRING[((PIXELS_X/16)/2)] = sleep_animation[char_tracker];
+            char_tracker++;
+            WORK_STRING[((PIXELS_X/16)/2) + 1] = sleep_animation[char_tracker];
+            char_tracker++;
+            break;
     }
-    else if (icon_size  == EVO_size_med) {
-        results[(PIXELS_X/16)/2 - 1] = sleep_animation[char_tracker];
-        char_tracker++;
-        results[(PIXELS_X/16)/2] = sleep_animation[char_tracker];
-        char_tracker++;
-    }
-    else if (icon_size == EVO_size_large){
-        results[((PIXELS_X/16)/2) - 1] = sleep_animation[char_tracker];
-        char_tracker++;
-        results[((PIXELS_X/16)/2)] = sleep_animation[char_tracker];
-        char_tracker++;
-        results[((PIXELS_X/16)/2) + 1] = sleep_animation[char_tracker];
-        char_tracker++;
-    }
-    return &results; // We only want to return the /pointer/ here, which is all strcpy wants.
+    return &WORK_STRING; // We only want to return the /pointer/ here, which is all strcpy wants.
 }
 
 
 //TODO magic Docu-String
 char* MG_computeDirectiveSleep(void){
     unsigned int dirindex = 0;
-    char directives_out[PIXELS_X/16+1];
     while (dirindex < PIXELS_X/16){
-        directives_out[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
         dirindex++;
     }
-    return &directives_out;
+    return &WORK_STRING;
 }
 
 
 //TODO: magic docu-string
-void MG_placeStatusIcons(void){ // TODO: give a root positional coordinate
-    char status_string[PIXELS_X/16] = "         "; // Create an empty string to use for the status lines by default.
+char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
+    unsigned int col;
+
+    for (col = 0; col < PIXELS_X/16; col++){
+        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
+    }
     if (BATTERY_LOW){
-        status_string[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
+        WORK_STRING[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
     }
     if (StateMachine.ACT == 0){
-        status_string[1] = 0xFA; // Display the sleep icon while sleeping.
+        WORK_STRING[1] = 0xFA; // Display the sleep icon while sleeping.
     }
-    strcpy(DISPLAY_FRAME.frame[1].line, &status_string);
+
+    return &WORK_STRING;
 }
 
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
@@ -163,7 +168,7 @@ void MG_updatePlayfieldIdle(void){
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
-    MG_placeStatusIcons();
+    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
 }
 
 // TODO: Magic docu-string
@@ -178,7 +183,7 @@ void MG_updatePlayfieldSleeping(void){
     strcpy(DISPLAY_FRAME.frame[3].line, " ");
     char_tracker = 0;
     switch (icon_size){
-        case EVO_size_small:
+        case EVO_size_small: 
             strcpy(DISPLAY_FRAME.frame[4].line, " ");
             strcpy(DISPLAY_FRAME.frame[5].line, " ");
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
@@ -198,7 +203,8 @@ void MG_updatePlayfieldSleeping(void){
     for (row=1;row<8;row++){
         strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep());
     }
-    MG_placeStatusIcons();
+
+    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.
@@ -210,35 +216,36 @@ void MG_handleInputs(void){
         this_event = HID_input_events_queue[i]; //fetch the event.
         switch (this_event){
             case(BUTTON_A_PRESS): // scroll forward by one slot
-		SCENE_CURSOR_POS++;
-		if (SCENE_CURSOR_POS > SCENE_PAGE_COUNT){
-		    SCENE_CURSOR_POS = 0;
-		}
+		        SCENE_CURSOR_POS++;
+                if (SCENE_CURSOR_POS > SCENE_PAGE_COUNT){
+                    SCENE_CURSOR_POS = 0;
+                }
             	break;
             case(BUTTON_B_PRESS): // scroll backward by one slot
-		SCENE_CURSOR_POS--;
-		if (SCENE_CURSOR_POS > SCENE_PAGE_COUNT){
-		    SCENE_CURSOR_POS = 0;
-		}
+                SCENE_CURSOR_POS--;
+                if (SCENE_CURSOR_POS > SCENE_PAGE_COUNT){
+                    SCENE_CURSOR_POS = 0;
+                }
                 break;
             case(BUTTON_C_PRESS): //Make a selection of the current icon
-		if (SCENE_CURSOR_POS != 0){
-		    MG_menu_options_array[SCENE_CURSOR_POS-1](); // This will update the scene. The current frame will be drawn and the next frame will take you into the menu you picked.
-		    SCENE_CURSOR_POS = 0;
-        	}
+                if (SCENE_CURSOR_POS != 0){
+                    MG_menu_options_array[SCENE_CURSOR_POS-1](); // This will update the scene. The current frame will be drawn and the next frame will take you into the menu you picked.
+                    SCENE_CURSOR_POS = 0;
+                }
                 break;
             case(BUTTON_D_PRESS): // clear the highlights
-		SCENE_CURSOR_POS = 0;
+		        SCENE_CURSOR_POS = 0;
                 break;
         }
         HID_input_events_queue[i] = BUTTON_NO_PRESS;
+        
     };
     HID_input_events_queue_depth = 0;
 }
 
 //Renders the top menu bar. This will have the first half of the MG_menu_icons array, rounded up.
 char* MG_printTopMenu(void){
-    unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index; char mg_top_alterable[PIXELS_X/FONT_SIZE_FLOOR_X];
+    unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index;
     top_slice = SCENE_PAGE_COUNT/2;
     if (SCENE_PAGE_COUNT % 2 != 0){
         top_slice++; //Top row always gets the extra item
@@ -249,27 +256,27 @@ char* MG_printTopMenu(void){
     icon_index = 0;
     while (text_index < PIXELS_X/FONT_SIZE_FLOOR_X){
         if (left_pad > 0){
-            mg_top_alterable[text_index] = ' '; // this is a non-printing padding space.
+            WORK_STRING[text_index] = ' '; // this is a non-printing padding space.
             left_pad--;
             text_index++;
         }
         else if (top_slice > 0){
-            mg_top_alterable[text_index] = MG_menu_icons[icon_index];
+            WORK_STRING[text_index] = MG_menu_icons[icon_index];
             text_index++;
             icon_index++;
             top_slice--;
         }
         else { // We need to pad right.
-            mg_top_alterable[text_index]= ' ';
+            WORK_STRING[text_index]= ' ';
             text_index++;
         }
     }
-    return &mg_top_alterable;
+    return &WORK_STRING;
 }
 
 //Renders the bottom menu bar. This will have the latter half of the MG_menu_icons array, rounded down.
 char* MG_printBottomMenu(void){
-    unsigned int bottom_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index; char mg_bottom_alterable[PIXELS_X/FONT_SIZE_FLOOR_X];
+    unsigned int bottom_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int icon_index;
     bottom_slice = SCENE_PAGE_COUNT/2;
     if (SCENE_PAGE_COUNT % 2 == 1){
         icon_index = bottom_slice + 1;
@@ -282,27 +289,27 @@ char* MG_printBottomMenu(void){
     text_index = 0;
     while (text_index < PIXELS_X/FONT_SIZE_FLOOR_X){
         if (left_pad > 0){
-            mg_bottom_alterable[text_index] = ' '; // this is a non-printing padding space.
+            WORK_STRING[text_index] = ' '; // this is a non-printing padding space.
             left_pad--;
             text_index++;
         }
         else if (bottom_slice > 0){
-            mg_bottom_alterable[text_index] = MG_menu_icons[icon_index];
+            WORK_STRING[text_index] = MG_menu_icons[icon_index];
             text_index++;
             icon_index++;
             bottom_slice--;
         }
         else { // We need to pad right.
-            mg_bottom_alterable[text_index]= ' ';
+            WORK_STRING[text_index]= ' ';
             text_index++;
         }
     }
-    return &mg_bottom_alterable;
+    return &WORK_STRING;
 }
 
 // This, along with the function below, compute which icon is highlighted (printed inverted) for the given current cursor position.
 char* MG_computeTopDirective(void){
-    unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0; char directives_top[PIXELS_X/FONT_SIZE_FLOOR_X];
+    unsigned int top_slice; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0;
     top_slice = SCENE_PAGE_COUNT/2;
     if (SCENE_PAGE_COUNT % 2 != 0){
         top_slice++; //Top row always gets the extra item
@@ -310,34 +317,34 @@ char* MG_computeTopDirective(void){
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - top_slice;
     left_pad = blank_spaces/2; // This will always round down, which we actually want
     text_index = 0;
-    for (text_index = 0; text_index < PIXELS_X/FONT_SIZE_FLOOR_X; ++text_index){
-        directives_top[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+    for (text_index = 0; text_index < PIXELS_X/FONT_SIZE_FLOOR_X; text_index++){
+        WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     if (SCENE_CURSOR_POS > 0){ // When the cursor position is 0, we don't need to highlight anything.
         if (top_slice >= SCENE_CURSOR_POS){
             cursor_index = left_pad + SCENE_CURSOR_POS - 1;
-            directives_top[cursor_index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+            WORK_STRING[cursor_index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
         }
     }
-    return &directives_top;
+    return &WORK_STRING;
 }
 
 char* MG_computeBottomDirective(void){
-    unsigned int bottom_slice; unsigned int top_slice; unsigned int magic_pad; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0; char directives_bottom[PIXELS_X/FONT_SIZE_FLOOR_X];
-    bottom_slice = SCENE_PAGE_COUNT/2;
+    unsigned int bottom_slice; unsigned int top_slice; unsigned int magic_pad; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0;
+    bottom_slice = SCENE_PAGE_COUNT/2; //3
     magic_pad = 2;
-    top_slice = SCENE_PAGE_COUNT - bottom_slice;
-    blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice;
-    left_pad = blank_spaces/2; // This will always round down, which we actually want
+    top_slice = SCENE_PAGE_COUNT - bottom_slice; //4
+    blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice; //13
+    left_pad = blank_spaces/2; // This will always round down, which we actually want 6
     text_index = 0;
-    for (text_index = 0; text_index < PIXELS_X/FONT_SIZE_FLOOR_X; ++text_index){
-        directives_bottom[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+    for (text_index = 0; text_index < (PIXELS_X/FONT_SIZE_FLOOR_X); text_index++){ //TODO: revert this and 320 if no work
+       WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     if (SCENE_CURSOR_POS > top_slice){
-        cursor_index = left_pad + SCENE_CURSOR_POS - bottom_slice - top_slice + magic_pad;
-        directives_bottom[cursor_index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+        cursor_index = left_pad + SCENE_CURSOR_POS - bottom_slice - top_slice + magic_pad; // FUTURE This is definitely wrong!
+        WORK_STRING[cursor_index] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
     }
-    return &directives_bottom;
+    return &WORK_STRING;
 }
 
 
@@ -368,6 +375,10 @@ void MG_computeNextFrame(void){
         strcpy(DISPLAY_FRAME.frame[7].line, " ");
         strcpy(DISPLAY_FRAME.frame[8].line, " ");
     }
+
+    //Moving on to the large font work, which means we need to "shrink" the work string
+    WORK_STRING[8] = '\x00';
+
     if (MG_lights_on){
         switch (StateMachine.ACT){
             case GM_ACTIVITY_IDLE:
@@ -408,6 +419,6 @@ void SCENE_main_game(void){
     }
     MG_handleInputs();
     MG_computeNextFrame();
-    DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME);
+    DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME); // TODO: Resume, we are dying in here somewhere
 
 }

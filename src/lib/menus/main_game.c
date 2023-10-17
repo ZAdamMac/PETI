@@ -18,7 +18,6 @@ void MENU_MG_gotoStatusMenu(void){
 
 void MENU_MG_gotoSettingsMenu(void){
     SCENE_ACT = SCENEADDR_proof_text;//Currently no settings menu, do this instead;
-    //TODO: Is the settings menu *actually* on the roadmap?
 }
 
 void MENU_MG_gotoFeedingMenu(void){

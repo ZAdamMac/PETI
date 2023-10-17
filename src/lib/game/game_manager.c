@@ -23,8 +23,10 @@
 #include "lib/scenes/main_game.h"
 
 unsigned int egg_delay_set;
-unsigned int egg_delay = 0x01; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
+unsigned int egg_delay = 0x05; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
 unsigned int needs_evaluation = 0x01; // A flag used to prevent double-dipping on minute checks
+unsigned int baby_nap_hour = 0x00;      //Used to store the time at which the baby is going to lay down for its nap.
+unsigned int baby_wake_hour = 0x00;     //And the time at which it wakes up.
 
 GameState StateMachine = {0, 3, 0, 0, 0, 0x00, 0, 0}; 
 
@@ -134,7 +136,7 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
         case EVO_phase_egg: // In this case nothing special happens. Eggs don't sleep or experience need decay.
             special_case = 1;
             break;
-        case EVO_phase_baby: // TODO: implement SPECIAL case. Don't use it yet.
+        case EVO_phase_baby:
             special_case = 2;
             break;
         case EVO_phase_teen:
@@ -165,6 +167,11 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
             needs_evaluation = 0;
         }
     }
+    else if ((special_case == 2) && (baby_nap_hour != 255)){ // Oh baby, you came and you gave me an edge-case...
+        if ((current_hour >= baby_nap_hour)){
+            StateMachine.ACT = 0;
+        }
+    }
 }
 
 // this function is the ultimate control function for all timed events, and needs to be updated
@@ -185,6 +192,14 @@ void GAME_evaluateTimedEvents(void){
             NEXT_STAGE_TRANSITION_HOURS++;
         }
         egg_delay_set = true;
+        baby_nap_hour = current_hours + 1; // The baby always naps for 1 hour, starting an hour after the RTC is first set.
+        baby_wake_hour = current_hours + 2;
+        if (baby_nap_hour > 23){
+            baby_nap_hour = baby_nap_hour - 23;
+        }
+        if (baby_wake_hour > 23){
+            baby_wake_hour = baby_wake_hour - 23;
+        }
     }
     if ((NEXT_STAGE_TRANSITION_AGE <= StateMachine.AGE) && (NEXT_STAGE_TRANSITION_HOURS <= current_hours) && (NEXT_STAGE_TRANSITION_MINUTES <= current_minutes) && egg_delay_set){
        // GAME_EVO_incrementForEvolution(); Normally, we would call this evolution function, but I don't want to write all that before I test it. Instead:
@@ -218,7 +233,8 @@ void GAME_NEEDS_evaluateSleepHungerFun(int rateHF, int phase){
     int deplete_hunger; int deplete_fun;
     // Set the right defintitions of the waking and sleeping time.
     switch (phase){
-        case EVO_phase_baby: // TODO: implement SPECIAL case. Don't use it yet.
+        case EVO_phase_baby: 
+            wake_hour = 1;
             break;
         case EVO_phase_teen:
             sleep_hour = GAME_NEEDS_teen_bedtime;
@@ -265,7 +281,7 @@ void GAME_evaluateWakeUpEvent(void){
         case EVO_phase_egg: // In this case nothing special happens. Eggs don't sleep or experience need decay.
             special_case = 1;
             break;
-        case EVO_phase_baby: // TODO: implement SPECIAL case. Don't use it yet.
+        case EVO_phase_baby:
             special_case = 2;
             break;
         case EVO_phase_teen:
@@ -296,6 +312,20 @@ void GAME_evaluateWakeUpEvent(void){
             needs_evaluation = 0;
             MG_lights_on = 1;
             ALERTS_wake_up_alert();
+        }
+    }
+    else if (special_case == 2){
+        if (baby_wake_hour < baby_nap_hour){    // We have crossed midnight.
+            baby_wake_hour += 24; // So add 24 hours.
+            current_hour += 24; // added here too
+        }
+        if (baby_wake_hour <= current_hour){
+            GAME_NEEDS_evaluateSleepHungerFun(EVO_metaStruct[StateMachine.STAGE_ID].rateHF, EVO_metaStruct[StateMachine.STAGE_ID].phase);
+            StateMachine.ACT = GM_ACTIVITY_IDLE;
+            needs_evaluation = 0;
+            MG_lights_on = 1;
+            ALERTS_wake_up_alert();
+            baby_nap_hour = 255;
         }
     }
 }
