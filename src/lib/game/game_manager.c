@@ -128,7 +128,10 @@ void GAME_applyHungerFun(int change_hunger, int change_fun){
     StateMachine.HUNGER_FUN = (current_hunger << 4) + current_fun;
 }
 
-// TODO: Magic Docu-Comment
+/* Provided with an unsigned integer current_hour which represents the time from
+ * 00 midnight to 23h, assesses the current Stage and determines if the pet
+ * should now be asleep based on the curfew and wake values set in game_manager.h 
+ */
 void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
     int curfew_hour; int wake_hour; 
     int special_case = 0;
@@ -225,7 +228,10 @@ void GAME_evaluateTimedEvents(void){
     }
 }
 
-//TODO: magic docu-string
+/* Provided with the rate of HF degradation and the life phase, determines how
+ * long the pet *should* have been asleep for in RTC time and bulk-applies
+ * hunger and fun drain, as appropriate.
+ */
 void GAME_NEEDS_evaluateSleepHungerFun(int rateHF, int phase){
     int sleep_hour; int wake_hour; int elapsed_time;
     unsigned int rate_hunger = rateHF >> 4 & 0xF;
@@ -270,7 +276,10 @@ void GAME_NEEDS_evaluateSleepHungerFun(int rateHF, int phase){
     //ALERT_wakeUpEvent();
 }
 
-//TODO: magic docu-comment
+/* When called, interrogates the RTC and performs a calculation based on life
+ * phase to determine if the pet should awaken from sleep. If done so, calls the
+ * necessary follow up actions to achieve that.
+ */
 void GAME_evaluateWakeUpEvent(void){
     unsigned int current_hour;
     int curfew_hour; int wake_hour; 

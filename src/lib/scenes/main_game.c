@@ -90,7 +90,9 @@ char* MG_computeDirective(const char* meta_placements){
 }
 
 
-// TODO Magic Docu-String
+/* Fed the sleep_animation from a given Stage, computes one line of sleep
+ * animation data, places it on the WORK_STRING, and returns the pointer for it.
+ */
 char* MG_computeLineSleep(const char * sleep_animation){
     unsigned int column;
 
@@ -99,7 +101,7 @@ char* MG_computeLineSleep(const char * sleep_animation){
     }
 
     switch (icon_size){
-        case EVO_size_small: // TODO: Resume from here.
+        case EVO_size_small:
             WORK_STRING[(PIXELS_X/16)/2] = sleep_animation[char_tracker];
             break;
         case EVO_size_med:
@@ -121,7 +123,8 @@ char* MG_computeLineSleep(const char * sleep_animation){
 }
 
 
-//TODO magic Docu-String
+/* Bulk apply the directives to a sleeping pet.
+ */
 char* MG_computeDirectiveSleep(void){
     unsigned int dirindex = 0;
     while (dirindex < PIXELS_X/16){
@@ -132,7 +135,10 @@ char* MG_computeDirectiveSleep(void){
 }
 
 
-//TODO: magic docu-string
+/* Performs the necessary calculations to determine which status icons need to
+ * be displayed through the work string. This is a highly simplistic version of
+ * this function and will likely be altered in the future.
+ */
 char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
     unsigned int col;
 
@@ -171,7 +177,10 @@ void MG_updatePlayfieldIdle(void){
     strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
 }
 
-// TODO: Magic docu-string
+/* Parent logic for displaying the sleeping pet animation. Pulls the animation
+ * data based on the current stage ID on the state machine and passes it to the
+ * sleep animation handler, then calls MG_placeStatusIcons.
+ */
 void MG_updatePlayfieldSleeping(void){
     unsigned int row;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
@@ -337,7 +346,7 @@ char* MG_computeBottomDirective(void){
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice; //13
     left_pad = blank_spaces/2; // This will always round down, which we actually want 6
     text_index = 0;
-    for (text_index = 0; text_index < (PIXELS_X/FONT_SIZE_FLOOR_X); text_index++){ //TODO: revert this and 320 if no work
+    for (text_index = 0; text_index < (PIXELS_X/FONT_SIZE_FLOOR_X); text_index++){
        WORK_STRING[text_index] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
     if (SCENE_CURSOR_POS > top_slice){
@@ -348,7 +357,9 @@ char* MG_computeBottomDirective(void){
 }
 
 
-//TODO magic-docu-string
+/* Handles the case where the lights have been turned off for the pet by setting
+ * the display strings to blank and setting the appropriate directives.
+ */
 void MG_LightsOut(){
     unsigned int row, col;
     for (row = 1; row < 8; row++){
@@ -419,6 +430,6 @@ void SCENE_main_game(void){
     }
     MG_handleInputs();
     MG_computeNextFrame();
-    DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME); // TODO: Resume, we are dying in here somewhere
+    DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_GAME);
 
 }
