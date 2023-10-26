@@ -121,3 +121,5 @@
 - Fixes unreported bug that caused odd-numbered main menu menus to render the cursor on the bottom row one square earlier than it should.
 - Refactors the main_game screen to use the shared WORK_STRING mutable char array rather than per-function strings, for memory savings.
   - As a knock-on impact, this corrects #37
+- Refactors the metanimations to support a more animated sequence for the upper forms of the pet.
+  - Exposed, and corrected, a bug in `main_game.c`'s `MG_computeLine()` which caused large pets to explode when reversed.

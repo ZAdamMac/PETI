@@ -38,6 +38,7 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
     unsigned int charindex = 0;
     unsigned int this_char_tracker;
     unsigned int reversal_array[4] = {1, 0, 3, 2};  // This reverses a 2x2 sprite!
+    unsigned int reversal_array_large[9] = {2, 1, 0, 5, 4, 3, 8, 7, 6}; // This reverses a 3x3 sprite!
     while (charindex < PIXELS_X/16){ // this assumes the 16x16 graphical font is being used.
         if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_'){ // Dashes are empty cells, underscores are reversed empty cells
             WORK_STRING[charindex] = ' ';
@@ -48,7 +49,12 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
             char_tracker = char_tracker % icon_size; // Here to prevent out of index crashes. You should never define an animation that violates this.
         }
         else if (meta_placements[charindex] == '1' || meta_placements[charindex] == '3'){ // 1 says to put the character here, reversed along the x; 3 says to do that and color invert
-            this_char_tracker = reversal_array[char_tracker]; // In this case the characters need to arrange differently.
+            if (icon_size == EVO_size_large){
+                this_char_tracker = reversal_array_large[char_tracker];
+            }
+            else {
+                this_char_tracker = reversal_array[char_tracker]; // In this case the characters need to arrange differently.
+            }
             this_char_tracker = this_char_tracker % icon_size;
             WORK_STRING[charindex] = species_charset[this_char_tracker];
             char_tracker++; // we can go to the next character in the frame
