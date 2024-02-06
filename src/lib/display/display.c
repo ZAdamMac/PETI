@@ -370,8 +370,8 @@ void printTextLarge(const char* text, unsigned char line, const char* directives
                     addressed_font = &font16x16;
                     break;
             }
-            bitmap_right = addressed_font[character][indexLine+indexOfOffset];  // Retrieves the byte defining the left side of the character.
-            bitmap_left = addressed_font[character][indexLine+indexOfOffset+1];  // Retrieves the byte defining the right side of the character.
+            bitmap_right = addressed_font[character][indexLine+indexOfOffset+1];  // Retrieves the byte defining the left side of the character.
+            bitmap_left = addressed_font[character][indexLine+indexOfOffset];  // Retrieves the byte defining the right side of the character.
             switch (operation){
                 case DIRECTIVE_NORMAL : // Print as-is
                     bitmap_right_out = bitmap_right;
