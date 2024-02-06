@@ -123,3 +123,6 @@
   - As a knock-on impact, this corrects #37
 - Refactors the metanimations to support a more animated sequence for the upper forms of the pet.
   - Exposed, and corrected, a bug in `main_game.c`'s `MG_computeLine()` which caused large pets to explode when reversed.
+- Refactors the `Stage` structure so that pet stages can target metanimations 
+- Adds support for the font files being defined in multiple areas
+- Adds font16x16_1.h, defining a second set of 255 useful pet glyphs.

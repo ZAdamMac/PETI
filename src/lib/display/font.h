@@ -8,6 +8,10 @@
 #ifndef FONT_H_
 #define FONT_H_
 
+#if __has_include("fonts/font16x16_1.h")
+#include "fonts/font16x16_1.h"
+#endif
+
 // The font referenced by printTextSmall - 8x8 pixels chiefly alphanumeric.
 #pragma PERSISTENT(font8x8)
 const char *font8x8[] = {
@@ -799,8 +803,12 @@ const char *font16x16[] = {
  * to not choke and die; until a makefile-based compilation method presents itself. TODO Should this be here?
  */
 
-#pragma PERSISTENT(font16x16_1)
-const char *font16x16_1[] = {0};
+#ifndef FONT16x16_1_H_
+#define FONT16x16_1_H_
+#pragma PERSISTENT(font16x16_2)
+const char *font16x16_2[] = {0};
+#endif 
+
 #pragma PERSISTENT(font16x16_2)
 const char *font16x16_2[] = {0};
 #pragma PERSISTENT(font16x16_3)
