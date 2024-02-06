@@ -5,8 +5,8 @@
  *      Author: github.com/zadammac
  */
 
-#ifndef FONT16x16_1_H_
-#define FONT16x16_1_H_
+#ifndef FONT16X16_1_H_
+#define FONT16X16_1_H_
 
 #pragma PERSISTENT(font16x16_1)
 
