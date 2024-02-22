@@ -14,7 +14,7 @@ unsigned int EVO_count_stages = 16;
 extern Stage EVO_metaStruct[] = {
                            {// Begin entry for egg. Arguments are in order listed in stage definition above
                                 .stage_id = 0x00,
-                                .phase = 0x00,
+                                .phase = EVO_phase_egg,
                                 .metanimation_id = 0x00,
                                 .size = 0x04,
                                 .font = FONT_ADDR_0,
@@ -31,7 +31,7 @@ extern Stage EVO_metaStruct[] = {
                            },
                            {// Begin entry for the baby. Arguments are in order listed in stage definition above
                                .stage_id = 0x01,
-                               .phase = 0x01,
+                               .phase = EVO_phase_baby,
                                .metanimation_id = 0x01,
                                .size = 0x01,
                                .font = FONT_ADDR_0,
@@ -44,11 +44,11 @@ extern Stage EVO_metaStruct[] = {
                                .highEvo = 0x02,
                                .lowEvo = 0x03,
                                .secretEvo = 0x02,
-                               .stageLength = 0x01
+                               .stageLength = 0x00
                           },
                           {// Begin entry for Hungryboi. Arguments are in order listed in stage definition above
                               .stage_id = 0x02,
-                              .phase = 0x02,
+                              .phase = EVO_phase_teen,
                               .metanimation_id = 0x02,
                               .size = 0x04,
                               .font = FONT_ADDR_0,
@@ -65,7 +65,7 @@ extern Stage EVO_metaStruct[] = {
                          },
                          {// Begin entry for SicklySlim. Arguments are in order listed in stage definition above
                              .stage_id = 0x03,
-                             .phase = 0x02,
+                             .phase = EVO_phase_teen,
                              .metanimation_id = 0x02,
                              .size = 0x04,
                              .font = FONT_ADDR_0,
@@ -82,7 +82,7 @@ extern Stage EVO_metaStruct[] = {
                         },
                         {// Begin entry for Jellyfloat. Arguments are in order listed in stage definition above
                             .stage_id = 0x04,
-                            .phase = 0x03,
+                            .phase = EVO_phase_adult,
                             .metanimation_id = 0x03,
                             .size = 0x04,
                             .font = FONT_ADDR_0,
@@ -99,7 +99,7 @@ extern Stage EVO_metaStruct[] = {
                        },
                        {// Begin entry for Bughound. Arguments are in order listed in stage definition above
                            .stage_id = 0x05,
-                           .phase = 0x03,
+                           .phase = EVO_phase_adult,
                            .metanimation_id = 0x03,
                            .size = 0x04,
                            .font = FONT_ADDR_0,
@@ -116,7 +116,7 @@ extern Stage EVO_metaStruct[] = {
                       },
                       {// Begin entry for Zazenkuchi. Arguments are in order listed in stage definition above
                           .stage_id = 0x06,
-                          .phase = 0x03,
+                          .phase = EVO_phase_adult,
                           .metanimation_id = 0x03,
                           .size = 0x04,
                           .font = FONT_ADDR_0,
@@ -133,7 +133,7 @@ extern Stage EVO_metaStruct[] = {
                      },
                      {// Begin entry for Pointyboi. Arguments are in order listed in stage definition above
                          .stage_id = 0x07,
-                         .phase = 0x03,
+                         .phase = EVO_phase_adult,
                          .metanimation_id = 0x03,
                          .size = 0x04,
                          .font = FONT_ADDR_0,
@@ -150,7 +150,7 @@ extern Stage EVO_metaStruct[] = {
                     },
                     {// Begin entry for Skullcrab. Arguments are in order listed in stage definition above
                         .stage_id = 0x08,
-                        .phase = 0x03,
+                        .phase = EVO_phase_adult,
                         .metanimation_id = 0x03,
                         .size = 0x04,
                         .font = FONT_ADDR_0,
@@ -167,7 +167,7 @@ extern Stage EVO_metaStruct[] = {
                    },
                    {// Begin entry for Darumite. Arguments are in order listed in stage definition above
                        .stage_id = 0x09,
-                       .phase = 0x04,
+                       .phase = EVO_phase_senior,
                        .metanimation_id = 0x04,
                        .font = FONT_ADDR_0,
                        .size = 0x09,
@@ -184,7 +184,7 @@ extern Stage EVO_metaStruct[] = {
                   },
                   {// Begin entry for Squid. Arguments are in order listed in stage definition above
                       .stage_id = 0x0A,
-                      .phase = 0x04,
+                      .phase = EVO_phase_senior,
                       .metanimation_id = 0x04,
                       .size = 0x09,
                       .font = FONT_ADDR_0,
@@ -201,7 +201,7 @@ extern Stage EVO_metaStruct[] = {
                  },
                  {// Begin entry for Cthulhorse. Arguments are in order listed in stage definition above
                      .stage_id = 0x0B,
-                     .phase = 0x04,
+                     .phase = EVO_phase_senior,
                      .metanimation_id = 0x04,
                      .size = 0x09,
                      .font = FONT_ADDR_0,
@@ -218,7 +218,7 @@ extern Stage EVO_metaStruct[] = {
                 },
                 {// Begin entry for Ham-Monster. Arguments are in order listed in stage definition above
                     .stage_id = 0x0C,
-                    .phase = 0x04,
+                    .phase = EVO_phase_senior,
                     .metanimation_id = 0x04,
                     .size = 0x09,
                     .font = FONT_ADDR_0,
@@ -235,7 +235,7 @@ extern Stage EVO_metaStruct[] = {
                },
                {// Begin entry for Nautalus. Arguments are in order listed in stage definition above
                    .stage_id = 0x0D,
-                   .phase = 0x04,
+                   .phase = EVO_phase_senior,
                    .metanimation_id = 0x04,
                    .size = 0x09,
                    .font = FONT_ADDR_0,
@@ -252,7 +252,7 @@ extern Stage EVO_metaStruct[] = {
               },
               {// Begin entry for Ax-a-lot'l. Arguments are in order listed in stage definition above
                   .stage_id = 0x0E,
-                  .phase = 0x04,
+                  .phase = EVO_phase_senior,
                   .metanimation_id = 0x04,
                   .size = 0x09,
                   .font = FONT_ADDR_0,

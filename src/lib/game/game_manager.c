@@ -37,19 +37,21 @@ void GAME_initStateStruct(void){
     unsigned int debug_disabled; // FUTURE: Replace with a call seperate to this one.
     debug_disabled = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN6);
     StateMachine.AGE = 0x00;
-    StateMachine.ACT = 0x03; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
     StateMachine.HUNGER_FUN = 0x00;
     StateMachine.DISCIPLINE = 0x00;
     StateMachine.NAUGHTY = 0x00; // Reasonable starting value, may need to be tweaked during testing.
     if (debug_disabled){
         StateMachine.STAGE_ID = 0x00; // Reserved Species ID for Eggs
+        NEXT_STAGE_TRANSITION_AGE = 0x00;
+        StateMachine.ACT = GM_ACTIVITY_ISEGG; // Special activity level for eggs. We're "awake" in a sense but behaviour is notedly different.
     }
-    else {
+    else { // In debug mode, if no other state data available, default to the babye.
         StateMachine.STAGE_ID = 0x01; // Skip hatching an egg for testing
+        NEXT_STAGE_TRANSITION_AGE = 0x01; // Avoids a bug where booting into debug mode causes premature evolution
+        StateMachine.ACT = GM_ACTIVITY_IDLE;
     }
     StateMachine.HEALTH_BYTE = 0x00;
 
-    NEXT_STAGE_TRANSITION_AGE = 0x00;
     NEXT_STAGE_TRANSITION_HOURS = 0x00;
     NEXT_STAGE_TRANSITION_MINUTES = 0x00;
     calendar_initial_setup_completed = false;  // we need this flag and the next one so that we can have the state incrementer do special egg handling AFTER the RTC scene is finished
@@ -172,9 +174,48 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
     }
     else if ((special_case == 2) && (baby_nap_hour != 255)){ // Oh baby, you came and you gave me an edge-case...
         if ((current_hour >= baby_nap_hour)){
-            StateMachine.ACT = 0;
+            StateMachine.ACT = 0; // Babyeh is now asleep
+            needs_evaluation = 0;
         }
     }
+}
+
+// TODO: magic docu-string
+void GAME_EVO_incrementForEvolution(void){
+    unsigned int current_hunger = StateMachine.HUNGER_FUN >> 4 & 0xF;
+    unsigned int current_fun = StateMachine.HUNGER_FUN & 0xF;
+    unsigned int needs_met = 0;
+    int next_stage_length;
+    Stage active_stage = EVO_metaStruct[StateMachine.STAGE_ID];
+    
+    if (current_hunger >= 7){ // FUTURE: This is overly simplistic; incorperate discipline once feature exists.
+        if (current_fun >=7 ){
+            needs_met = 1;
+        }
+    }
+
+    if (needs_met){
+        if ( 0 == 1){ // FUTURE: Requires the secret to work!
+            next_stage_length = EVO_metaStruct[active_stage.secretEvo].stageLength;
+            StateMachine.STAGE_ID = active_stage.secretEvo;
+        }
+        else{
+            next_stage_length = EVO_metaStruct[active_stage.highEvo].stageLength;
+            StateMachine.STAGE_ID = active_stage.highEvo;
+        }
+    }
+    else{
+        next_stage_length = EVO_metaStruct[active_stage.lowEvo].stageLength;
+        StateMachine.STAGE_ID = active_stage.lowEvo;
+    }
+
+    FORCE_REFRESH = true;
+    NEXT_STAGE_TRANSITION_AGE = next_stage_length + StateMachine.AGE; // FUTURE: What about the immortal edge case?
+    if (StateMachine.ACT == GM_ACTIVITY_ISEGG){ // Egg is an edge case
+        NEXT_STAGE_TRANSITION_HOURS = NEXT_STAGE_TRANSITION_HOURS + 3; // TODO purge this and all other magic numbers; Set later evolution time
+        StateMachine.ACT = GM_ACTIVITY_IDLE; // Set the normal idle state.
+    }
+    //TODO: SCENE_ACT set to evolution scene address here!
 }
 
 // this function is the ultimate control function for all timed events, and needs to be updated
@@ -196,22 +237,18 @@ void GAME_evaluateTimedEvents(void){
         }
         egg_delay_set = true;
         baby_nap_hour = current_hours + 1; // The baby always naps for 1 hour, starting an hour after the RTC is first set.
-        baby_wake_hour = current_hours + 2;
+        baby_wake_hour = current_hours + 2;  //TODO: does this mean the baby will be awake overnight? Should we evolve earlier?
         if (baby_nap_hour > 23){
             baby_nap_hour = baby_nap_hour - 23;
         }
         if (baby_wake_hour > 23){
             baby_wake_hour = baby_wake_hour - 23;
         }
-    }
+    } // TODO: Refactor all these conditionals to be clearer. Like you're good at this or something.
     if ((NEXT_STAGE_TRANSITION_AGE <= StateMachine.AGE) && (NEXT_STAGE_TRANSITION_HOURS <= current_hours) && (NEXT_STAGE_TRANSITION_MINUTES <= current_minutes) && egg_delay_set){
-       // GAME_EVO_incrementForEvolution(); Normally, we would call this evolution function, but I don't want to write all that before I test it. Instead:
-        if (StateMachine.STAGE_ID == 0){ // N.B.: This is a temporary bugfix but a similar check is needed when doing the full version of this function.
-            StateMachine.STAGE_ID = 0x01; // We always hatch to the first baby.
+        if ((StateMachine.ACT == GM_ACTIVITY_IDLE) || (StateMachine.ACT == GM_ACTIVITY_ISEGG)){
+            GAME_EVO_incrementForEvolution();
         }
-        FORCE_REFRESH = true; // Needed to redraw the menu on the first frame. Should be included in that evolution function.
-        NEXT_STAGE_TRANSITION_AGE = 0xFF; // needed to avoid looping in this, which causes animation problems. Normally set in the evolution function.
-        //FUTURE: should change activity levels once those are implemented.
     }
     if (egg_delay_set && (current_seconds == 0) && needs_evaluation){ // This call needs to superceed all other needs caluclations.
         GAME_NEEDS_evaluateSleeping(current_hours);                  // None of these other needs calculations can occur while sleeping.
@@ -273,7 +310,6 @@ void GAME_NEEDS_evaluateSleepHungerFun(int rateHF, int phase){
     deplete_fun = 0 - (elapsed_time * rate_fun);
     //Using this function applies the necessary safety bounds to prevent overflows.
     GAME_applyHungerFun(deplete_hunger, deplete_fun);
-    //ALERT_wakeUpEvent();
 }
 
 /* When called, interrogates the RTC and performs a calculation based on life
@@ -318,6 +354,7 @@ void GAME_evaluateWakeUpEvent(void){
         if (wake_hour <= current_hour){
             GAME_NEEDS_evaluateSleepHungerFun(EVO_metaStruct[StateMachine.STAGE_ID].rateHF, EVO_metaStruct[StateMachine.STAGE_ID].phase);
             StateMachine.ACT = GM_ACTIVITY_IDLE;
+            StateMachine.AGE += 1;  // A new day has dawned, we age up by one.
             needs_evaluation = 0;
             MG_lights_on = 1;
             ALERTS_wake_up_alert();

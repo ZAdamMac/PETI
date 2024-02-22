@@ -12,7 +12,7 @@
 #define EVO_size_med 4
 #define EVO_size_large 9
 
-#define EVO_phase_egg 0x00 //TODO: Refactor in these nice symbols.
+#define EVO_phase_egg 0x00 
 #define EVO_phase_baby 0x01
 #define EVO_phase_teen 0x02
 #define EVO_phase_adult 0x03

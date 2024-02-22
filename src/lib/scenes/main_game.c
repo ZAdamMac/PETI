@@ -171,7 +171,7 @@ void MG_updatePlayfieldIdle(void){
     if (FORCE_REFRESH){ // In this case we're freshly arriving so let's start at 0
         SCENE_FRAME = 0x00;
     }
-    Metanimation active_meta = SCENES_metanimations[active_species.phase]; // Get the metanimation needed based on the `phase` value of the current active species.
+    Metanimation active_meta = SCENES_metanimations[active_species.metanimation_id]; // Get the metanimation needed based on the `phase` value of the current active species.
     const char *species_anim = active_species.animation[SCENE_FRAME % 2]; // Get the right frame of animation data from the active species.
     char_tracker = 0;
     for (active_line = 0;active_line<6; active_line++){
