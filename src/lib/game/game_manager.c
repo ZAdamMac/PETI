@@ -184,6 +184,7 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
     }
     
     if (special_case == 0){ // We are neither the egg nor the baby; general logic now applies.
+        //If it's between bed-o-clock and the wake-up time, we should be sleeping!
         if (GAME_evaluateBoundedTime(curfew_hour, wake_hour, current_hour)){
             StateMachine.ACT = GM_ACTIVITY_SLEEPING;
             needs_evaluation = 0;
@@ -364,12 +365,17 @@ void GAME_evaluateWakeUpEvent(void){
             break; 
     }
     if (!special_case){ // We are neither the egg nor the baby; general logic now applies.
+        // If the current time is in the range beginning with wake up and ending with curfew, we should be awake.
         if (GAME_evaluateBoundedTime(wake_hour, curfew_hour, current_hour)){
             GAME_NEEDS_evaluateSleepHungerFun(EVO_metaStruct[StateMachine.STAGE_ID].rateHF, EVO_metaStruct[StateMachine.STAGE_ID].phase);
             StateMachine.ACT = GM_ACTIVITY_IDLE;
             StateMachine.AGE += 1;  // A new day has dawned, we age up by one.
             needs_evaluation = 0;
             MG_lights_on = 1;
+            // On wake, if the transition would have happened while sleeping, push it back by one hour.
+            if (GAME_evaluateBoundedTime(curfew_hour, wake_hour, NEXT_STAGE_TRANSITION_HOURS)){
+                NEXT_STAGE_TRANSITION_AGE = wake_hour + 1;
+            }
             ALERTS_wake_up_alert();
         }
     }
