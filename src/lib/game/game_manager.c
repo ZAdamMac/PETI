@@ -91,6 +91,27 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
 
 }
 
+
+//TODO: magic docu-string
+int GAME_evaluateBoundedTime(unsigned int start_edge, unsigned int end_edge, unsigned int current_time){
+    if (start_edge > end_edge){  //This condition means that the time bound straddles midnight
+        if (current_time <= end_edge || current_time >= start_edge){ // If either of these conditions are true, we're in the bound
+            return 1;
+        }
+        else{
+            return 0;
+        }
+    }
+    else{
+        if ((current_time <= end_edge) && (current_time >= start_edge)){
+            return 1;
+        }
+        else{
+            return 0; // If we're less than the end time or greater than the start time we're inside the band.
+        }
+    }
+}
+
 //provided with signed integers for the change in hunger and change in fun
 //desired, this function extracts those values from StateMachine.HUNGER_FUN,
 //modifies them within their boundary sizes, then puts them back together on
@@ -163,18 +184,14 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
     }
     
     if (special_case == 0){ // We are neither the egg nor the baby; general logic now applies.
-        if (wake_hour < curfew_hour){    // We have crossed midnight.
-            wake_hour += 24; // So add 24 hours.
-            current_hour += 24; // added here too
-        }
-        if ((wake_hour > current_hour) && (current_hour >= curfew_hour)){
-            StateMachine.ACT = 0;
+        if (GAME_evaluateBoundedTime(curfew_hour, wake_hour, current_hour)){
+            StateMachine.ACT = GM_ACTIVITY_SLEEPING;
             needs_evaluation = 0;
         }
     }
     else if ((special_case == 2) && (baby_nap_hour != 255)){ // Oh baby, you came and you gave me an edge-case...
         if ((current_hour >= baby_nap_hour)){
-            StateMachine.ACT = 0; // Babyeh is now asleep
+            StateMachine.ACT = GM_ACTIVITY_SLEEPING; // Babyeh is now asleep
             needs_evaluation = 0;
         }
     }
@@ -347,11 +364,7 @@ void GAME_evaluateWakeUpEvent(void){
             break; 
     }
     if (!special_case){ // We are neither the egg nor the baby; general logic now applies.
-        if (wake_hour < curfew_hour){    // We have crossed midnight.
-            wake_hour += 24; // So add 24 hours.
-            current_hour += 24; // added here too
-        }
-        if (wake_hour <= current_hour){
+        if (GAME_evaluateBoundedTime(wake_hour, curfew_hour, current_hour)){
             GAME_NEEDS_evaluateSleepHungerFun(EVO_metaStruct[StateMachine.STAGE_ID].rateHF, EVO_metaStruct[StateMachine.STAGE_ID].phase);
             StateMachine.ACT = GM_ACTIVITY_IDLE;
             StateMachine.AGE += 1;  // A new day has dawned, we age up by one.
