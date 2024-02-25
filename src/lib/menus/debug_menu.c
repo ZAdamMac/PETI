@@ -53,11 +53,19 @@ void MENU_DEBUG_sleepDisplay(void){
     DISPLAY_sleepLCD();
 }
 
-#pragma PERSISTENT(MENU_DEBUG_count_options);
-const int MENU_DEBUG_count_options = 9;
+void MENU_debug_incrementAge(void){
+    StateMachine.AGE += 1;
+}
+
+void MENU_debug_forceEvolution(void){
+    GAME_EVO_incrementForEvolution();
+}
 
 #pragma PERSISTENT(MENU_DEBUG_count_options);
-voidFuncPointer MENU_DEBUG_functions[9] = {
+const int MENU_DEBUG_count_options = 11;
+
+#pragma PERSISTENT(MENU_DEBUG_count_options);
+voidFuncPointer MENU_DEBUG_functions[11] = {
                                       MENU_DEBUG_goto_Proofer,
                                       MENU_DEBUG_goto_SoundTest,
                                       MENU_DEBUG_fill_hunger,
@@ -66,5 +74,7 @@ voidFuncPointer MENU_DEBUG_functions[9] = {
                                       MENU_DEBUG_deplete_fun,
                                       MENU_DEBUG_goto_TimeMachine,
                                       MENU_DEBUG_goto_RNGDebug,
-                                      MENU_DEBUG_sleepDisplay
+                                      MENU_DEBUG_sleepDisplay,
+                                      MENU_debug_incrementAge,
+                                      MENU_debug_forceEvolution
 };
