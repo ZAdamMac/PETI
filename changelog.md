@@ -129,3 +129,4 @@
 - Refactors the `Stage` structure so that pet stages can target metanimations 
 - Adds support for the font files being defined in multiple areas
 - Adds font16x16_1.h, defining a second set of 255 useful pet glyphs.
+- Adds options to the debug menu used for testing evolution quickly.
