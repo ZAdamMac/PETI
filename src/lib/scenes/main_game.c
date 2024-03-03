@@ -67,27 +67,27 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
 }
 
 //Computes a printTextLarge display directives string based on the metanimation string provided
-char* MG_computeDirective(const char* meta_placements){
+char* MG_computeDirective(const char* meta_placements, char FONT_ADDR){
     unsigned int dirindex = 0;
     while (dirindex < PIXELS_X/16){
-        switch (meta_placements[dirindex]){
+        switch (meta_placements[dirindex]){ //TODO: Fix this, the bug is in the display logic itself.
             case '-' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
                 break;
             case '_' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NEGATIVE;
                 break;
             case '0' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
                 break;
             case '1' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_REVERSED;
                 break;
             case '2' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NEGATIVE;
                 break;
             case '3' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_REVERSED_NEGATIVE;
                 break;
         }
         dirindex++;
@@ -131,10 +131,10 @@ char* MG_computeLineSleep(const char * sleep_animation){
 
 /* Bulk apply the directives to a sleeping pet.
  */
-char* MG_computeDirectiveSleep(void){
+char* MG_computeDirectiveSleep(char FONT_ADDR){
     unsigned int dirindex = 0;
     while (dirindex < PIXELS_X/16){
-        WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
         dirindex++;
     }
     return &WORK_STRING;
@@ -167,7 +167,8 @@ char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
 void MG_updatePlayfieldIdle(void){
     unsigned int active_line;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
-    icon_size = active_species.size; // This will either be 1 or 4 in the current spec.
+    icon_size = active_species.size; 
+    int font_used = active_species.font;
     if (FORCE_REFRESH){ // In this case we're freshly arriving so let's start at 0
         SCENE_FRAME = 0x00;
     }
@@ -176,7 +177,7 @@ void MG_updatePlayfieldIdle(void){
     char_tracker = 0;
     for (active_line = 0;active_line<6; active_line++){
         strcpy(DISPLAY_FRAME.frame[active_line+1].line, MG_computeMeta(species_anim, active_meta.d[SCENE_FRAME][active_line])); // Compute the animated text for this row.
-        strcpy(DISPLAY_FRAME.frame[active_line+1].directives, MG_computeDirective(active_meta.d[SCENE_FRAME][active_line])); // Comput the directive information.
+        strcpy(DISPLAY_FRAME.frame[active_line+1].directives, MG_computeDirective(active_meta.d[SCENE_FRAME][active_line], font_used)); // Comput the directive information.
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
@@ -191,6 +192,7 @@ void MG_updatePlayfieldSleeping(void){
     unsigned int row;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     const char * sleep_animation = active_species.animationSleeping;
+    char font_used = active_species.font;
     icon_size = active_species.size;
     // Blank the top three lines since none of the sleep animations use them.
     strcpy(DISPLAY_FRAME.frame[1].line, " ");
@@ -216,10 +218,11 @@ void MG_updatePlayfieldSleeping(void){
     }
 
     for (row=1;row<8;row++){
-        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep());
+        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep(font_used));
     }
 
     strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
+    strcpy(DISPLAY_FRAME.frame[1].directives, MG_computeDirectiveSleep(FONT_ADDR_0));
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.

@@ -212,52 +212,52 @@ void printTextMedium(const char* text, unsigned char line, const char* directive
             fontaddr = directives[indexText] >> 4 & 0xF;
             operation = directives[indexText] & 0xF;
             switch(fontaddr){
-                case FONT_ADDR_0 :
+                case CASE_FONT_ADDR_0 :
                     addressed_font = &font8x12;
                     break;
-                case FONT_ADDR_1 :
+                case CASE_FONT_ADDR_1 :
                     addressed_font = &font8x12_1;
                     break;
-                case FONT_ADDR_2 :
+                case CASE_FONT_ADDR_2 :
                     addressed_font = &font8x12_2;
                     break;
-                case FONT_ADDR_3 :
+                case CASE_FONT_ADDR_3 :
                     addressed_font = &font8x12_3;
                     break;
-                case FONT_ADDR_4 :
+                case CASE_FONT_ADDR_4 :
                     addressed_font = &font8x12_4;
                     break;
-                case FONT_ADDR_5 :
+                case CASE_FONT_ADDR_5 :
                     addressed_font = &font8x12_5;
                     break;
-                case FONT_ADDR_6 :
+                case CASE_FONT_ADDR_6 :
                     addressed_font = &font8x12_6;
                     break;
-                case FONT_ADDR_7 :
+                case CASE_FONT_ADDR_7 :
                     addressed_font = &font8x12_7;
                     break;
-                case FONT_ADDR_8 :
+                case CASE_FONT_ADDR_8 :
                     addressed_font = &font8x12_8;
                     break;
-                case FONT_ADDR_9 :
+                case CASE_FONT_ADDR_9 :
                     addressed_font = &font8x12_9;
                     break;
-                case FONT_ADDR_A :
+                case CASE_FONT_ADDR_A :
                     addressed_font = &font8x12_A;
                     break;
-                case FONT_ADDR_B :
+                case CASE_FONT_ADDR_B :
                     addressed_font = &font8x12_B;
                     break;
-                case FONT_ADDR_C :
+                case CASE_FONT_ADDR_C :
                     addressed_font = &font8x12_C;
                     break;
-                case FONT_ADDR_D :
+                case CASE_FONT_ADDR_D :
                     addressed_font = &font8x12_D;
                     break;
-                case FONT_ADDR_E :
+                case CASE_FONT_ADDR_E :
                     addressed_font = &font8x12_E;
                     break;
-                case FONT_ADDR_F :
+                case CASE_FONT_ADDR_F :
                     addressed_font = &font8x12_F;
                     break;
                 default :
@@ -318,56 +318,56 @@ void printTextLarge(const char* text, unsigned char line, const char* directives
             fontaddr = directives[indexText] >> 4 & 0xF;
             operation = directives[indexText] & 0xF;
             switch(fontaddr){
-                case FONT_ADDR_0 :
+                case CASE_FONT_ADDR_0 :
                     addressed_font = &font16x16;
                     break;
-                case FONT_ADDR_1 :
+                case CASE_FONT_ADDR_1 :
                     addressed_font = &font16x16_1;
                     break;
-                case FONT_ADDR_2 :
+                case CASE_FONT_ADDR_2 :
                     addressed_font = &font16x16_2;
                     break;
-                case FONT_ADDR_3 :
+                case CASE_FONT_ADDR_3 :
                     addressed_font = &font16x16_3;
                     break;
-                case FONT_ADDR_4 :
+                case CASE_FONT_ADDR_4 :
                     addressed_font = &font16x16_4;
                     break;
-                case FONT_ADDR_5 :
+                case CASE_FONT_ADDR_5 :
                     addressed_font = &font16x16_5;
                     break;
-                case FONT_ADDR_6 :
+                case CASE_FONT_ADDR_6 :
                     addressed_font = &font16x16_6;
                     break;
-                case FONT_ADDR_7 :
+                case CASE_FONT_ADDR_7 :
                     addressed_font = &font16x16_7;
                     break;
-                case FONT_ADDR_8 :
+                case CASE_FONT_ADDR_8 :
                     addressed_font = &font16x16_8;
                     break;
-                case FONT_ADDR_9 :
+                case CASE_FONT_ADDR_9 :
                     addressed_font = &font16x16_9;
                     break;
-                case FONT_ADDR_A :
+                case CASE_FONT_ADDR_A :
                     addressed_font = &font16x16_A;
                     break;
-                case FONT_ADDR_B :
+                case CASE_FONT_ADDR_B :
                     addressed_font = &font16x16_B;
                     break;
-                case FONT_ADDR_C :
+                case CASE_FONT_ADDR_C :
                     addressed_font = &font16x16_C;
                     break;
-                case FONT_ADDR_D :
+                case CASE_FONT_ADDR_D :
                     addressed_font = &font16x16_D;
                     break;
-                case FONT_ADDR_E :
+                case CASE_FONT_ADDR_E :
                     addressed_font = &font16x16_E;
                     break;
-                case FONT_ADDR_F :
+                case CASE_FONT_ADDR_F :
                     addressed_font = &font16x16_F;
                     break;
                 default :
-                    addressed_font = &font16x16;
+                    addressed_font = &font16x16; //TODO <- this is most likely the fuckery
                     break;
             }
             bitmap_right = addressed_font[character][indexLine+indexOfOffset];  // Retrieves the byte defining the left side of the character.

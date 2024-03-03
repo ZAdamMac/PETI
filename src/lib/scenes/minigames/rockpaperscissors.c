@@ -149,7 +149,7 @@ void MINIGAME_RPS_attractFrame(void){
                 
         }
         // Let's never do this again until the next time scene-frame is reset.
-        SCENE_FRAME = 1;
+        //SCENE_FRAME = 1;
     }
 
     if ((SCENE_FRAME % 2) == 0) {
@@ -261,45 +261,48 @@ void MINIGAME_RPS_drawChoice(float random){
 //MINIGAME_RPS_score accordingly. The score is positively incremented on a win
 //for the player.
 int MINIGAME_RPS_evaluateForScoring(void){
+    int score_change;
     SCENE_PAGE_COUNT++;
     if (MINIGAME_RPS_choice == MINIGAME_RPS_petChoice){ // This is the general case of a draw.
         MINIGAME_RPS_score += 0;
-        return 0;
+        score_change = 0;
     }
     else { // Handling actual disparities is a little more branchy
         switch(MINIGAME_RPS_choice){
             case (MINIGAME_RPS_choiceRock):
                 if (MINIGAME_RPS_petChoice == MINIGAME_RPS_choiceScissors) {
                     MINIGAME_RPS_score += 1; // You won the hand
-                    return 1;
+                    score_change = 1;
                 }
                 else {
                     MINIGAME_RPS_score += -1; // You have necessarily lost the hand
-                    return -1;
+                    score_change = -1;
                 }
                 break;
             case (MINIGAME_RPS_choicePaper):
                 if (MINIGAME_RPS_petChoice == MINIGAME_RPS_choiceRock) {
                     MINIGAME_RPS_score += 1; // You won the hand
-                    return 1;
+                    score_change = 1;
                 }
                 else {
                     MINIGAME_RPS_score += -1; // You have necessarily lost the hand
-                    return -1;
+                    score_change = -1;
                 }
                 break;
             case (MINIGAME_RPS_choiceScissors):
                 if (MINIGAME_RPS_petChoice == MINIGAME_RPS_choicePaper) {
                     MINIGAME_RPS_score += 1; // You won the hand
-                    return 1;
+                    score_change = 1;
                 }
                 else {
                     MINIGAME_RPS_score += -1; // You have necessarily lost the hand
-                    return -1;
+                    score_change = -1;
                 }
                 break;
         }
     }
+
+    return score_change;
 }
 
 //Minimalistic evaluation function that displays the two choices made by the
@@ -399,7 +402,7 @@ void MINIGAME_RPS_finalScoreFrame(void){
             }
         if (MINIGAME_RPS_score >= 0) { //Players win on a draw. Replace with straight greater-than to make them lose.
             GAME_applyHungerFun(0, MINIGAME_RPS_prize);
-            strcpy(DISPLAY_FRAME.frame[0].line, "You Win!      ");
+            strcpy(DISPLAY_FRAME.frame[0].line, "You Win!      "); // TODO this should be locale strings...
         }
         else {
             strcpy(DISPLAY_FRAME.frame[0].line, "You lost...   ");

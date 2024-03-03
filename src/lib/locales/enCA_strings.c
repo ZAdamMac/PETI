@@ -83,7 +83,12 @@ extern const char* LARRAY_EVO_STAGE_NAMES[] = {
                     "   Cthulhorse   ",
                     "  Ham-Monster   ",
                     "    Nautilus    ",
-                    "  Axe-a-lot'l   "
+                    "  Axe-a-lot'l   ",
+                    "    Geo-Baby    ",
+                    "      Spike     ",
+                    "      Cubie     ",
+                    "    Cluster     ",
+                    "   Shine-Brite  "
 };
 
 extern const char* LARRAY_FOOD_TOP_MENU[] = {

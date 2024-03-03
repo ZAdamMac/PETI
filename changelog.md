@@ -130,3 +130,4 @@
 - Adds support for the font files being defined in multiple areas
 - Adds font16x16_1.h, defining a second set of 255 useful pet glyphs.
 - Adds options to the debug menu used for testing evolution quickly.
+- Corrects a bug in `display.c` that was causing all font address evaluation to fail, meaning only each size's "font zero" could be used.
