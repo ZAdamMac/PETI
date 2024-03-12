@@ -233,6 +233,12 @@ void GAME_EVO_incrementForEvolution(void){
         NEXT_STAGE_TRANSITION_HOURS = NEXT_STAGE_TRANSITION_HOURS + 3; // TODO purge this and all other magic numbers; Set later evolution time
         StateMachine.ACT = GM_ACTIVITY_IDLE; // Set the normal idle state.
     }
+
+    if (StateMachine.STAGE_ID == 0xFF){ // For a reason, we are dead.
+        //FUTURE: This is obviously not how death is supposed to work. We're doing this this way for now so that
+        // we don't need to add death to the 0.4.0 update, which is already later.
+        GAME_initStateStruct(); // Simply reset the game for the player.
+    }
     //TODO: SCENE_ACT set to evolution scene address here!
 }
 

@@ -106,6 +106,7 @@
 - Adds functionality to handle conditional evolution of the pet, in a simplistic early version:
   - If the pet's needs are relatively well met at the time evolution is checked for, it will evolve into the "high" evolution, else the low evolution.
   - The egg and the baby's first evolution evolve through this mechanism; the baby is hardcoded to evolve a total of three hours after hatching.
+  - If the pet evolves to the special reserved "Death Identifier" the game state is reset. This is temporary.
 - Adds functionality that allows the pet to fall asleep between wall-clock times defined by their age group through `game_manager.h`
   - Sleeping pets do not have the game state recompute while sleeping and accordingly do not experience stat depletion.
   - Hunger and Fun degradation now occur retroactively when the pet wakes.

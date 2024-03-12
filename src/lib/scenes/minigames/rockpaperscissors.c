@@ -119,8 +119,8 @@ void MINIGAME_RPS_attractFrame(void){
             for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
                 DISPLAY_FRAME.frame[row].line[col] = ' ';
                 DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-        }
-    }   //Draw in the permanent static assets, starting with the title bar.
+            }
+        }   //Draw in the permanent static assets, starting with the title bar.
         strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MINIGAME_PICK); // Set line zero's full text to the attract prompt.
         for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
             DISPLAY_FRAME.frame[1].line[col] = MINIGAME_RPS_sb_solidbottom;
@@ -140,22 +140,15 @@ void MINIGAME_RPS_attractFrame(void){
         DISPLAY_FRAME.frame[6].directives[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
         DISPLAY_FRAME.frame[6].line[7] = MINIGAME_RPS_entry_arrow;
 
-        //Draw in the character figure. We can do this because the character model is only ever in FaceRight, and
-        //FaceRight has only a single frame of animation data.
-        switch (active_species.size) {
-            case EVO_size_small:
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
-                break;
-                
-        }
         // Let's never do this again until the next time scene-frame is reset.
-        //SCENE_FRAME = 1;
+        SCENE_FRAME = 1;
     }
 
     if ((SCENE_FRAME % 2) == 0) {
         // Set the character to face RIGHT.
         switch (active_species.size) {
             case EVO_size_small:
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
                 DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
                 break;
             case EVO_size_med:
@@ -196,6 +189,7 @@ void MINIGAME_RPS_attractFrame(void){
         //set the character to face LEFT
         switch (active_species.size) {
             case EVO_size_small:
+                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
                 DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
                 break;
             case EVO_size_med:
@@ -232,13 +226,10 @@ void MINIGAME_RPS_attractFrame(void){
         SCENE_FRAME++;
         AUDIO_pulse(AUDIO_SHORT_PULSE);
     }
-
-    
     
     if (SCENE_FRAME >= MINIGAME_RPS_idleLimit) {
         SCENE_ACT = SCENEADDR_main_game;
     }
-
 
 }
 
