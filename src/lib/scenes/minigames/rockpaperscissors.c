@@ -110,19 +110,19 @@ void MINIGAME_RPS_handleInputs(void){
 //Called without argument, this function draws one frame of the attract mode
 //animation. On frame zero it also draws the LSTRING_MINIGAME_PICK and decorates
 //it alongside the legend of button choices.
-void MINIGAME_RPS_attractFrame(void){
+void MINIGAME_RPS_attractFrame(void){ // TODO do some loops or something.
     int row, col;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     if ( SCENE_FRAME == 0 ) {   // This is the "first" frame so we want to treat it as such.
         
-        for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
-            for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+        for (row = 0; row<PIXELS_Y/(FONT_SIZE_FLOOR_Y); row++){
+            for (col=0; col<PIXELS_X/(2 * FONT_SIZE_FLOOR_X); col++){
                 DISPLAY_FRAME.frame[row].line[col] = ' ';
                 DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
             }
         }   //Draw in the permanent static assets, starting with the title bar.
         strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MINIGAME_PICK); // Set line zero's full text to the attract prompt.
-        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){ 
             DISPLAY_FRAME.frame[1].line[col] = MINIGAME_RPS_sb_solidbottom;
         }
         DISPLAY_FRAME.frame[1].line[3] = MINIGAME_RPS_sb_pointbottom; // It is not possible to exactly center this, so
@@ -139,9 +139,6 @@ void MINIGAME_RPS_attractFrame(void){
         DISPLAY_FRAME.frame[6].line[0] = MINIGAME_RPS_entry_arrow;
         DISPLAY_FRAME.frame[6].directives[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
         DISPLAY_FRAME.frame[6].line[7] = MINIGAME_RPS_entry_arrow;
-
-        // Let's never do this again until the next time scene-frame is reset.
-        SCENE_FRAME = 1;
     }
 
     if ((SCENE_FRAME % 2) == 0) {
@@ -149,17 +146,17 @@ void MINIGAME_RPS_attractFrame(void){
         switch (active_species.size) {
             case EVO_size_small:
                 DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_NORMAL;
                 break;
             case EVO_size_med:
                 DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[0];
                 DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
                 DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[2];
                 DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[3];
-                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_NORMAL;
                 break;
             case EVO_size_large:
                 DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[0];
@@ -171,18 +168,17 @@ void MINIGAME_RPS_attractFrame(void){
                 DISPLAY_FRAME.frame[5].line[3] = active_species.faceRight[6];
                 DISPLAY_FRAME.frame[5].line[4] = active_species.faceRight[7];
                 DISPLAY_FRAME.frame[5].line[5] = active_species.faceRight[8];
-                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[3].directives[5] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[5] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[5].directives[3] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[5].directives[4] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[5].directives[5] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[3].directives[5] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[4].directives[5] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[5].directives[3] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[5].directives[4] = active_species.font + DIRECTIVE_NORMAL;
+                DISPLAY_FRAME.frame[5].directives[5] = active_species.font + DIRECTIVE_NORMAL;
                 break;      
         }
-        SCENE_FRAME++;
         AUDIO_pulse(AUDIO_LONG_PULSE);
     }
     else {
@@ -190,17 +186,17 @@ void MINIGAME_RPS_attractFrame(void){
         switch (active_species.size) {
             case EVO_size_small:
                 DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_REVERSED;
                 break;
             case EVO_size_med:
                 DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[0];
                 DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[1];
                 DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[2];
                 DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[3];
-                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_REVERSED;
                 break;
             case EVO_size_large:
                 DISPLAY_FRAME.frame[3].line[5] = active_species.faceRight[0];
@@ -212,18 +208,17 @@ void MINIGAME_RPS_attractFrame(void){
                 DISPLAY_FRAME.frame[5].line[5] = active_species.faceRight[6];
                 DISPLAY_FRAME.frame[5].line[4] = active_species.faceRight[7];
                 DISPLAY_FRAME.frame[5].line[3] = active_species.faceRight[8];
-                DISPLAY_FRAME.frame[3].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[3].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[3].directives[5] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[5] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[5].directives[3] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[5].directives[4] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[5].directives[5] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[3].directives[5] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[4].directives[5] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[5].directives[3] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[5].directives[4] = active_species.font + DIRECTIVE_REVERSED;
+                DISPLAY_FRAME.frame[5].directives[5] = active_species.font + DIRECTIVE_REVERSED;
                 break;
         }
-        SCENE_FRAME++;
         AUDIO_pulse(AUDIO_SHORT_PULSE);
     }
     
@@ -231,6 +226,7 @@ void MINIGAME_RPS_attractFrame(void){
         SCENE_ACT = SCENEADDR_main_game;
     }
 
+    SCENE_FRAME++; // TODO Removenote: This has been validated as part of the RPS bug work.
 }
 
 //Fed a random float, translates to an MINIGAME_RPS_choice Binding.
@@ -342,8 +338,8 @@ void MINIGAME_RPS_evaluateFrame_dance(int winloss){
 void MINIGAME_RPS_evaluateFrame(void){
     int row, col, victory;
     if (SCENE_FRAME % MINIGAME_RPS_EVALSCREENLENGTH == 0) { // In such an event, we need to "blank" the frame directives and lines
-            for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
-                for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            for (row = 1; row<PIXELS_Y/(2 * FONT_SIZE_FLOOR_Y); row++){
+                for (col=0; col<PIXELS_X/(2 * FONT_SIZE_FLOOR_X); col++){
                     DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
                     DISPLAY_FRAME.frame[row].line[col]=' ';
                 }
@@ -365,7 +361,7 @@ void MINIGAME_RPS_evaluateFrame(void){
     
 
     SCENE_FRAME++;
-    if (SCENE_FRAME >= (2 * MINIGAME_RPS_EVALSCREENLENGTH)){
+    if (SCENE_FRAME >= (MINIGAME_RPS_EVALSCREENLENGTH)){
         SCENE_FRAME = 0;
         if (SCENE_PAGE_COUNT >= MINIGAME_RPS_best_of){
             SCENE_CURRENT_PAGE = MINIGAME_RPS_final_page;
@@ -385,8 +381,8 @@ void MINIGAME_RPS_finalScoreFrame(void){
     //FUTURE a prettier version of this, possibly making use of MINIGAME_RPS_evaluateFrame_dance();
     int row, col;
     if (SCENE_FRAME == 0) { // In such an event, we need to "blank" the frame directives and lines
-            for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
-                for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
+            for (row = 1; row<PIXELS_Y/(2 * FONT_SIZE_FLOOR_Y); row++){
+                for (col=0; col<PIXELS_X/(2 *FONT_SIZE_FLOOR_X); col++){
                     DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
                     DISPLAY_FRAME.frame[row].line[col]=' ';
                 }

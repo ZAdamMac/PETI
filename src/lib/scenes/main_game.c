@@ -70,7 +70,7 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
 char* MG_computeDirective(const char* meta_placements, char FONT_ADDR){
     unsigned int dirindex = 0;
     while (dirindex < PIXELS_X/16){
-        switch (meta_placements[dirindex]){ //TODO: Fix this, the bug is in the display logic itself.
+        switch (meta_placements[dirindex]){
             case '-' :
                 WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
                 break;

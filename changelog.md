@@ -132,3 +132,6 @@
 - Adds font16x16_1.h, defining a second set of 255 useful pet glyphs.
 - Adds options to the debug menu used for testing evolution quickly.
 - Corrects a bug in `display.c` that was causing all font address evaluation to fail, meaning only each size's "font zero" could be used.
+  - Updated all scenes to use the new addressible font logic instead of hardcoding FONT_ADDR_0 for pet sprites.
+- Corrects the bug in issue #38 that caused games of `rockpapergame.c` to be unplayable.
+  - Added a technical debt item to address the deeper root cause in display.c's `printText_Large` function.
