@@ -4,7 +4,8 @@
 #include "evolving_animation.h"
 #include "scenes_manager.h"
 
-//TODO Docu-string
+//Render one frame of the evolution animation.
+//expects an index from EVO_metaStruct for drawn_specieis, and a valid DISPLAY directive symbol for directive.
 void EVOLVE_render_frame(unsigned int drawn_species, unsigned int directive){
     //This is clumsy but it'll work for now.
     Stage active_species;
@@ -48,7 +49,8 @@ void EVOLVE_render_frame(unsigned int drawn_species, unsigned int directive){
     }
 }
 
-//TODO Docu-string
+//Special wrapper on the evolution animation to handle detecting the threshold between the old and new
+//stage IDs, as well as control which step of the directive is used.
 void EVOLVE_add_flourish_directives(void){
     //This is ALSO clumsy, but workable for testing purposes
     unsigned int use_id, use_directive, row, col;
@@ -87,7 +89,7 @@ void EVOLVE_add_flourish_directives(void){
         EVOLVE_render_frame(use_id, use_directive);
 }
 
-//TODO docu-string
+//Core wrappwer for the entire scene. This is the only part that should be called from outside.
 void SCENE_Evolving(void){
     //FUTURE: Integrate audio in here somewhere, when the audio system is firmer
     DISPLAY_blankFrame();
