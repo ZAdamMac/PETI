@@ -42,6 +42,8 @@ extern const char* LSTRING_MINIGAME_PICK = " Make A Choice! ";
 extern const char* LSTRING_YES = "    YES ";
 extern const char* LSTRING_NO = "    NO ";
 extern const char* LSTRING_WARNING = "    WARNING    ";
+extern const char* LSTRING_MG_WIN = "You Won!      ";
+extern const char* LSTRING_MG_LOSE = "You lost...   ";
 
 
 extern const char* LARRAY_DEBUG_OPTS[] = {

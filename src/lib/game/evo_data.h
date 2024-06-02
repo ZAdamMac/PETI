@@ -24,7 +24,7 @@ extern unsigned int EVO_count_stages;
 typedef struct Stage{
     int stage_id; // This is just an ID, it doesn't get used but it's there to make the file more readable.
     int phase; // Integer controls which bedtime and gameplay metrics apply. 0 for egg, 1 for baby, 2 for teen, 3 for adult, 4 for senior, 5 for final.
-    int metanimation_id; // TODO: modify main_game to reference this instead of phase. Array position in SCENES_metanimations[] containing the necessary.
+    int metanimation_id; //Array position in SCENES_metanimations[] containing the necessary.
     int size; // 1 for a 1x1 character, 4 for a 2x2 character, and 9 for a 3x3 If adding a new size the size of animation also needs to be adjusted
     int font; //A display FONT_ADDR value corresponding to the font that contains the animation characters for this stage.
     const char animation[2][9];  // array, up to two frames, animating based on cells from the 16x16 font

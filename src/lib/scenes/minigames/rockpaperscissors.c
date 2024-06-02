@@ -110,7 +110,7 @@ void MINIGAME_RPS_handleInputs(void){
 //Called without argument, this function draws one frame of the attract mode
 //animation. On frame zero it also draws the LSTRING_MINIGAME_PICK and decorates
 //it alongside the legend of button choices.
-void MINIGAME_RPS_attractFrame(void){ // TODO do some loops or something.
+void MINIGAME_RPS_attractFrame(void){ // FUTURE: This could be more elegant
     int row, col;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     if ( SCENE_FRAME == 0 ) {   // This is the "first" frame so we want to treat it as such.
@@ -226,7 +226,7 @@ void MINIGAME_RPS_attractFrame(void){ // TODO do some loops or something.
         SCENE_ACT = SCENEADDR_main_game;
     }
 
-    SCENE_FRAME++; // TODO Removenote: This has been validated as part of the RPS bug work.
+    SCENE_FRAME++;
 }
 
 //Fed a random float, translates to an MINIGAME_RPS_choice Binding.
@@ -389,10 +389,10 @@ void MINIGAME_RPS_finalScoreFrame(void){
             }
         if (MINIGAME_RPS_score >= 0) { //Players win on a draw. Replace with straight greater-than to make them lose.
             GAME_applyHungerFun(0, MINIGAME_RPS_prize);
-            strcpy(DISPLAY_FRAME.frame[0].line, "You Win!      "); // TODO this should be locale strings...
+            strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MG_WIN);
         }
         else {
-            strcpy(DISPLAY_FRAME.frame[0].line, "You lost...   ");
+            strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MG_LOSE);
         }
     }
 

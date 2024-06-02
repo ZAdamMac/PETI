@@ -93,7 +93,8 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
 }
 
 
-//TODO: magic docu-string
+// This is a convenience time used for computing if current time is inside the band.
+// Evaluates to true if the current_time is between the start_edge and the end_edge.
 int GAME_evaluateBoundedTime(unsigned int start_edge, unsigned int end_edge, unsigned int current_time){
     if (start_edge > end_edge){  //This condition means that the time bound straddles midnight
         if (current_time <= end_edge || current_time >= start_edge){ // If either of these conditions are true, we're in the bound
@@ -199,7 +200,10 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
     }
 }
 
-// TODO: magic docu-string
+// When called, triggers the full evolition porcess.
+// First evaluates if the needs have been met to decide whether to use the high
+// evolution or the low eveolution, then applies it.
+// Finally, sets the active scene to the evolution sequence.
 void GAME_EVO_incrementForEvolution(void){
     unsigned int current_hunger = StateMachine.HUNGER_FUN >> 4 & 0xF;
     unsigned int current_fun = StateMachine.HUNGER_FUN & 0xF;
@@ -232,7 +236,7 @@ void GAME_EVO_incrementForEvolution(void){
     FORCE_REFRESH = true;
     NEXT_STAGE_TRANSITION_AGE = next_stage_length + StateMachine.AGE; // FUTURE: What about the immortal edge case?
     if (StateMachine.ACT == GM_ACTIVITY_ISEGG){ // Egg is an edge case
-        NEXT_STAGE_TRANSITION_HOURS = NEXT_STAGE_TRANSITION_HOURS + 3; // TODO purge this and all other magic numbers; Set later evolution time
+        NEXT_STAGE_TRANSITION_HOURS = NEXT_STAGE_TRANSITION_HOURS + 3; // FUTURE: Purge Magic Numbers
         StateMachine.ACT = GM_ACTIVITY_IDLE; // Set the normal idle state.
     }
 
@@ -263,14 +267,14 @@ void GAME_evaluateTimedEvents(void){
         }
         egg_delay_set = true;
         baby_nap_hour = current_hours + 1; // The baby always naps for 1 hour, starting an hour after the RTC is first set.
-        baby_wake_hour = current_hours + 2;  //TODO: does this mean the baby will be awake overnight? Should we evolve earlier?
+        baby_wake_hour = current_hours + 2;  
         if (baby_nap_hour > 23){
             baby_nap_hour = baby_nap_hour - 23;
         }
         if (baby_wake_hour > 23){
             baby_wake_hour = baby_wake_hour - 23;
         }
-    } // TODO: Refactor all these conditionals to be clearer. Like you're good at this or something.
+    } 
     if ((NEXT_STAGE_TRANSITION_AGE <= StateMachine.AGE) && (NEXT_STAGE_TRANSITION_HOURS <= current_hours) && (NEXT_STAGE_TRANSITION_MINUTES <= current_minutes) && egg_delay_set){
         if ((StateMachine.ACT == GM_ACTIVITY_IDLE) || (StateMachine.ACT == GM_ACTIVITY_ISEGG)){
             GAME_EVO_incrementForEvolution();
