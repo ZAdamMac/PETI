@@ -53,7 +53,9 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Drain Fun Bar   ",
                                         "Stage Select    ",
                                         "Entropy Check   ",
-                                        "Sleep the LCD   "
+                                        "Sleep the LCD   ",
+                                        "Age +1          ",
+                                        "Force Evolution "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {
@@ -81,7 +83,12 @@ extern const char* LARRAY_EVO_STAGE_NAMES[] = {
                     "   Cthulhorse   ",
                     "  Ham-Monster   ",
                     "    Nautilus    ",
-                    "  Axe-a-lot'l   "
+                    "  Axe-a-lot'l   ",
+                    "    Geo-Baby    ",
+                    "      Spike     ",
+                    "      Cubie     ",
+                    "    Cluster     ",
+                    "   Shine-Brite  "
 };
 
 extern const char* LARRAY_FOOD_TOP_MENU[] = {

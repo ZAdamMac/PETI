@@ -30,7 +30,8 @@ void SCENE_boot_splash(void){
     }
     else {
         DisplaySplash();
-        printTextSmall(VERSION, 118);
+        //FUTURE: printTextSmall Usage Changes
+        printTextSmall(VERSION, 118, "\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01");
         SPLASH_SENT = true; // We sent it! Let's get out of here.
         SCENE_setTransitionTimeCondition(5); // Wait here for a few seconds.
     }

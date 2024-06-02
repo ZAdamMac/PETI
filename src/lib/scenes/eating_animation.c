@@ -103,14 +103,16 @@ void EAT_computeNextFrame(void){
     int row, col;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     // We needs these lines to be blank every time.
-    strcpy(DISPLAY_FRAME.frame[0].line, " ");
-    strcpy(DISPLAY_FRAME.frame[7].line, " ");
-    strcpy(DISPLAY_FRAME.frame[8].line, " ");
+    strcpy(DISPLAY_FRAME.frame[0].line, "\x0"); // Under the display logic, this terminates printing a line.
+    strcpy(DISPLAY_FRAME.frame[7].line, "\x0");
+    strcpy(DISPLAY_FRAME.frame[8].line, "\x0");
 
     for (row = 0; row<PIXELS_Y/FONT_SIZE_FLOOR_Y; row++){
         for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){
-            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+            DISPLAY_FRAME.frame[row].directives[col] = active_species.font + DIRECTIVE_NORMAL;
         }
+        // FUTURE: If implementing font support for foods, that change goes here.
+        DISPLAY_FRAME.frame[row].directives[EATING_falling_column] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
     }
 
     if (SCENE_FRAME > 7){ // By now the food is on the ground

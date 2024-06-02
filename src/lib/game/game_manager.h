@@ -31,6 +31,7 @@ typedef struct GameState {      // A metastructure to hold the current game stat
     unsigned int STAGE_ID;      // Corresponds to the index of EVO_metaStruct at which the currently-active "stage" or species of PET is stored.
     unsigned int HEALTH_BYTE;   // Holds various bits or nibbles as indicators of various other health elements.
     unsigned int INIT;          // non-zero value indicates structure initialized
+    unsigned int OLD_STAGE_ID;  // Corresponds to the index of EVO_metastruct which was active previous to the current STAGE_ID
 } GameState;
 
 // These three globals are not technically part of the original state spec but needed to determine the next time at which evolution mechanics need to be calculated.

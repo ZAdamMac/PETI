@@ -38,6 +38,7 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
     unsigned int charindex = 0;
     unsigned int this_char_tracker;
     unsigned int reversal_array[4] = {1, 0, 3, 2};  // This reverses a 2x2 sprite!
+    unsigned int reversal_array_large[9] = {2, 1, 0, 5, 4, 3, 8, 7, 6}; // This reverses a 3x3 sprite!
     while (charindex < PIXELS_X/16){ // this assumes the 16x16 graphical font is being used.
         if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_'){ // Dashes are empty cells, underscores are reversed empty cells
             WORK_STRING[charindex] = ' ';
@@ -48,7 +49,12 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
             char_tracker = char_tracker % icon_size; // Here to prevent out of index crashes. You should never define an animation that violates this.
         }
         else if (meta_placements[charindex] == '1' || meta_placements[charindex] == '3'){ // 1 says to put the character here, reversed along the x; 3 says to do that and color invert
-            this_char_tracker = reversal_array[char_tracker]; // In this case the characters need to arrange differently.
+            if (icon_size == EVO_size_large){
+                this_char_tracker = reversal_array_large[char_tracker];
+            }
+            else {
+                this_char_tracker = reversal_array[char_tracker]; // In this case the characters need to arrange differently.
+            }
             this_char_tracker = this_char_tracker % icon_size;
             WORK_STRING[charindex] = species_charset[this_char_tracker];
             char_tracker++; // we can go to the next character in the frame
@@ -61,27 +67,27 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
 }
 
 //Computes a printTextLarge display directives string based on the metanimation string provided
-char* MG_computeDirective(const char* meta_placements){
+char* MG_computeDirective(const char* meta_placements, char FONT_ADDR){
     unsigned int dirindex = 0;
     while (dirindex < PIXELS_X/16){
         switch (meta_placements[dirindex]){
             case '-' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
                 break;
             case '_' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NEGATIVE;
                 break;
             case '0' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
                 break;
             case '1' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_REVERSED;
                 break;
             case '2' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NEGATIVE;
                 break;
             case '3' :
-                WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_REVERSED_NEGATIVE;
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_REVERSED_NEGATIVE;
                 break;
         }
         dirindex++;
@@ -125,10 +131,10 @@ char* MG_computeLineSleep(const char * sleep_animation){
 
 /* Bulk apply the directives to a sleeping pet.
  */
-char* MG_computeDirectiveSleep(void){
+char* MG_computeDirectiveSleep(char FONT_ADDR){
     unsigned int dirindex = 0;
     while (dirindex < PIXELS_X/16){
-        WORK_STRING[dirindex] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL;
         dirindex++;
     }
     return &WORK_STRING;
@@ -161,16 +167,17 @@ char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
 void MG_updatePlayfieldIdle(void){
     unsigned int active_line;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
-    icon_size = active_species.size; // This will either be 1 or 4 in the current spec.
+    icon_size = active_species.size; 
+    int font_used = active_species.font;
     if (FORCE_REFRESH){ // In this case we're freshly arriving so let's start at 0
         SCENE_FRAME = 0x00;
     }
-    Metanimation active_meta = SCENES_metanimations[active_species.phase]; // Get the metanimation needed based on the `phase` value of the current active species.
+    Metanimation active_meta = SCENES_metanimations[active_species.metanimation_id]; // Get the metanimation needed based on the `phase` value of the current active species.
     const char *species_anim = active_species.animation[SCENE_FRAME % 2]; // Get the right frame of animation data from the active species.
     char_tracker = 0;
     for (active_line = 0;active_line<6; active_line++){
         strcpy(DISPLAY_FRAME.frame[active_line+1].line, MG_computeMeta(species_anim, active_meta.d[SCENE_FRAME][active_line])); // Compute the animated text for this row.
-        strcpy(DISPLAY_FRAME.frame[active_line+1].directives, MG_computeDirective(active_meta.d[SCENE_FRAME][active_line])); // Comput the directive information.
+        strcpy(DISPLAY_FRAME.frame[active_line+1].directives, MG_computeDirective(active_meta.d[SCENE_FRAME][active_line], font_used)); // Comput the directive information.
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
@@ -185,6 +192,7 @@ void MG_updatePlayfieldSleeping(void){
     unsigned int row;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     const char * sleep_animation = active_species.animationSleeping;
+    char font_used = active_species.font;
     icon_size = active_species.size;
     // Blank the top three lines since none of the sleep animations use them.
     strcpy(DISPLAY_FRAME.frame[1].line, " ");
@@ -210,10 +218,11 @@ void MG_updatePlayfieldSleeping(void){
     }
 
     for (row=1;row<8;row++){
-        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep());
+        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep(font_used));
     }
 
     strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
+    strcpy(DISPLAY_FRAME.frame[1].directives, MG_computeDirectiveSleep(FONT_ADDR_0));
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.

@@ -103,6 +103,11 @@
 - Corrects a longstanding issue that was causing full screen refreshes instead of the promised by-line refreshes. Should help with display-driven power usage.
 
 # v 0.4.0 - Sleep and Growth Update
+- Adds functionality to handle conditional evolution of the pet, in a simplistic early version:
+  - If the pet's needs are relatively well met at the time evolution is checked for, it will evolve into the "high" evolution, else the low evolution.
+  - The egg and the baby's first evolution evolve through this mechanism; the baby is hardcoded to evolve a total of three hours after hatching.
+  - If the pet evolves to the special reserved "Death Identifier" the game state is reset. This is temporary.
+  - `StateMachine` now contains a `.OLD_STAGE_ID` property that records the previous stage ID before the current evolution
 - Adds functionality that allows the pet to fall asleep between wall-clock times defined by their age group through `game_manager.h`
   - Sleeping pets do not have the game state recompute while sleeping and accordingly do not experience stat depletion.
   - Hunger and Fun degradation now occur retroactively when the pet wakes.
@@ -121,3 +126,15 @@
 - Fixes unreported bug that caused odd-numbered main menu menus to render the cursor on the bottom row one square earlier than it should.
 - Refactors the main_game screen to use the shared WORK_STRING mutable char array rather than per-function strings, for memory savings.
   - As a knock-on impact, this corrects #37
+- Refactors the metanimations to support a more animated sequence for the upper forms of the pet.
+  - Exposed, and corrected, a bug in `main_game.c`'s `MG_computeLine()` which caused large pets to explode when reversed.
+- Refactors the `Stage` structure so that pet stages can target metanimations 
+- Adds support for the font files being defined in multiple areas
+- Adds font16x16_1.h, defining a second set of 255 useful pet glyphs.
+- Adds options to the debug menu used for testing evolution quickly.
+- Corrects a bug in `display.c` that was causing all font address evaluation to fail, meaning only each size's "font zero" could be used.
+  - Updated all scenes to use the new addressible font logic instead of hardcoding FONT_ADDR_0 for pet sprites.
+- Corrects the bug in issue #38 that caused games of `rockpapergame.c` to be unplayable.
+  - Added a technical debt item to address the deeper root cause in display.c's `printText_Large` function.
+- Removed `printdeltas_Demo`, `printdeltas_Game`, and `printdeltas_Menu` from the codebase, since none of them were used anymore
+- Display now gives a convenience function, `DISPLAY_blankFrame` which resets the contents of the DISPLAY_FRAME

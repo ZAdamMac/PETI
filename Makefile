@@ -12,10 +12,16 @@ LD		= $(TOOLS_PATH)/bin/cl430
 # Project Vars
 BUILD_DIR 	= build
 SRC_DIR 	= src
+FONT_DIR	= $(SRC_DIR)/lib/display/fonts
 
 # Find all the C and C++ files we want to compile
 # Note the single quotes around the * expressions. Make will incorrectly expand these otherwise.
 SRCS := $(shell find $(SRC_DIR) -name '*.cpp' -or -name '*.c' -or -name '*.s')
+
+# Final all the Fonts we want to transform to headers
+FNTS := $(shell find $(SRC_DIR) -name '*.fnt')
+HFNTS := $(FNTS:%=$(SRC_DIR)/lib/display/fonts/%.h)
+HFNTS := $(HFNTS:.fnt.h=.h)
 
 # String substitution for every C/C++ file.
 # As an example, hello.cpp turns into ./build/hello.cpp.o
@@ -41,21 +47,29 @@ $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
 	$(CXX) $(LDFLAGS) -o $@ $(OBJS) "lnk_msp430fr5994.cmd" -llibmpu_init.a -llibmath.a  -llibc.a
 
 # Build step for C source
-$(BUILD_DIR)/%.obj: %.c
+$(BUILD_DIR)/%.obj: %.c $(HFNTS)
 	mkdir -p $(dir $@)
 	$(CC) $(CC_FLAGS) -c $< -o $@ --pp_directory=$(dir $@) --obj_directory=$(dir $@)
+
+$(FONT_DIR)/%.h: %.fnt
+	python3 $(HELP_DIR)/fontx2-convert/fontx2-convert.py -i $< -o $(FONT_DIR)
 
 echo:
 	echo $(OBJS)
 	echo $(LDFLAGS)
+	echo $(HFNTS)
 
 clean:
 	rm -r $(BUILD_DIR)
+	rm -r $(FONT_DIR)/*.h
 
-target-check:
+fonts:
+	$(foreach)
+
+target-check: 
 	mspdebug tilib "exit"
 
-target-flash: $(BUILD_DIR)/$(TARGET_EXEC)
+target-flash: $(BUILD_DIR)/$(TARGET_EXEC) fonts
 	mspdebug tilib "prog ./$(BUILD_DIR)/$(TARGET_EXEC)"
 
 target-startdebug: $(BUILD_DIR)/$(TARGET_EXEC)
