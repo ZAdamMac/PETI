@@ -13,7 +13,7 @@
 
 #include "display.h"
 #include "lib/display/scene_definitions.h"
-#include "font.h"
+#include "lib/display/font.h"
 #include "driverlib.h"
 #include "splash.h"
 #include <msp430.h>
@@ -153,9 +153,9 @@ void SPIWriteLine(unsigned char line)
 // write a string to display, truncated after PIXEL_X/8 characters
 // input: text      0-terminated string
 //        line      vertical position of text, 0-(PIXEL_Y-1)
-void printTextSmall(const char* text, unsigned char line)
+void printTextSmall(const char* text, unsigned char line, const char* directives)
 {
-    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine;
+    unsigned char character, bitmap, indexText, indexLineBuffer, indexLine, operation;
     //bool padded;
     //For simplicity, and because we are borrowing an existing font library, we print line-by-line
     indexLine = 0;
@@ -165,7 +165,39 @@ void printTextSmall(const char* text, unsigned char line)
         indexLineBuffer = 0;
         while(indexLineBuffer < (PIXELS_X/8) && (character = text[indexText]) != 0)  // We did not reach the end of the line or the string.
         {
+            operation = directives[indexText] & 0xF;
             bitmap = font8x8[character][indexLine];  // Retrieves the byte defining one line of character.
+            switch (operation){
+                case DIRECTIVE_NORMAL : // Print as-is
+                    break;
+                case DIRECTIVE_REVERSED : // Reverse Character Orientation
+                    bitmap = reverse(bitmap);
+                    break;
+                case DIRECTIVE_NEGATIVE: // Invert the character
+                    bitmap = ~bitmap;
+                    break;
+                case DIRECTIVE_REVERSED_NEGATIVE: //Reverse and Invert. Don't see a use, but I'll want it if I don't create it.
+                    bitmap = ~reverse(bitmap);
+                    break;
+                case DIRECTIVE_SLATS_THIN:  //Make every 4th line a string of black pixels instead of the right data.
+                    if (indexLine % 4 == 0){
+                        bitmap = 0x00;
+                    }
+                    break;
+                case DIRECTIVE_SLATS_MED:  //Make every 4th and 5th line a string of black pixels instead of the right data.
+                    if ((indexLine % 4 == 0) || (indexLine % 4 == 1)){
+                        bitmap = 0x00;
+                    }
+                    break;
+                case DIRECTIVE_SLATS_THICK:  //Make every 4th, fifth, and sixth line a string of black pixels instead of the right data.
+                    if (indexLine % 4 != 3){
+                        bitmap = 0x00;
+                    }
+                    break;
+                case DIRECTIVE_BLACKOUT: //Ignore the font data, use black text instead.
+                    bitmap = 0x00;
+                    break;
+            }
             bufferLine[indexLineBuffer] = bitmap;
             indexLineBuffer++;
             indexText++;
@@ -277,7 +309,27 @@ void printTextMedium(const char* text, unsigned char line, const char* directive
                 case DIRECTIVE_REVERSED_NEGATIVE: //Reverse and Invert. Don't see a use, but I'll want it if I don't create it.
                     bitmap = ~reverse(bitmap);
                     break;
+                case DIRECTIVE_SLATS_THIN:  //Make every 4th line a string of black pixels instead of the right data.
+                    if (indexLine % 4 == 0){
+                        bitmap = 0x00;
+                    }
+                    break;
+                case DIRECTIVE_SLATS_MED:  //Make every 4th and 5th line a string of black pixels instead of the right data.
+                    if ((indexLine % 4 == 0) || (indexLine % 4 == 1)){
+                        bitmap = 0x00;
+
+                    }
+                    break;
+                case DIRECTIVE_SLATS_THICK:  //Make every 4th, fifth, and sixth line a string of black pixels instead of the right data.
+                    if (indexLine % 4 != 3){
+                        bitmap = 0x00;
+                    }
+                    break;
+                case DIRECTIVE_BLACKOUT: //Ignore the font data, use black text instead.
+                    bitmap = 0x00;
+                    break;
             }
+
             bufferLine[indexLineBuffer] = bitmap;
             indexLineBuffer++;
             indexText++;
@@ -389,6 +441,42 @@ void printTextLarge(const char* text, unsigned char line, const char* directives
                     bitmap_left_out = ~reverse(bitmap_right);
                     bitmap_right_out = ~reverse(bitmap_left);
                     break;
+                //TODO: Once the logic for the slats checks out, export to the other print funcs.
+                //TODO resumehere: This is promotable
+                case DIRECTIVE_SLATS_THIN:  //Make every 4th line a string of black pixels instead of the right data.
+                    if (indexLine % 4 == 0){
+                        bitmap_left_out = 0x00;
+                        bitmap_right_out = 0x00;
+                    }
+                    else {
+                        bitmap_right_out = bitmap_right;
+                        bitmap_left_out = bitmap_left;
+                    }
+                    break;
+                case DIRECTIVE_SLATS_MED:  //Make every 4th and 5th line a string of black pixels instead of the right data.
+                    if ((indexLine % 4 == 0) || (indexLine % 4 == 1)){
+                        bitmap_left_out = 0x00;
+                        bitmap_right_out = 0x00;
+                    }
+                    else {
+                        bitmap_right_out = bitmap_right;
+                        bitmap_left_out = bitmap_left;
+                    }
+                    break;
+                case DIRECTIVE_SLATS_THICK:  //Make every 4th, fifth, and sixth line a string of black pixels instead of the right data.
+                    if (indexLine % 4 != 3){
+                        bitmap_left_out = 0x00;
+                        bitmap_right_out = 0x00;
+                    }
+                    else {
+                        bitmap_right_out = bitmap_right;
+                        bitmap_left_out = bitmap_left;
+                    }
+                    break;
+                case DIRECTIVE_BLACKOUT: //Ignore the font data, use black text instead.
+                    bitmap_left_out = 0x00;
+                    bitmap_right_out = 0x00;
+                    break;
             }
             bufferLine[indexLineBuffer] = bitmap_right_out;
             indexLineBuffer++;
@@ -448,137 +536,6 @@ void ToggleVCOM(void){
     GPIO_toggleOutputOnPin(GPIO_PORT_P1, GPIO_PIN0);
 }
 
-// The follwing printDeltas functions are all preferred to calling the printText functions if a direct call is needed, however
-// there is an even better method to update the screen provided by DISPLAY_updatesOnly(); refer to the wiki for information
-// on usage.
-
-// Determine the changed lines of text between the previous and incoming frame, and send only those lines of text through the print process.
-// This is specifically for scenes using the MODE_DEMO and the DemoFrame struct.
-void printDeltas_demo(DisplayFrame incoming_frame){
-    if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
-        printTextSmall(incoming_frame.line0, 1);
-        incoming_frame.refresh_L0 = false;
-    }
-    if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
-        printTextSmall(incoming_frame.line1, 16);
-        incoming_frame.refresh_L1 = false;
-    }
-    if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
-        printTextSmall(incoming_frame.line2, 24);
-        incoming_frame.refresh_L2 = false;
-    }
-    if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
-        printTextSmall(incoming_frame.line3, 32);
-        incoming_frame.refresh_L3 = false;
-    }
-    if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
-        printTextSmall(incoming_frame.line4, 56);
-        incoming_frame.refresh_L4 = false;
-    }
-    if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
-        printTextSmall(incoming_frame.line5, 72);
-        incoming_frame.refresh_L5 = false;
-    }
-    if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
-        printTextSmall(incoming_frame.line6, 88);
-        incoming_frame.refresh_L6 = false;
-    }
-    if (incoming_frame.refresh_L7 || FORCE_REFRESH ){
-        printTextSmall(incoming_frame.line7, 100);
-        incoming_frame.refresh_L7 = false;
-    }
-}
-
-// 10 rows of the 8x12 font centered vertically on the screen, based on the incoming frame
-// to determine if a row should be reprinted.
-void printDeltas_menu(DisplayFrame incoming_frame){
-    if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line0, 4, incoming_frame.directive_L0);
-        incoming_frame.refresh_L0 = false;
-    }
-    if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line1, 16, incoming_frame.directive_L1);
-        incoming_frame.refresh_L1 = false;
-    }
-    if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line2, 28, incoming_frame.directive_L2);
-        incoming_frame.refresh_L2 = false;
-    }
-    if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line3, 40, incoming_frame.directive_L3);
-        incoming_frame.refresh_L3 = false;
-    }
-    if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line4, 52, incoming_frame.directive_L4);
-        incoming_frame.refresh_L4 = false;
-    }
-    if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line5, 64, incoming_frame.directive_L5);
-        incoming_frame.refresh_L5 = false;
-    }
-    if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
-        printTextMedium(incoming_frame.line6, 76, incoming_frame.directive_L6);
-        incoming_frame.refresh_L6 = false;
-    }
-    if (incoming_frame.refresh_L7 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line7, 88, incoming_frame.directive_L7);
-        incoming_frame.refresh_L7 = false;
-    }
-    if (incoming_frame.refresh_L8 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line8, 100, incoming_frame.directive_L8);
-        incoming_frame.refresh_L8 = false;
-    }
-    if (incoming_frame.refresh_L9 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line9, 112, incoming_frame.directive_L9);
-        incoming_frame.refresh_L9 = false;
-    }
-}
-
-// Special Print mode Consisting Of:
-// 1 row of 8x12 text, 16 characters wide (the "Upper Menu Bar")
-// 6 rows of 16x16 text, 8 characters wide (collectively the "Playing Field")
-// 1 row of 8x8 text, 16 characters wide (the "DEBUG" bar) <- considered safe to write to directly if needed.
-//1 row of 8x12 text, 16 characters wide (the "lower menu bar")
-
-void printDeltas_game(DisplayFrame incoming_frame){
-    if (incoming_frame.refresh_L0 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line0, 1, incoming_frame.directive_L0);
-        incoming_frame.refresh_L0 = false;
-    }
-    if (incoming_frame.refresh_L1 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line1, 13, incoming_frame.directive_L1);
-        incoming_frame.refresh_L1 = false;
-    }
-    if (incoming_frame.refresh_L2 || FORCE_REFRESH ){
-        printTextLarge(incoming_frame.line2, 29, incoming_frame.directive_L2);
-        incoming_frame.refresh_L2 = false;
-    }
-    if (incoming_frame.refresh_L3 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line3, 45, incoming_frame.directive_L3);
-        incoming_frame.refresh_L3 = false;
-    }
-    if (incoming_frame.refresh_L4 || FORCE_REFRESH ){
-        printTextLarge(incoming_frame.line4, 61, incoming_frame.directive_L4);
-        incoming_frame.refresh_L4 = false;
-    }
-    if (incoming_frame.refresh_L5 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line5, 77, incoming_frame.directive_L5);
-        incoming_frame.refresh_L5 = false;
-    }
-    if (incoming_frame.refresh_L6 || FORCE_REFRESH  ){
-        printTextLarge(incoming_frame.line6, 93, incoming_frame.directive_L6);
-        incoming_frame.refresh_L6 = false;
-    }
-    if (incoming_frame.refresh_L8 || FORCE_REFRESH ){
-        printTextSmall(incoming_frame.line8, 109);
-        incoming_frame.refresh_L8 = false;
-    }
-    if (incoming_frame.refresh_L9 || FORCE_REFRESH ){
-        printTextMedium(incoming_frame.line9, 117, incoming_frame.directive_L9);
-        incoming_frame.refresh_L9 = false;
-    }
-}
-
 void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* scene_rules){
     int index; int line_changed; int directives_changed; 
     char current_string[PIXELS_X/FONT_SIZE_FLOOR_X]; int previous_string[PIXELS_X/FONT_SIZE_FLOOR_X];
@@ -595,7 +552,7 @@ void printDeltas_universal(DisplayFrameNew* incoming_frame, SceneDefinition* sce
         if (line_changed || directives_changed || FORCE_REFRESH){
             switch (scene_rules->rows[index].text_size){
                 case TEXT_SIZE_SMALL :
-                    printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address);
+                    printTextSmall(incoming_frame->frame[index].line, scene_rules->rows[index].line_address, incoming_frame->frame[index].directives);
                     break;
                 case TEXT_SIZE_MEDIUM :
                     printTextMedium(incoming_frame->frame[index].line, scene_rules->rows[index].line_address, incoming_frame->frame[index].directives);
@@ -658,4 +615,17 @@ char DISPLAY_nthDigit(int digit_index_from_least, int full_value){
         full_value /= 10;
     }
     return full_value%10 + '0';
+}
+
+//convenience function for simply turning all the lines in a scene blank
+void DISPLAY_blankFrame(void){
+    int row, col;
+    for (row = 0; row<(PIXELS_Y/FONT_SIZE_FLOOR_Y); row++){
+        for (col = 0; col<((PIXELS_X/FONT_SIZE_FLOOR_X)-1); col++){
+            DISPLAY_FRAME.frame[row].line[col] = ' ';
+            DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
+        }
+        DISPLAY_FRAME.frame[row].line[(PIXELS_X/FONT_SIZE_FLOOR_X)] = 0;
+    }
+
 }

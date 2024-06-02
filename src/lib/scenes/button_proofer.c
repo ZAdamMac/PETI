@@ -29,7 +29,8 @@ void SCENE_button_proofer(void){
         }
     }
     else {
-        printTextSmall(" Button Worked! ", 64);
+        //FUTURE PrintTextSmall Usage Changes
+        printTextSmall(" Button Worked! ", 64, "\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01\x01");
         TEXT_SENT = true; // We sent it! Let's get out of here.
         SCENE_setTransitionTimeCondition(5); // Wait here for a few seconds.
     }

@@ -107,6 +107,7 @@
   - If the pet's needs are relatively well met at the time evolution is checked for, it will evolve into the "high" evolution, else the low evolution.
   - The egg and the baby's first evolution evolve through this mechanism; the baby is hardcoded to evolve a total of three hours after hatching.
   - If the pet evolves to the special reserved "Death Identifier" the game state is reset. This is temporary.
+  - `StateMachine` now contains a `.OLD_STAGE_ID` property that records the previous stage ID before the current evolution
 - Adds functionality that allows the pet to fall asleep between wall-clock times defined by their age group through `game_manager.h`
   - Sleeping pets do not have the game state recompute while sleeping and accordingly do not experience stat depletion.
   - Hunger and Fun degradation now occur retroactively when the pet wakes.
@@ -135,3 +136,5 @@
   - Updated all scenes to use the new addressible font logic instead of hardcoding FONT_ADDR_0 for pet sprites.
 - Corrects the bug in issue #38 that caused games of `rockpapergame.c` to be unplayable.
   - Added a technical debt item to address the deeper root cause in display.c's `printText_Large` function.
+- Removed `printdeltas_Demo`, `printdeltas_Game`, and `printdeltas_Menu` from the codebase, since none of them were used anymore
+- Display now gives a convenience function, `DISPLAY_blankFrame` which resets the contents of the DISPLAY_FRAME

@@ -28,7 +28,7 @@ unsigned int needs_evaluation = 0x01; // A flag used to prevent double-dipping o
 unsigned int baby_nap_hour = 0x00;      //Used to store the time at which the baby is going to lay down for its nap.
 unsigned int baby_wake_hour = 0x00;     //And the time at which it wakes up.
 
-GameState StateMachine = {0, 3, 0, 0, 0, 0x00, 0, 0}; 
+GameState StateMachine = {0, 3, 0, 0, 0, 0, 0, 0, 0}; //FUTURE this is a rough way to intialize this.
 
 // A nice basic init function to set up the global state machine.
 // In future work we might add some functionality to look for an
@@ -51,6 +51,7 @@ void GAME_initStateStruct(void){
         StateMachine.ACT = GM_ACTIVITY_IDLE;
     }
     StateMachine.HEALTH_BYTE = 0x00;
+    StateMachine.OLD_STAGE_ID = 0x00; // This is correct regardless of debug mode
 
     NEXT_STAGE_TRANSITION_HOURS = 0x00;
     NEXT_STAGE_TRANSITION_MINUTES = 0x00;
@@ -205,6 +206,7 @@ void GAME_EVO_incrementForEvolution(void){
     unsigned int needs_met = 0;
     int next_stage_length;
     Stage active_stage = EVO_metaStruct[StateMachine.STAGE_ID];
+    StateMachine.OLD_STAGE_ID = StateMachine.STAGE_ID; // We're changing regardless, so this can update now.
     
     if (current_hunger >= 7){ // FUTURE: This is overly simplistic; incorperate discipline once feature exists.
         if (current_fun >=7 ){
@@ -239,7 +241,7 @@ void GAME_EVO_incrementForEvolution(void){
         // we don't need to add death to the 0.4.0 update, which is already later.
         GAME_initStateStruct(); // Simply reset the game for the player.
     }
-    //TODO: SCENE_ACT set to evolution scene address here!
+    SCENE_ACT = SCENEADDR_evolving;
 }
 
 // this function is the ultimate control function for all timed events, and needs to be updated

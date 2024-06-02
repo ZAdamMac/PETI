@@ -63,6 +63,10 @@
 #define DIRECTIVE_REVERSED 0x02
 #define DIRECTIVE_NEGATIVE 0x03
 #define DIRECTIVE_REVERSED_NEGATIVE 0x04
+#define DIRECTIVE_SLATS_THIN 0x05
+#define DIRECTIVE_SLATS_MED 0x06
+#define DIRECTIVE_SLATS_THICK 0x07
+#define DIRECTIVE_BLACKOUT 0x08
 
 
 volatile unsigned char VCOM;            // State of VCOM (either 0x00 or 0x02)
@@ -135,13 +139,13 @@ typedef struct DisplayFrameNew{
 } DisplayFrameNew;
 
 DisplayFrameNew DISPLAY_FRAME;      // The global instance of DisplayFrameNew. Anyone using this should use THIS one.
-DisplayFrameNew PREVIOUS_FRAME;
+DisplayFrameNew PREVIOUS_FRAME;     // Used to hold the previous frame for support of dynamic framing.
 
 char WORK_STRING[PIXELS_X/FONT_SIZE_FLOOR_X+1]; // A working string to use for all string construction operations.
 
 // These functions are defined fully and commentated in display.c
 void Init_LCD(void);
-void printTextSmall(const char* text, unsigned char line);
+void printTextSmall(const char* text, unsigned char line, const char* directives);
 void printTextMedium(const char* text, unsigned char line, const char* directives);
 void printTextLarge(const char* text, unsigned char line, const char* directives);
 void Init_SPI(void);
@@ -153,6 +157,7 @@ void DISPLAY_updatesOnly_enhanced(DisplayFrameNew *incoming_frame, unsigned int 
 char DISPLAY_nthDigit(int digit_index_from_least, int full_value);
 void DISPLAY_wakeLCD(void);
 void DISPLAY_sleepLCD(void);
+void DISPLAY_blankFrame(void);
 
 
 #endif /* LIB_DISPLAY_DISPLAY_H_ */

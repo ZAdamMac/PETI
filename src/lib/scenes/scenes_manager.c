@@ -32,6 +32,7 @@
 #include "stage_selector.h"
 #include "lib/menus/minigames_menu.h"
 #include "lib/scenes/minigames/rockpaperscissors.h"
+#include "evolving_animation.h"
 #include "reset_save.h"
 
 volatile unsigned int SCENE_TRANS_SECONDS;  // The time at which a time-based trigger should activate in seconds
@@ -100,6 +101,9 @@ void SCENE_updateDisplay(void){
             break;
         case SCENEADDR_reset_save:
             SCENE_reset_menu();
+            break;
+        case SCENEADDR_evolving:
+            SCENE_Evolving();
             break;
 
     }
