@@ -5,7 +5,10 @@
 
 TARGET_EXEC := PETI.out
 
-TOOLS_PATH := /home/patches/ti/ccs1020/ccs/tools/compiler/ti-cgt-msp430_20.2.2.LTS
-CCS_BASEPATH := /home/patches/ti/ccs1020/ccs/ccs_base/msp430
+TOOLS_PATH := /home/patches/tools/ti/ccs1020/ccs/tools/compiler/ti-cgt-msp430_20.2.2.LTS
+CCS_BASEPATH := /home/patches/tools/ti/ccs1020/ccs/ccs_base/msp430
 CCS_BASEINCPATH := $(CCS_BASEPATH)/include
-PROJ_DIR = /home/patches/HardwareProjects/PETI/
+PROJ_DIR = /home/patches/projects/tech/peti/PETI/
+
+PYTHON = python3
+HELP_DIR = /home/patches/projects/tech/peti/peti-helpers

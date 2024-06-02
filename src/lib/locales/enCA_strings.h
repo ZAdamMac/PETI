@@ -42,6 +42,8 @@ extern const char* LSTRING_MINIGAME_PICK;   //Invitation to make a selection.
 extern const char* LSTRING_YES;             //Statement of affirmation
 extern const char* LSTRING_NO;              //Statement of negation
 extern const char* LSTRING_WARNING;         //Statement of Warning
+extern const char* LSTRING_MG_WIN;          //Displayed when winning a minigame
+extern const char* LSTRING_MG_LOSE;         //Displayed when losing a minigame
 
 extern const char* LARRAY_DEBUG_OPTS[];     //Option Names for the Debug Menu
 

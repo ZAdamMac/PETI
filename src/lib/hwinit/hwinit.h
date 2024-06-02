@@ -10,7 +10,7 @@
 
 /*
  * The following lines define several symbols that are used to configure hardware pins.
- * //TODO: Standardize this practice.
+ * //FUTURE: Standardize this practice.
 */
 
 #define LED_ALERT_PORT GPIO_PORT_P4

@@ -21,10 +21,11 @@ volatile unsigned int SCENE_FRAME;          // A global counter to keep track of
 #define SCENEADDR_boot_splash 0x00                  // Address for the boot splash animation.
 #define SCENEADDR_main_game 0x01                    // Address to the main game standby screen
 #define SCENEADDR_status_menu 0x02                  // Address to the pet's health page.
+#define SCENEADDR_evolving 0x03                     // Address tot he pet evolution animation.
+#define SCENEADDR_eating 0x04                       // Address to the animation for eating
 #define SCENEADDR_feed_menu 0x10                    // Address to the top-level food menu
 #define SCENEADDR_food_menu 0x11                    // Address to the "foods" menu
 #define SCENEADDR_snacks_menu 0x12                  // Address to the Snacks Menu
-#define SCENEADDR_eating 0x13                       // Address to the animation for eating
 #define SCENEADDR_reset_save 0x20                   // Address to the state screen allowing a game state reset
 #define SCENEADDR_calendar_menu 0x21                // Address to the calendar adjustment menu.
 #define SCENEADDR_minigames_menu 0x30               // Address to the minigames menu.

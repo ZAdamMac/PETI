@@ -42,6 +42,8 @@ extern const char* LSTRING_MINIGAME_PICK = " Make A Choice! ";
 extern const char* LSTRING_YES = "    YES ";
 extern const char* LSTRING_NO = "    NO ";
 extern const char* LSTRING_WARNING = "    WARNING    ";
+extern const char* LSTRING_MG_WIN = "You Won!      ";
+extern const char* LSTRING_MG_LOSE = "You lost...   ";
 
 
 extern const char* LARRAY_DEBUG_OPTS[] = {
@@ -53,7 +55,9 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Drain Fun Bar   ",
                                         "Stage Select    ",
                                         "Entropy Check   ",
-                                        "Sleep the LCD   "
+                                        "Sleep the LCD   ",
+                                        "Age +1          ",
+                                        "Force Evolution "
 };
 
 extern const char* LARRAY_DAYS_OF_WEEK[] = {
@@ -81,7 +85,12 @@ extern const char* LARRAY_EVO_STAGE_NAMES[] = {
                     "   Cthulhorse   ",
                     "  Ham-Monster   ",
                     "    Nautilus    ",
-                    "  Axe-a-lot'l   "
+                    "  Axe-a-lot'l   ",
+                    "    Geo-Baby    ",
+                    "      Spike     ",
+                    "      Cubie     ",
+                    "    Cluster     ",
+                    "   Shine-Brite  "
 };
 
 extern const char* LARRAY_FOOD_TOP_MENU[] = {

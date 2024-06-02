@@ -8,6 +8,20 @@
 #ifndef LIB_GAME_GAME_MANAGER_H_
 #define LIB_GAME_GAME_MANAGER_H_
 
+#define GAME_NEEDS_teen_bedtime 20      
+#define GAME_NEEDS_adult_bedtime 21
+#define GAME_NEEDS_senior_bedtime 21
+#define GAME_NEEDS_final_bedtime 21
+#define GAME_NEEDS_teen_wakeup 8      
+#define GAME_NEEDS_adult_wakeup 8
+#define GAME_NEEDS_senior_wakeup 9
+#define GAME_NEEDS_final_wakeup 9
+
+#define GM_ACTIVITY_SLEEPING 0x00
+#define GM_ACTIVITY_IDLE 0x01
+#define GM_ACTIVITY_SICK 0x02
+#define GM_ACTIVITY_ISEGG 0x03
+
 typedef struct GameState {      // A metastructure to hold the current game state as one structure. Contains most of the relevant data about the active PET.
     unsigned int AGE;           // Integer number indicating the time in days-past-midnight of the PET having been hatched, starting from 0
     unsigned int ACT;           // Activity state of the PET. 0 for sleeping, 1 for awake and normal, 2 for sick, and 3 for the egg life state.
@@ -17,6 +31,7 @@ typedef struct GameState {      // A metastructure to hold the current game stat
     unsigned int STAGE_ID;      // Corresponds to the index of EVO_metaStruct at which the currently-active "stage" or species of PET is stored.
     unsigned int HEALTH_BYTE;   // Holds various bits or nibbles as indicators of various other health elements.
     unsigned int INIT;          // non-zero value indicates structure initialized
+    unsigned int OLD_STAGE_ID;  // Corresponds to the index of EVO_metastruct which was active previous to the current STAGE_ID
 } GameState;
 
 // These three globals are not technically part of the original state spec but needed to determine the next time at which evolution mechanics need to be calculated.
@@ -31,6 +46,7 @@ extern GameState StateMachine;                     // Any file that includes gam
 
 void GAME_initStateStruct(void);
 void GAME_evaluateTimedEvents(void);
+void GAME_evaluateWakeUpEvent(void);
 void GAME_applyHungerFun(int change_hunger, int change_fun);
 
 
