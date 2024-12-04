@@ -45,6 +45,9 @@
 #define MINIGAME_RPS_sb_bl '\xF3'
 #define MINIGAME_RPS_sb_pointbottom '\xF4'
 
+// For the sake of convenience, set the midline of the sprite's dances.
+#define MINIGAME_RPS_sprite_centerline 5
+
 char MINIGAME_RPS_choice;
 char MINIGAME_RPS_petChoice;
 
@@ -107,119 +110,142 @@ void MINIGAME_RPS_handleInputs(void){
 }
 
 
+char* MINIGAME_RPS_drawChoices(char choice_a, char choice_b){
+    int col;
+    for (col = 0; col < PIXELS_X/16; col++){
+        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
+    }
+    col = (PIXELS_X/(2*FONT_SIZE_FLOOR_X))-1; // I say dear fellow, what is the last spot in the array?
+    WORK_STRING[0] = MINIGAME_RPS_entry_arrow;
+    WORK_STRING[col] = MINIGAME_RPS_entry_arrow;
+    col--; // And the one before that?
+    WORK_STRING[1] = choice_a;
+    WORK_STRING[col] = choice_b;
+
+    return &WORK_STRING;
+}
+
+
+char* MINIGAME_RPS_choiceDirective(){
+    int col;
+    //FUTURE: convenience function for this
+    for (col = 0; col < PIXELS_X/16; col++){
+        WORK_STRING[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL; // For some reason, setting this iteratively is the only way I've been able to make it work.
+    }
+    WORK_STRING[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
+
+    return &WORK_STRING;
+}
+
+
+char* MINIGAME_RPS_drawWideLine(void){
+    int col;
+    //We don't need to blank the workstring because we are writing to the whole thing at once.
+    for (col=0; col<PIXELS_X/16; col++){
+        WORK_STRING[col] = MINIGAME_RPS_sb_solidbottom; // Easiest to draw the line first
+    }
+    col = (PIXELS_X/(2*FONT_SIZE_FLOOR_X))/2; // and then place the arrow
+    WORK_STRING[col] = MINIGAME_RPS_sb_pointbottom;
+
+    return &WORK_STRING;
+}
+
+
+char* MINIGAME_RPS_drawDance(int row_offset, int width, char facing){
+    int col, offset, char_index;
+    Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
+    if (width == 1) {
+        offset = ((PIXELS_X/(2*FONT_SIZE_FLOOR_X))/2); // Lots of fudge-factor in here for prettyness
+    }
+    else {
+        offset = ((PIXELS_X/(2*FONT_SIZE_FLOOR_X))/2)-2; // Lots of fudge-factor in here for prettyness
+    }
+    for (col = 0; col < PIXELS_X/16; col++){
+        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
+    }
+    switch (facing){  // Special math is needed to do this. In other scenes this is handled with lookup arrays.
+        case DIRECTIVE_NORMAL:
+            char_index = width*row_offset;
+            for (col = 0; col<width; col++){
+                WORK_STRING[col+offset] = active_species.faceRight[char_index];
+                char_index++;
+            }
+            break;
+        case DIRECTIVE_REVERSED: // In this case we're actually counting back from the end of this row rather than up.
+            char_index = width*(row_offset+1)-1;
+            for (col = 0; col<width; col++){
+                WORK_STRING[col+offset] = active_species.faceRight[char_index];
+                char_index--;
+            }
+            break;
+    }
+
+    return &WORK_STRING;
+}
+
+
+char* MINIGAME_RPS_directDance(char facing){
+    int col;
+    Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
+    for (col = 0; col < PIXELS_X/(2*FONT_SIZE_FLOOR_X); col++){
+        WORK_STRING[col] = active_species.font + facing;
+    }
+
+    return &WORK_STRING;
+}
+
+
 //Called without argument, this function draws one frame of the attract mode
 //animation. On frame zero it also draws the LSTRING_MINIGAME_PICK and decorates
 //it alongside the legend of button choices.
 void MINIGAME_RPS_attractFrame(void){ // FUTURE: This could be more elegant
-    int row, col;
+    int row, col, facing;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     if ( SCENE_FRAME == 0 ) {   // This is the "first" frame so we want to treat it as such.
-        
-        for (row = 0; row<PIXELS_Y/(FONT_SIZE_FLOOR_Y); row++){
-            for (col=0; col<PIXELS_X/(2 * FONT_SIZE_FLOOR_X); col++){
-                DISPLAY_FRAME.frame[row].line[col] = ' ';
-                DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-            }
-        }   //Draw in the permanent static assets, starting with the title bar.
-        strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MINIGAME_PICK); // Set line zero's full text to the attract prompt.
-        for (col=0; col<PIXELS_X/FONT_SIZE_FLOOR_X; col++){ 
-            DISPLAY_FRAME.frame[1].line[col] = MINIGAME_RPS_sb_solidbottom;
-        }
-        DISPLAY_FRAME.frame[1].line[3] = MINIGAME_RPS_sb_pointbottom; // It is not possible to exactly center this, so
-
-        //The next four lines add in the choice icons to prompt the player which buttons do what.
-        DISPLAY_FRAME.frame[2].line[1] = MINIGAME_RPS_choiceRock;
-        DISPLAY_FRAME.frame[2].line[6] = MINIGAME_RPS_choiceScissors;
-        DISPLAY_FRAME.frame[6].line[1] = MINIGAME_RPS_choicePaper;
-        DISPLAY_FRAME.frame[6].line[6] = MINIGAME_RPS_choiceNotMade;
-        //The next four lines add the corresponding arrow icons.
-        DISPLAY_FRAME.frame[2].line[0] = MINIGAME_RPS_entry_arrow;
-        DISPLAY_FRAME.frame[2].directives[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;  // The font provides no left arrow.
-        DISPLAY_FRAME.frame[2].line[7] = MINIGAME_RPS_entry_arrow;
-        DISPLAY_FRAME.frame[6].line[0] = MINIGAME_RPS_entry_arrow;
-        DISPLAY_FRAME.frame[6].directives[0] = FONT_ADDR_0 + DIRECTIVE_REVERSED;
-        DISPLAY_FRAME.frame[6].line[7] = MINIGAME_RPS_entry_arrow;
+        DISPLAY_blankFrame(); // Which is easier to do from a blank canvas.
+        //A few lines never change and can just be set the first time we hit the attractFrame:
+        strcpy(DISPLAY_FRAME.frame[0].line, LSTRING_MINIGAME_PICK); // Line 0 is the attract string
+        strcpy(DISPLAY_FRAME.frame[1].line, MINIGAME_RPS_drawWideLine()); // Line 1 is the speech bubble under it
+        strcpy(DISPLAY_FRAME.frame[2].line, MINIGAME_RPS_drawChoices(MINIGAME_RPS_choiceRock, MINIGAME_RPS_choiceScissors));  // The Rock and Scissors choices
+        strcpy(DISPLAY_FRAME.frame[2].directives, MINIGAME_RPS_choiceDirective());
+        strcpy(DISPLAY_FRAME.frame[6].line, MINIGAME_RPS_drawChoices(MINIGAME_RPS_choicePaper, MINIGAME_RPS_choiceNotMade)); // The Paper and Cancel choices
+        strcpy(DISPLAY_FRAME.frame[6].directives, MINIGAME_RPS_choiceDirective());
+        strcpy(DISPLAY_FRAME.frame[7].line, " ");
+        strcpy(DISPLAY_FRAME.frame[8].line, " ");
     }
 
+    // Only the facing and the length of the attract tone change frame-to-frame.
     if ((SCENE_FRAME % 2) == 0) {
         // Set the character to face RIGHT.
-        switch (active_species.size) {
-            case EVO_size_small:
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_NORMAL;
-                break;
-            case EVO_size_med:
-                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[2];
-                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[3];
-                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_NORMAL;
-                break;
-            case EVO_size_large:
-                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
-                DISPLAY_FRAME.frame[3].line[5] = active_species.faceRight[2];
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[3];
-                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[4];
-                DISPLAY_FRAME.frame[4].line[5] = active_species.faceRight[5];
-                DISPLAY_FRAME.frame[5].line[3] = active_species.faceRight[6];
-                DISPLAY_FRAME.frame[5].line[4] = active_species.faceRight[7];
-                DISPLAY_FRAME.frame[5].line[5] = active_species.faceRight[8];
-                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[3].directives[5] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[4].directives[5] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[5].directives[3] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[5].directives[4] = active_species.font + DIRECTIVE_NORMAL;
-                DISPLAY_FRAME.frame[5].directives[5] = active_species.font + DIRECTIVE_NORMAL;
-                break;      
-        }
+        facing = DIRECTIVE_NORMAL;
         AUDIO_pulse(AUDIO_LONG_PULSE);
     }
     else {
         //set the character to face LEFT
-        switch (active_species.size) {
-            case EVO_size_small:
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_REVERSED;
-                break;
-            case EVO_size_med:
-                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[1];
-                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[2];
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[3];
-                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_REVERSED;
-                break;
-            case EVO_size_large:
-                DISPLAY_FRAME.frame[3].line[5] = active_species.faceRight[0];
-                DISPLAY_FRAME.frame[3].line[4] = active_species.faceRight[1];
-                DISPLAY_FRAME.frame[3].line[3] = active_species.faceRight[2];
-                DISPLAY_FRAME.frame[4].line[5] = active_species.faceRight[3];
-                DISPLAY_FRAME.frame[4].line[4] = active_species.faceRight[4];
-                DISPLAY_FRAME.frame[4].line[3] = active_species.faceRight[5];
-                DISPLAY_FRAME.frame[5].line[5] = active_species.faceRight[6];
-                DISPLAY_FRAME.frame[5].line[4] = active_species.faceRight[7];
-                DISPLAY_FRAME.frame[5].line[3] = active_species.faceRight[8];
-                DISPLAY_FRAME.frame[3].directives[3] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[3].directives[4] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[3].directives[5] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[3] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[4] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[4].directives[5] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[5].directives[3] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[5].directives[4] = active_species.font + DIRECTIVE_REVERSED;
-                DISPLAY_FRAME.frame[5].directives[5] = active_species.font + DIRECTIVE_REVERSED;
-                break;
-        }
+        facing = DIRECTIVE_REVERSED;
         AUDIO_pulse(AUDIO_SHORT_PULSE);
+    }
+
+    // now that we know our facing we're free to draw in our character sprites
+    switch (active_species.size) {
+        case EVO_size_small:
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline].line, MINIGAME_RPS_drawDance(0,1,facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline].directives, MINIGAME_RPS_directDance(facing));
+            break;
+        case EVO_size_med:
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline-1].line, MINIGAME_RPS_drawDance(0,2,facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline-1].directives, MINIGAME_RPS_directDance(facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline].line, MINIGAME_RPS_drawDance(1,2,facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline].directives, MINIGAME_RPS_directDance(facing));
+            break;
+        case EVO_size_large:
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline-2].line, MINIGAME_RPS_drawDance(0,3,facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline-2].directives, MINIGAME_RPS_directDance(facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline-1].line, MINIGAME_RPS_drawDance(1,3,facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline-1].directives, MINIGAME_RPS_directDance(facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline].line, MINIGAME_RPS_drawDance(2,3,facing));
+            strcpy(DISPLAY_FRAME.frame[MINIGAME_RPS_sprite_centerline].directives, MINIGAME_RPS_directDance(facing));
+            break;
     }
     
     if (SCENE_FRAME >= MINIGAME_RPS_idleLimit) {
@@ -295,6 +321,7 @@ int MINIGAME_RPS_evaluateForScoring(void){
 //Minimalistic evaluation function that displays the two choices made by the
 //player and the pet. Future work will expand this to include a visual
 //legend of which player is on which side.
+// FUTURE: This could be generalized, but it's not breaking anything and it's actually reasonably elegant.
 void MINIGAME_RPS_evaluateFrame_choices(void){
     int row;
     DISPLAY_FRAME.frame[2].line[0] = MINIGAME_RPS_sb_tl;
@@ -337,12 +364,9 @@ void MINIGAME_RPS_evaluateFrame_dance(int winloss){
 // jingle.
 void MINIGAME_RPS_evaluateFrame(void){
     int row, col, victory;
-    if (SCENE_FRAME % MINIGAME_RPS_EVALSCREENLENGTH == 0) { // In such an event, we need to "blank" the frame directives and lines
-            for (row = 1; row<PIXELS_Y/(2 * FONT_SIZE_FLOOR_Y); row++){
-                for (col=0; col<PIXELS_X/(2 * FONT_SIZE_FLOOR_X); col++){
-                    DISPLAY_FRAME.frame[row].directives[col] = FONT_ADDR_0 + DIRECTIVE_NORMAL;
-                    DISPLAY_FRAME.frame[row].line[col]=' ';
-                }
+    if (SCENE_FRAME % MINIGAME_RPS_EVALSCREENLENGTH == 0) {
+        {
+             DISPLAY_blankFrame(); // In such an event, we need to "blank" the frame directives and lines
         }
         if (SCENE_FRAME == 0){ // Specifically on frame 0 we need to do the actual maths.
             MINIGAME_RPS_drawChoice(RNG_drawFloat());
