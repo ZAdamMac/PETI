@@ -414,7 +414,7 @@ void MG_computeNextFrame(void){
     }
     else {
         MG_LightsOut();
-        MG_placeStatusIcons();
+        strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
         if (StateMachine.ACT == GM_ACTIVITY_SLEEPING){
             if (SCENE_CURRENT_PAGE >= MG_sleep_display_cycles){ // Piggybacking on an unusued scene-wide var to handle
                 DISPLAY_sleepLCD();

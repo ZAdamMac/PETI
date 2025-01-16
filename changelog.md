@@ -138,3 +138,7 @@
   - Added a technical debt item to address the deeper root cause in display.c's `printText_Large` function.
 - Removed `printdeltas_Demo`, `printdeltas_Game`, and `printdeltas_Menu` from the codebase, since none of them were used anymore
 - Display now gives a convenience function, `DISPLAY_blankFrame` which resets the contents of the DISPLAY_FRAME
+
+# v 0.4.1 - Bugfixes
+- Fixes issue #45, which put the pet into a crashed state when you tuck them in for bed.
+- 

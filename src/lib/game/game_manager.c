@@ -386,7 +386,7 @@ void GAME_evaluateWakeUpEvent(void){
             MG_lights_on = 1;
             // On wake, if the transition would have happened while sleeping, push it back by one hour.
             if (GAME_evaluateBoundedTime(curfew_hour, wake_hour, NEXT_STAGE_TRANSITION_HOURS)){
-                NEXT_STAGE_TRANSITION_AGE = wake_hour + 1;
+                NEXT_STAGE_TRANSITION_HOURS = wake_hour + 1;
             }
             ALERTS_wake_up_alert();
         }
