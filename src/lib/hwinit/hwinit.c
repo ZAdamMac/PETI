@@ -10,7 +10,7 @@
 //  October 2020
 //***************************************************************************************
 
-#include "driverlib.h"
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include <msp430.h>
 #include "hwinit.h"
 
@@ -37,8 +37,8 @@ void Init_GPIO(void){
     GPIO_setAsOutputPin(LED_ALERT_PORT, LED_ALERT_PIN); // P4.7 is the alert system visual LED.
     GPIO_setOutputLowOnPin(LED_ALERT_PORT, LED_ALERT_PIN);
 
-    GPIO_setAsOutputPin(GPIO_PORT_P3, GPIO_PIN4); //P3.4 is buzzer Out.
-    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
+    // Configure P3.4 as TB0.3 Output for Speaker PWM
+    GPIO_setAsPeripheralModuleFunctionOutputPin(GPIO_PORT_P3, GPIO_PIN4, GPIO_PRIMARY_MODULE_FUNCTION);
 
     //Inputs Block
     //This sets up the buttons as indicated below.
@@ -78,6 +78,7 @@ void Init_Timers(void){
     // Set master clock to 8MHz; at this rate TimerA would interrupt roughly 2/sec
     // sets the properties to init Timer_A
     // Running the timer any faster than this will /break/ the animation logic in a way requiring greater complexity to operate.
+    // TODO This actually appears to set SMCLK to 4MHz. Validate
     CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_3); // Set DCO frequency 8 MHz
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1); //SMCLK = 8 Mhz
     Timer_A_initUpModeParam initContParam = {0};

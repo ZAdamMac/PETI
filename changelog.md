@@ -141,4 +141,6 @@
 
 # v 0.4.1 - Bugfixes
 - Fixes issue #45, which put the pet into a crashed state when you tuck them in for bed.
-- 
+
+# v 0.5.0 - Hygine and Audio Update
+- Changed the audio interface code to use PWM audio output. This will result in richer audio options beginning with Hardware Revision D, at the cost of quieter audio output for the Revision C development hardware.

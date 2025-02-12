@@ -25,6 +25,7 @@
 #include <msp430.h>
 #include "main.h"
 #include "lib/alerts/blinkenlights.h"
+#include "lib/alerts/audio.h"
 #include "lib/hwinit/human_input.h"
 #include "lib/hwinit/battery.h"
 //#include "lib/game/evo_data.h"
@@ -48,6 +49,9 @@ int main(void) {
     while (1){
         PMM_unlockLPM5();
         BATTERY_checkForSigLBO();
+        if (AUDIO_noteEnd){
+            AUDIO_stopNote(); //TODO Comment
+        }
         if (StateMachine.ACT > 0){
             GAME_evaluateTimedEvents();
         }
@@ -114,11 +118,12 @@ __interrupt void BLINK_BATTERY_ISR (void){
 }
 
 
-//Stop audio when the timer has elapsed.
-#pragma vector=TIMER0_B0_VECTOR
-__interrupt void TIMEOUT_ISR (void){
-    Timer_B_clearCaptureCompareInterrupt(TIMER_B0_BASE, TIMER_B_CAPTURECOMPARE_REGISTER_0);
-    Timer_B_clearTimerInterrupt(TIMER_B0_BASE);
-    Timer_B_stop(TIMER_B0_BASE);
-    GPIO_setOutputLowOnPin(GPIO_PORT_P3, GPIO_PIN4);
+//Raise a game state flag and wake up from sleep when the Timer A2 IFG is set.
+//This indicates that the audio system has reached the intended end of a note
+#pragma vector=TIMER2_A0_VECTOR //TODO: Resume from here
+__interrupt void AUDIO_TIMEOUT_ISR (void){
+    Timer_A_clearCaptureCompareInterrupt(TIMER_A2_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
+    Timer_A_clearTimerInterrupt(TIMER_A2_BASE);
+    AUDIO_noteEnd = true;
+    __bic_SR_register_on_exit(LPM0_bits); 
 }
