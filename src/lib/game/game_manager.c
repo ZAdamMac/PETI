@@ -13,11 +13,12 @@
 
 
 #include <msp430.h>
-#include "driverlib.h"
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include "main.h"
 #include "game_manager.h"
 #include "lib/scenes/scenes_manager.h"
 #include "lib/game/evo_data.h"
+#include "lib/game/entropy.h"
 #include "lib/display/display.h"
 #include "lib/alerts/alerts.h"
 #include "lib/scenes/main_game.h"
@@ -60,17 +61,19 @@ void GAME_initStateStruct(void){
     StateMachine.INIT = true;
 }
 
-void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
+unsigned int GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
     unsigned int active_hfrate = EVO_metaStruct[StateMachine.STAGE_ID].rateHF;
     unsigned int rate_hunger = active_hfrate >> 4 & 0xF;
     unsigned int rate_fun = active_hfrate & 0xF;
     unsigned int current_hunger = StateMachine.HUNGER_FUN >> 4 & 0xF;
     unsigned int current_fun = StateMachine.HUNGER_FUN & 0xF;
+    unsigned int got_hungry = false;
 
     hf_minutes = hf_minutes % 16;
 
     if (rate_hunger >= hf_minutes){
         current_hunger--;
+        got_hungry = true;
     }
     if (rate_fun >= hf_minutes){
         current_fun--;
@@ -79,6 +82,7 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
     // These two if statements handle the case where the value exceeds the floor at 0
     if (current_hunger > 15){
         current_hunger = 0;
+        got_hungry = false; // In the case of this rollover, getting hungry was not enough to trigger the scenario.
     }
     if (current_fun > 15){
         current_fun = 0;
@@ -89,6 +93,8 @@ void GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
     }
 
     StateMachine.HUNGER_FUN = (current_hunger << 4) + current_fun;
+
+    return got_hungry;
 
 }
 
@@ -248,12 +254,65 @@ void GAME_EVO_incrementForEvolution(void){
     SCENE_ACT = SCENEADDR_evolving;
 }
 
+
+//TODO: Nice Refstring
+void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_minutes, unsigned int got_hungry){
+    unsigned int count_poop = StateMachine.HEALTH_BYTE & 0x3;
+    float age_weight, health_weight, poop_float;
+    if (got_hungry){
+        poop_float = RNG_drawFloat();
+        switch (EVO_metaStruct[StateMachine.STAGE_ID].phase){
+            case EVO_phase_egg: // In this case nothing special happens. Eggs don't sleep or experience need decay.
+                age_weight = 0;
+                break;
+            case EVO_phase_baby: // In this case, every hour is a pooping hour if we're awake.
+                age_weight = 0.3;
+                break;
+            case EVO_phase_teen: 
+                age_weight = GAME_NEEDS_teen_poop_rate;
+                break;
+            case EVO_phase_adult:
+                age_weight = GAME_NEEDS_adult_poop_rate;
+                break; 
+            case EVO_phase_senior:
+                age_weight = GAME_NEEDS_senior_poop_rate;
+                break;        
+            case EVO_phase_final:
+                age_weight = false;
+                break; 
+        }
+        switch (StateMachine.ACT){
+            case GM_ACTIVITY_IDLE:
+                health_weight = 1;
+                break;
+            case GM_ACTIVITY_SICK:
+                health_weight = GAME_NEEDS_sick_poop_rate_modifier;
+                break; 
+            default: // At time this was created, these are the only two states that can poop.
+                health_weight = 0;
+                break;
+
+        }
+        // if the RNG pulls a number that *beats* the multiplied fraction of the health_weight and age_weight, it poops.
+        if (poop_float >= (health_weight * age_weight)) {
+            count_poop++;
+            if (count_poop > 3){  // Since this is the maximum value of a 2-bit integer
+                count_poop = 3;
+            }
+        }
+        // Finally, put the modified count back on.
+        StateMachine.HEALTH_BYTE = StateMachine.HEALTH_BYTE & count_poop;
+
+    }
+}
+
+
 // this function is the ultimate control function for all timed events, and needs to be updated
 // if new time-based effects are added to the game, such as hunger degradation and so-forth.
 // Several of the obviously-required-in-future functions are included as comments below.
 
 void GAME_evaluateTimedEvents(void){
-    unsigned int current_minutes, current_hours, current_seconds;
+    unsigned int current_minutes, current_hours, current_seconds, ret_flag;
     Calendar TempTime = RTC_C_getCalendarTime(RTC_C_BASE);
     current_minutes = RTC_C_convertBCDToBinary(RTC_C_BASE, TempTime.Minutes);
     current_hours = RTC_C_convertBCDToBinary(RTC_C_BASE, TempTime.Hours);
@@ -284,8 +343,8 @@ void GAME_evaluateTimedEvents(void){
         GAME_NEEDS_evaluateSleeping(current_hours);                  // None of these other needs calculations can occur while sleeping.
     }
     if ((current_seconds == 0) && egg_delay_set && (StateMachine.STAGE_ID > 0x00) && needs_evaluation){ // At the round minute, we need to check for these several functions, only if not an egg.
-        GAME_NEEDS_evaluateHungerFun(current_minutes);
-        //GAME_NEEDS_evaluatePooped();
+        ret_flag = GAME_NEEDS_evaluateHungerFun(current_minutes);
+        GAME_NEEDS_evaluatePooped(current_hours, current_minutes, ret_flag);
         //GAME_NEEDS_evaluateIllness();
         //GAME_NEEDS_evaluateDeath();
         needs_evaluation = false;
