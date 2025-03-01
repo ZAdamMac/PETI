@@ -22,6 +22,7 @@
 #include "lib/display/display.h"
 #include "lib/alerts/alerts.h"
 #include "lib/scenes/main_game.h"
+#include "lib/alerts/blinkenlights.h"  // TODO prune
 
 unsigned int egg_delay_set;
 unsigned int egg_delay = 0x05; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
@@ -29,7 +30,7 @@ unsigned int needs_evaluation = 0x01; // A flag used to prevent double-dipping o
 unsigned int baby_nap_hour = 0x00;      //Used to store the time at which the baby is going to lay down for its nap.
 unsigned int baby_wake_hour = 0x00;     //And the time at which it wakes up.
 
-GameState StateMachine = {0, 3, 0, 0, 0, 0, 0, 0, 0}; //FUTURE this is a rough way to intialize this.
+GameState StateMachine = {0, 3, 0, 0, 0, 0, 0, 0, 0, 0}; //FUTURE this is a rough way to intialize this.
 
 // A nice basic init function to set up the global state machine.
 // In future work we might add some functionality to look for an
@@ -39,6 +40,7 @@ void GAME_initStateStruct(void){
     debug_disabled = GPIO_getInputPinValue(GPIO_PORT_P3, GPIO_PIN6);
     StateMachine.AGE = 0x00;
     StateMachine.HUNGER_FUN = 0x00;
+    StateMachine.POOP_COUNT = 0x00;
     StateMachine.DISCIPLINE = 0x00;
     StateMachine.NAUGHTY = 0x00; // Reasonable starting value, may need to be tweaked during testing.
     if (debug_disabled){
@@ -257,7 +259,6 @@ void GAME_EVO_incrementForEvolution(void){
 
 //TODO: Nice Refstring
 void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_minutes, unsigned int got_hungry){
-    unsigned int count_poop = StateMachine.HEALTH_BYTE & 0x3;
     float age_weight, health_weight, poop_float;
     if (got_hungry){
         poop_float = RNG_drawFloat();
@@ -295,14 +296,12 @@ void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_m
         }
         // if the RNG pulls a number that *beats* the multiplied fraction of the health_weight and age_weight, it poops.
         if (poop_float >= (health_weight * age_weight)) {
-            count_poop++;
-            if (count_poop > 3){  // Since this is the maximum value of a 2-bit integer
-                count_poop = 3;
+            BLINKENLIGHTS_blinkBatteryLED(BLINKENLIGHTS_RAPID_PULSES); // TODO Remove Debugging call
+            StateMachine.POOP_COUNT++;
+            if (StateMachine.POOP_COUNT > 4){  // Since this is the maximum value of a 2-bit integer
+                StateMachine.POOP_COUNT = 4;
             }
         }
-        // Finally, put the modified count back on.
-        StateMachine.HEALTH_BYTE = StateMachine.HEALTH_BYTE & count_poop;
-
     }
 }
 

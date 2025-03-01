@@ -36,6 +36,7 @@ typedef struct GameState {      // A metastructure to hold the current game stat
     unsigned int NAUGHTY;       // bounded to 100, variable intended to influence the likelihood the pet alerts the user for no reason.
     unsigned int STAGE_ID;      // Corresponds to the index of EVO_metaStruct at which the currently-active "stage" or species of PET is stored.
     unsigned int HEALTH_BYTE;   // Holds various bits or nibbles as indicators of various other health elements.
+    unsigned int POOP_COUNT;    // Simple int usually bounded 0-4 which indicates how many times pet has pooped since last bath.
     unsigned int INIT;          // non-zero value indicates structure initialized
     unsigned int OLD_STAGE_ID;  // Corresponds to the index of EVO_metastruct which was active previous to the current STAGE_ID
 } GameState;

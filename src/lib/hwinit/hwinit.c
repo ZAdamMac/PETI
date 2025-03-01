@@ -20,6 +20,7 @@
 #define DEFAULT_DAY 0x16       //The day of the month
 #define DEFAULT_MONTH 0x01      //The current month
 #define DEFAULT_YEAR 0x2025     //The current year.
+#define DEFAULT_HOUR 0x08     // convention
 
 //We need a simple function to initialize some GPIO pins for driving input and output.
 //Special GPIO pins for (e.g. SPI) are called out in their own functions.
@@ -107,7 +108,7 @@ void Init_RTC(void){
     Calendar defaultTime;
     defaultTime.Seconds = 0x00;
     defaultTime.Minutes = 0x00;
-    defaultTime.Hours = 0x00;
+    defaultTime.Hours = DEFAULT_HOUR;
     defaultTime.DayOfWeek = DEFAULT_DOW;  // No convention is specified, so here we treat sunday as 0.
     defaultTime.DayOfMonth = DEFAULT_DAY;
     defaultTime.Month = DEFAULT_MONTH;

@@ -161,6 +161,23 @@ char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
     return &WORK_STRING;
 }
 
+
+/* TODO: Docustring
+ */
+char* MG_displayPoop(void){
+    unsigned int col;
+
+    for (col = 0; col < PIXELS_X/16; col++){
+        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
+    }
+    if (StateMachine.POOP_COUNT) { // 0 state indicates no poop happened.
+        for (col = 0; col < StateMachine.POOP_COUNT; col++){
+            WORK_STRING[col] = 201; // FUTURE: Replace with the actual poop icon once defined.
+        }
+    }
+    return &WORK_STRING;
+}
+
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
 // to determine the content of each output frame in the main 6 rows of the display, as well as which
 // of those flags need to be reset.
@@ -182,6 +199,7 @@ void MG_updatePlayfieldIdle(void){
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
     strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
+    strcpy(DISPLAY_FRAME.frame[2].line, MG_displayPoop());
 }
 
 /* Parent logic for displaying the sleeping pet animation. Pulls the animation
