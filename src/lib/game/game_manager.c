@@ -22,7 +22,6 @@
 #include "lib/display/display.h"
 #include "lib/alerts/alerts.h"
 #include "lib/scenes/main_game.h"
-#include "lib/alerts/blinkenlights.h"  // TODO prune
 
 unsigned int egg_delay_set;
 unsigned int egg_delay = 0x05; // The length of the egg state in minutes. Gameplay default is 5, but can be tweaked for testing.
@@ -296,7 +295,6 @@ void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_m
         }
         // if the RNG pulls a number that *beats* the multiplied fraction of the health_weight and age_weight, it poops.
         if (poop_float >= (health_weight * age_weight)) {
-            BLINKENLIGHTS_blinkBatteryLED(BLINKENLIGHTS_RAPID_PULSES); // TODO Remove Debugging call
             StateMachine.POOP_COUNT++;
             if (StateMachine.POOP_COUNT > 4){  // Since this is the maximum value of a 2-bit integer
                 StateMachine.POOP_COUNT = 4;
