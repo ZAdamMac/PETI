@@ -28,6 +28,8 @@
 #define GM_ACTIVITY_SICK 0x02
 #define GM_ACTIVITY_ISEGG 0x03
 
+#define GM_MAX_POOPS 0x04  // Determines the maximum number of poops to be allowed in the game state.
+
 typedef struct GameState {      // A metastructure to hold the current game state as one structure. Contains most of the relevant data about the active PET.
     unsigned int AGE;           // Integer number indicating the time in days-past-midnight of the PET having been hatched, starting from 0
     unsigned int ACT;           // Activity state of the PET. 0 for sleeping, 1 for awake and normal, 2 for sick, and 3 for the egg life state.

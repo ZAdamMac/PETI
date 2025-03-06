@@ -13,7 +13,9 @@
 
 #include <msp430.h>
 #include <string.h>
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include "lib/display/display.h"
+#include "lib/display/icons.h"
 #include "lib/game/game_manager.h"
 #include "lib/game/evo_data.h"
 #include "driverlib.h"
@@ -25,7 +27,6 @@
 #include "lib/menus/main_game.h"
 #include "lib/hwinit/human_input.h"
 #include "lib/hwinit/battery.h"
-
 
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
@@ -162,20 +163,68 @@ char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
 }
 
 
-/* TODO: Docustring
- */
-char* MG_displayPoop(void){
-    unsigned int col;
+/* Given an x-y position in *character cells*, computes a stack of poop icons
+*  and places them into the global DISPLAY_FRAME. This overwrites any other
+*  tiles placed in those positions but dynamically respects the lighting state.
+*  width of pile is determined by MG_poop_stack_width and max rows is a function
+*  of that and GM_MAX_POOPS.
+*/
+void MG_displayPoop(unsigned int root_x, unsigned int root_y){
+    unsigned int poop_rows, row, poops_this_row, col;
+    char used_icon, used_directive;
 
-    for (col = 0; col < PIXELS_X/16; col++){
-        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
+    // Currently, a two-frame animation is supported. Modifying the values in
+    // icons.h will transparently retarget the poop icons as long as they share
+    // a font. The font could also be modified in-place without changing the
+    // characters if you really wanted.
+    if (SCENE_FRAME % 2){
+        used_icon = ICON_POOP_A;
     }
-    if (StateMachine.POOP_COUNT) { // 0 state indicates no poop happened.
-        for (col = 0; col < StateMachine.POOP_COUNT; col++){
-            WORK_STRING[col] = 201; // FUTURE: Replace with the actual poop icon once defined.
+    else {
+        used_icon = ICON_POOP_B;
+    }
+
+    // We also need this, to preserve the directive already in place. This is
+    // easier to compute than dynamically pulling it from the bitfield.
+    if (MG_lights_on){
+        used_directive = DIRECTIVE_NORMAL;
+    }
+    else {
+        used_directive = DIRECTIVE_BLACKOUT; 
+    }
+
+    poop_rows = StateMachine.POOP_COUNT / MG_poop_stack_width;
+    if (StateMachine.POOP_COUNT % MG_poop_stack_width){
+        poop_rows++; // If there is a remainder, we need an extra row.
+    }
+    
+    // Now we can do this row-by row.
+    for (row=0; row<=poop_rows; row++){
+        //First Pass: Set the poop icon onto the line for the row.
+        strcpy(WORK_STRING, &DISPLAY_FRAME.frame[root_x - row].line);
+        if ((row == poop_rows) && (StateMachine.POOP_COUNT % MG_poop_stack_width)){ // Special Remainder Pile
+            poops_this_row = StateMachine.POOP_COUNT % MG_poop_stack_width;
         }
+        else { //for the TOP row
+            poops_this_row = MG_poop_stack_width;
+        }
+        for (col=0; col<poops_this_row; col++){
+            WORK_STRING[root_y-col] = used_icon;
+        }
+        strcpy(DISPLAY_FRAME.frame[root_x - row].line, &WORK_STRING);
+        //second pass: set the font directive.
+        strcpy(WORK_STRING, &DISPLAY_FRAME.frame[root_x - row].directives);
+        if ((row == poop_rows) && (StateMachine.POOP_COUNT % MG_poop_stack_width)){ // Special Remainder Pile
+            poops_this_row = StateMachine.POOP_COUNT % MG_poop_stack_width;
+        }
+        else { //for the TOP row
+            poops_this_row = MG_poop_stack_width;
+        }
+        for (col=0; col<poops_this_row; col++){
+            WORK_STRING[root_y-col] = ICON_POOP_FONT + used_directive; // TODO: this breaks lights off.
+        }
+        strcpy(DISPLAY_FRAME.frame[root_x - row].directives, &WORK_STRING);
     }
-    return &WORK_STRING;
 }
 
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
@@ -199,7 +248,6 @@ void MG_updatePlayfieldIdle(void){
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
     strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
-    strcpy(DISPLAY_FRAME.frame[2].line, MG_displayPoop());
 }
 
 /* Parent logic for displaying the sleeping pet animation. Pulls the animation
@@ -441,6 +489,11 @@ void MG_computeNextFrame(void){
             }
             SCENE_CURRENT_PAGE++;
         }
+    }
+    //FUTURE: At some point we should draw the status icons here.
+    if (StateMachine.POOP_COUNT){
+        MG_displayPoop(7,7); //Encodes for the bottom-right corner of the screen. 
+        //FUTURE Replace these magic numbers
     }
 }
 
