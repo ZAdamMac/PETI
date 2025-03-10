@@ -221,7 +221,7 @@ void MG_displayPoop(unsigned int root_x, unsigned int root_y){
             poops_this_row = MG_poop_stack_width;
         }
         for (col=0; col<poops_this_row; col++){
-            WORK_STRING[root_y-col] = ICON_POOP_FONT + used_directive; // TODO: this breaks lights off.
+            WORK_STRING[root_y-col] = ICON_POOP_FONT + used_directive;
         }
         strcpy(DISPLAY_FRAME.frame[root_x - row].directives, &WORK_STRING);
     }

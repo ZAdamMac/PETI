@@ -256,7 +256,11 @@ void GAME_EVO_incrementForEvolution(void){
 }
 
 
-//TODO: Nice Refstring
+/* Non-Exposed function that takes the current time and a simple flag to indicate if a hunger decrement was detected.
+*  Checks some state cases to obtain an illness rate and a life stage rate, then multiplies them together to get a
+*  specific "poop rate". This rate is tested against to see if the pet's RNG can create a *higher* number than the rate.ACCTEIE__ACCTEIE_0
+*  If the RNG output was higher, the pet poops. Most parameters are global defined from game_manager.h
+*/
 void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_minutes, unsigned int got_hungry){
     float age_weight, health_weight, poop_float;
     if (got_hungry){
@@ -266,7 +270,7 @@ void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_m
                 age_weight = 0;
                 break;
             case EVO_phase_baby: // In this case, every hour is a pooping hour if we're awake.
-                age_weight = 0.3;
+                age_weight = GAME_NEEDS_baby_poop_rate;
                 break;
             case EVO_phase_teen: 
                 age_weight = GAME_NEEDS_teen_poop_rate;

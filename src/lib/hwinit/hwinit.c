@@ -79,7 +79,7 @@ void Init_Timers(void){
     // Set master clock to 8MHz; at this rate TimerA would interrupt roughly 2/sec
     // sets the properties to init Timer_A
     // Running the timer any faster than this will /break/ the animation logic in a way requiring greater complexity to operate.
-    // TODO This actually appears to set SMCLK to 4MHz. Validate
+    // FUTURE This actually appears to set SMCLK to 4MHz. Validate
     CS_setDCOFreq(CS_DCORSEL_0, CS_DCOFSEL_3); // Set DCO frequency 8 MHz
     CS_initClockSignal(CS_SMCLK, CS_DCOCLK_SELECT, CS_CLOCK_DIVIDER_1); //SMCLK = 8 Mhz
     Timer_A_initUpModeParam initContParam = {0};
