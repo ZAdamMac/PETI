@@ -416,7 +416,12 @@ char* MG_computeTopDirective(void){
 char* MG_computeBottomDirective(void){
     unsigned int bottom_slice; unsigned int top_slice; unsigned int magic_pad; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0;
     bottom_slice = SCENE_PAGE_COUNT/2; //3
-    magic_pad = 2;
+    if (SCENE_PAGE_COUNT % 2 == 1){ // Padding gets weird if the numbers are even or odd.
+        magic_pad = 2;
+    }
+    else {
+        magic_pad = 3;
+    }
     top_slice = SCENE_PAGE_COUNT - bottom_slice; //4
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice; //13
     left_pad = blank_spaces/2; // This will always round down, which we actually want 6
