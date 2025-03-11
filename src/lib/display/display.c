@@ -66,6 +66,10 @@ void Init_SPI(void) {
 
     GPIO_setAsOutputPin(GPIO_PORT_P1,GPIO_PIN3);     // Set P1.3 as output pin for CS of LCD
     GPIO_setOutputLowOnPin(GPIO_PORT_P1,GPIO_PIN3);  // disable LCD Module
+
+    GPIO_setAsOutputPin(GPIO_PORT_P8,GPIO_PIN0);     // Set P8.0 as output pin for CS of EXP
+    GPIO_setOutputLowOnPin(GPIO_PORT_P8,GPIO_PIN0);  // disable LCD Module
+
          //Wait for devices to initialize.
     __delay_cycles(100);
 
