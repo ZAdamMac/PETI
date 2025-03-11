@@ -144,3 +144,5 @@
 
 # v 0.5.0 - Hygine and Audio Update
 - Changed the audio interface code to use PWM audio output. This will result in richer audio options beginning with Hardware Revision D, at the cost of quieter audio output for the Revision C development hardware.
+- Implemented the ability for the pet to poop and for the player to clean it up. This both uses and has implications for the "health byte", which will compe into play later in the development process.
+- Default wall clock time is now 8 AM on the defaulted day rather than midnight.

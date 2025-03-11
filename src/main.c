@@ -50,7 +50,7 @@ int main(void) {
         PMM_unlockLPM5();
         BATTERY_checkForSigLBO();
         if (AUDIO_noteEnd){
-            AUDIO_stopNote(); //TODO Comment
+            AUDIO_stopNote();
         }
         if (StateMachine.ACT > 0){
             GAME_evaluateTimedEvents();
@@ -120,7 +120,7 @@ __interrupt void BLINK_BATTERY_ISR (void){
 
 //Raise a game state flag and wake up from sleep when the Timer A2 IFG is set.
 //This indicates that the audio system has reached the intended end of a note
-#pragma vector=TIMER2_A0_VECTOR //TODO: Resume from here
+#pragma vector=TIMER2_A0_VECTOR 
 __interrupt void AUDIO_TIMEOUT_ISR (void){
     Timer_A_clearCaptureCompareInterrupt(TIMER_A2_BASE, TIMER_A_CAPTURECOMPARE_REGISTER_0);
     Timer_A_clearTimerInterrupt(TIMER_A2_BASE);

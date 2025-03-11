@@ -53,6 +53,7 @@ extern const char* LARRAY_DEBUG_OPTS[] = {
                                         "Drain Hunger Bar",
                                         "Fill Fun Bar    ",
                                         "Drain Fun Bar   ",
+                                        "Add +1 Poops    ",
                                         "Stage Select    ",
                                         "Entropy Check   ",
                                         "Sleep the LCD   ",

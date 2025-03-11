@@ -17,10 +17,19 @@
 #define GAME_NEEDS_senior_wakeup 9
 #define GAME_NEEDS_final_wakeup 9
 
+//These floats modify the rate at which the pet poops; lower is more frequent.
+#define GAME_NEEDS_baby_poop_rate 0.3
+#define GAME_NEEDS_teen_poop_rate 0.5
+#define GAME_NEEDS_adult_poop_rate 0.6
+#define GAME_NEEDS_senior_poop_rate 0.8
+#define GAME_NEEDS_sick_poop_rate_modifier 0.3
+
 #define GM_ACTIVITY_SLEEPING 0x00
 #define GM_ACTIVITY_IDLE 0x01
 #define GM_ACTIVITY_SICK 0x02
 #define GM_ACTIVITY_ISEGG 0x03
+
+#define GM_MAX_POOPS 0x04  // Determines the maximum number of poops to be allowed in the game state.
 
 typedef struct GameState {      // A metastructure to hold the current game state as one structure. Contains most of the relevant data about the active PET.
     unsigned int AGE;           // Integer number indicating the time in days-past-midnight of the PET having been hatched, starting from 0
@@ -30,6 +39,7 @@ typedef struct GameState {      // A metastructure to hold the current game stat
     unsigned int NAUGHTY;       // bounded to 100, variable intended to influence the likelihood the pet alerts the user for no reason.
     unsigned int STAGE_ID;      // Corresponds to the index of EVO_metaStruct at which the currently-active "stage" or species of PET is stored.
     unsigned int HEALTH_BYTE;   // Holds various bits or nibbles as indicators of various other health elements.
+    unsigned int POOP_COUNT;    // Simple int usually bounded 0-4 which indicates how many times pet has pooped since last bath.
     unsigned int INIT;          // non-zero value indicates structure initialized
     unsigned int OLD_STAGE_ID;  // Corresponds to the index of EVO_metastruct which was active previous to the current STAGE_ID
 } GameState;
