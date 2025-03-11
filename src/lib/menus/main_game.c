@@ -50,7 +50,7 @@ void MENU_MG_toggleLightsMenu(void){
 }
 
 void MENU_MG_washPet(void){
-    SCENE_ACT = SCENEADDR_proof_text;//Currently no settings menu, do this instead;
+    SCENE_ACT = SCENEADDR_bathtime;//Currently no settings menu, do this instead;
 }
 
 
