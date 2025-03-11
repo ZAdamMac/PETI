@@ -18,7 +18,7 @@
 #include "lib/scenes/scenes_manager.h"
 
 
-// TODO: Nice Refstring
+// Compute one line of the bathing animation.
 char * BATH_drawLine(unsigned int row){
     unsigned int col;
     // We actually want to just draw this right on top of the main game screen
@@ -40,7 +40,7 @@ char * BATH_drawLine(unsigned int row){
 }
 
 
-// TODO: Nice Refstring
+// compute one line of the bathing animation's directives
 char * BATH_directLine(unsigned int row){
     unsigned int col;
     // We actually want to just draw this right on top of the main game screen
