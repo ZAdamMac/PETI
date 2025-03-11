@@ -20,9 +20,9 @@
 //These floats modify the rate at which the pet poops; lower is more frequent.
 #define GAME_NEEDS_baby_poop_rate 0.3
 #define GAME_NEEDS_teen_poop_rate 0.5
-#define GAME_NEEDS_adult_poop_rate 0.6
-#define GAME_NEEDS_senior_poop_rate 0.8
-#define GAME_NEEDS_sick_poop_rate_modifier 0.3
+#define GAME_NEEDS_adult_poop_rate 0.2
+#define GAME_NEEDS_senior_poop_rate 0.2
+#define GAME_NEEDS_sick_poop_rate_modifier 3
 
 #define GM_ACTIVITY_SLEEPING 0x00
 #define GM_ACTIVITY_IDLE 0x01

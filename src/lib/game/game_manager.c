@@ -298,7 +298,7 @@ void GAME_NEEDS_evaluatePooped(unsigned int current_hour, unsigned int current_m
 
         }
         // if the RNG pulls a number that *beats* the multiplied fraction of the health_weight and age_weight, it poops.
-        if (poop_float >= (health_weight * age_weight)) {
+        if (poop_float <= (health_weight * age_weight)) {
             StateMachine.POOP_COUNT++;
             if (StateMachine.POOP_COUNT > GM_MAX_POOPS){  // Since this is the maximum value of a 2-bit integer
                 StateMachine.POOP_COUNT = GM_MAX_POOPS;
