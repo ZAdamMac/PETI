@@ -143,20 +143,69 @@ char* MG_computeDirectiveSleep(char FONT_ADDR){
 
 
 /* Performs the necessary calculations to determine which status icons need to
- * be displayed through the work string. This is a highly simplistic version of
- * this function and will likely be altered in the future.
+ * be displayed through the work string.
  */
-char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
-    unsigned int col;
+char* MG_placeStatusIcons(unsigned int row, unsigned int col){ // FUTURE: give a root positional coordinate
+    int count_used, count_increment;
 
-    for (col = 0; col < PIXELS_X/16; col++){
-        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
-    }
+    count_used = 0; // This is just the sanest starting value.
+    count_increment = 1;
+    strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].line);    // Draw atop of what is already there.
+    
+    // FUTURE magic numbers need to be purged from here.
+    // Basically, we can copy the if statement from 158 to 165 and reuse it for any status icon tests we need.
     if (BATTERY_LOW){
-        WORK_STRING[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
+        if ((col + count_used) >= 8){  // We are going to exceed the limits and need to run in the other direction.
+            count_used = -1;
+            count_increment = -1;
+        }
+        WORK_STRING[col + count_used] = ICON_LOW_BATTERY;
+        count_used = count_used + count_increment;
     }
+
     if (StateMachine.ACT == 0){
-        WORK_STRING[1] = 0xFA; // Display the sleep icon while sleeping.
+        if ((col + count_used) >= 8){
+            count_used = -1;
+            count_increment = -1;
+        }
+        WORK_STRING[col + count_used] = ICON_SLEEPING;
+        count_used = count_used + count_increment;
+    }
+
+    return &WORK_STRING;
+}
+
+/* Performs the necessary calculations to determine which status icons need to
+ * be displayed through the work string, which is then used to place directives.
+ */
+char* MG_directStatusIcons(unsigned int row, unsigned int col){ // FUTURE: give a root positional coordinate
+    int count_used, count_increment;
+    unsigned char existing_directive;
+
+    count_used = 0; // This is just the sanest starting value.
+    count_increment = 1;
+    strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].directives);    // Draw atop of what is already there.
+    
+    // FUTURE magic numbers need to be purged from here.
+    // Basically, we can copy the if statement from 158 to 165 and reuse it for any status icon tests we need.
+    if (BATTERY_LOW){
+        if ((col + count_used) >= 8){  // We are going to exceed the limits and need to run in the other direction.
+            count_used = -1;
+            count_increment = -1;
+        }
+        existing_directive = WORK_STRING[col + count_used] & 0x0F;
+        WORK_STRING[col + count_used] = ICON_LOW_BATTERY_FONT + existing_directive;
+        count_used = count_used + count_increment;
+    }
+
+    if (StateMachine.ACT == 0){
+        if ((col + count_used) >= 8){
+            count_used = -1;
+            count_increment = -1;
+        }
+        existing_directive = WORK_STRING[col + count_used] & 0x0F;
+        WORK_STRING[col + count_used] = ICON_SLEEPING_FONT + existing_directive;
+        count_used = count_used + count_increment;
     }
 
     return &WORK_STRING;
