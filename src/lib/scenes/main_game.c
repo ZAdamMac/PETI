@@ -145,7 +145,7 @@ char* MG_computeDirectiveSleep(char FONT_ADDR){
 /* Performs the necessary calculations to determine which status icons need to
  * be displayed through the work string.
  */
-char* MG_placeStatusIcons(unsigned int row, unsigned int col){ // FUTURE: give a root positional coordinate
+char* MG_placeStatusIcons(unsigned int row, unsigned int col){
     int count_used, count_increment;
 
     count_used = 0; // This is just the sanest starting value.
@@ -178,7 +178,7 @@ char* MG_placeStatusIcons(unsigned int row, unsigned int col){ // FUTURE: give a
 /* Performs the necessary calculations to determine which status icons need to
  * be displayed through the work string, which is then used to place directives.
  */
-char* MG_directStatusIcons(unsigned int row, unsigned int col){ // FUTURE: give a root positional coordinate
+char* MG_directStatusIcons(unsigned int row, unsigned int col){
     int count_used, count_increment;
     unsigned char existing_directive;
 
@@ -296,7 +296,7 @@ void MG_updatePlayfieldIdle(void){
     }
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
-    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
+    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons(1,0));
 }
 
 /* Parent logic for displaying the sleeping pet animation. Pulls the animation
@@ -310,34 +310,35 @@ void MG_updatePlayfieldSleeping(void){
     char font_used = active_species.font;
     icon_size = active_species.size;
     // Blank the top three lines since none of the sleep animations use them.
-    strcpy(DISPLAY_FRAME.frame[1].line, " ");
-    strcpy(DISPLAY_FRAME.frame[2].line, " ");
-    strcpy(DISPLAY_FRAME.frame[3].line, " ");
     char_tracker = 0;
+
+    //Because of how the sleep dierctives work this makes more sense to do *now*
+    for (row=1;row<8;row++){
+        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep(font_used));
+    }
+
     switch (icon_size){
         case EVO_size_small: 
             strcpy(DISPLAY_FRAME.frame[4].line, " ");
             strcpy(DISPLAY_FRAME.frame[5].line, " ");
+            strcpy(DISPLAY_FRAME.frame[5].line, MG_placeStatusIcons(5,((PIXELS_X/16)/2))); // Same logic as next line.
+            strcpy(DISPLAY_FRAME.frame[5].directives, MG_directStatusIcons(5,((PIXELS_X/16)/2)));
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
             break;
         case EVO_size_med:
-            strcpy(DISPLAY_FRAME.frame[4].line, " ");
+            strcpy(DISPLAY_FRAME.frame[4].line, MG_placeStatusIcons(4,((PIXELS_X/16)/2))); // Same logic as next line.
+            strcpy(DISPLAY_FRAME.frame[4].directives, MG_directStatusIcons(4,((PIXELS_X/16)/2)));
             strcpy(DISPLAY_FRAME.frame[5].line, MG_computeLineSleep(sleep_animation));
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
             break;
         case EVO_size_large:
+            strcpy(DISPLAY_FRAME.frame[3].line, MG_placeStatusIcons(3,((PIXELS_X/16)/2))); // Same logic as next line.
+            strcpy(DISPLAY_FRAME.frame[3].directives, MG_directStatusIcons(3,((PIXELS_X/16)/2)));
             strcpy(DISPLAY_FRAME.frame[4].line, MG_computeLineSleep(sleep_animation));
             strcpy(DISPLAY_FRAME.frame[5].line, MG_computeLineSleep(sleep_animation));
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
             break;
     }
-
-    for (row=1;row<8;row++){
-        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep(font_used));
-    }
-
-    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
-    strcpy(DISPLAY_FRAME.frame[1].directives, MG_computeDirectiveSleep(FONT_ADDR_0));
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.
@@ -504,6 +505,7 @@ void MG_LightsOut(){
 // Some functions (those used for menuing) are not defined and present only as comments.
 void MG_computeNextFrame(void){
     if (StateMachine.STAGE_ID != 0x00){ // Eggs don't get menus
+        DISPLAY_blankFrame(); // Blank the frame so we can just draw what *SHOULD* be on this frame.
         strcpy(DISPLAY_FRAME.frame[0].line, MG_printTopMenu());
         strcpy(DISPLAY_FRAME.frame[0].directives, MG_computeTopDirective());
         strcpy(DISPLAY_FRAME.frame[8].line, MG_printBottomMenu());
@@ -534,7 +536,7 @@ void MG_computeNextFrame(void){
     }
     else {
         MG_LightsOut();
-        strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
+        strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons(1,0));
         if (StateMachine.ACT == GM_ACTIVITY_SLEEPING){
             if (SCENE_CURRENT_PAGE >= MG_sleep_display_cycles){ // Piggybacking on an unusued scene-wide var to handle
                 DISPLAY_sleepLCD();
