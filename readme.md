@@ -31,6 +31,4 @@ The current version of the makefile (1.0) accepts the following commands:
 - `make target-debug` - Performs a full rebuild, starts the MSP430FR5994 connected by USB in its debugging mode, then uses msp430-dgb to enter debugging mode.
 	
 ## Current State
-PETI is currently in something of a close hold until at least Q1 2021; you can think of this as a code freeze. In order to save time on refactoring and iterative development down the road, the architecture of the main game code and main device loop is being developed on a planning scale prior to implementation.
-
-Refer to the Projects and Wiki tabs for more information.
+Please see https://www.arcanalabs.ca/hardware/PETI.html for the latest news on this project.
