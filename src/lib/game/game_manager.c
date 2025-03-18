@@ -195,12 +195,18 @@ void GAME_NEEDS_evaluateSleeping(unsigned int current_hour){
     if (special_case == 0){ // We are neither the egg nor the baby; general logic now applies.
         //If it's between bed-o-clock and the wake-up time, we should be sleeping!
         if (GAME_evaluateBoundedTime(curfew_hour, wake_hour, current_hour)){
+            if (StateMachine.ACT == GM_ACTIVITY_IDLE){  // We are *falling* asleep.
+                ALERTS_fall_asleep_alert();
+            }
             StateMachine.ACT = GM_ACTIVITY_SLEEPING;
             needs_evaluation = 0;
         }
     }
     else if ((special_case == 2) && (baby_nap_hour != 255)){ // Oh baby, you came and you gave me an edge-case...
         if ((current_hour >= baby_nap_hour)){
+            if (StateMachine.ACT == GM_ACTIVITY_IDLE){  // We are *falling* asleep.
+                ALERTS_fall_asleep_alert();
+            }
             StateMachine.ACT = GM_ACTIVITY_SLEEPING; // Babyeh is now asleep
             needs_evaluation = 0;
         }
