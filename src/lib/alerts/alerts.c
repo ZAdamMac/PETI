@@ -33,3 +33,11 @@ void ALERTS_wake_up_alert(void){
     AUDIO_pulse(AUDIO_SHORT_PULSE);
     DISPLAY_wakeLCD();
 }
+
+void ALERTS_fall_asleep_alert(void){
+    if (!BLINKENLIGHTS_ALERT_LED_HOT){
+        BLINKENLIGHTS_blinkAlertLED(BLINKENLIGHTS_RAPID_PULSES);
+    }
+    AUDIO_pulse(AUDIO_SHORT_PULSE);
+    DISPLAY_wakeLCD();
+}
