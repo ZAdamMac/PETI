@@ -49,14 +49,19 @@ void MENU_MG_toggleLightsMenu(void){
     }
 }
 
+void MENU_MG_washPet(void){
+    SCENE_ACT = SCENEADDR_bathtime;//Currently no settings menu, do this instead;
+}
+
 
 #pragma PERSISTENT(MG_menu_options_array);
-voidFuncPointer MG_menu_options_array[7] = {
+voidFuncPointer MG_menu_options_array[8] = {
     MENU_MG_gotoStatusMenu,
     MENU_MG_gotoFeedingMenu,
     MENU_MG_gotoMinigamesMenu,
     MENU_MG_toggleLightsMenu,
     MENU_MG_gotoClockMenu,
     MENU_MG_gotoSettingsMenu,
+    MENU_MG_washPet,
     MENU_MG_gotoDebugMenu
 };

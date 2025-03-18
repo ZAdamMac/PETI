@@ -13,7 +13,9 @@
 
 #include <msp430.h>
 #include <string.h>
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include "lib/display/display.h"
+#include "lib/display/icons.h"
 #include "lib/game/game_manager.h"
 #include "lib/game/evo_data.h"
 #include "driverlib.h"
@@ -25,7 +27,6 @@
 #include "lib/menus/main_game.h"
 #include "lib/hwinit/human_input.h"
 #include "lib/hwinit/battery.h"
-
 
 unsigned int char_tracker;                         //Charts the count we are at in terms of the icon for the species character animation
 unsigned int icon_size;                            //effectively just holds the thing.
@@ -40,8 +41,8 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
     unsigned int reversal_array[4] = {1, 0, 3, 2};  // This reverses a 2x2 sprite!
     unsigned int reversal_array_large[9] = {2, 1, 0, 5, 4, 3, 8, 7, 6}; // This reverses a 3x3 sprite!
     while (charindex < PIXELS_X/16){ // this assumes the 16x16 graphical font is being used.
-        if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_'){ // Dashes are empty cells, underscores are reversed empty cells
-            WORK_STRING[charindex] = ' ';
+        if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_' || meta_placements[charindex] == METANIMATION_STATUS_ROOT){ 
+            WORK_STRING[charindex] = ' '; // Dashes are empty cells, underscores are reversed empty cells, @s are status roots
         }
         else if (meta_placements[charindex] == '0' || meta_placements[charindex] == '2'){ // Zeros say "put the character here, unmodified", 2 is color inverted
             WORK_STRING[charindex] = species_charset[char_tracker];
@@ -88,6 +89,9 @@ char* MG_computeDirective(const char* meta_placements, char FONT_ADDR){
                 break;
             case '3' :
                 WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_REVERSED_NEGATIVE;
+                break;
+            case METANIMATION_STATUS_ROOT :
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL; // This won't necessarily be the right addr. It gets added later.
                 break;
         }
         dirindex++;
@@ -142,30 +146,164 @@ char* MG_computeDirectiveSleep(char FONT_ADDR){
 
 
 /* Performs the necessary calculations to determine which status icons need to
- * be displayed through the work string. This is a highly simplistic version of
- * this function and will likely be altered in the future.
+ * be displayed through the work string.
  */
-char* MG_placeStatusIcons(void){ // FUTURE: give a root positional coordinate
-    unsigned int col;
+char* MG_placeStatusIcons(unsigned int row, unsigned int col){
+    int count_used, count_increment;
 
-    for (col = 0; col < PIXELS_X/16; col++){
-        WORK_STRING[col] = ' '; // For some reason, setting this iteratively is the only way I've been able to make it work.
-    }
+    count_used = 0; // This is just the sanest starting value.
+    count_increment = 1;
+    // We want to draw atop of what is already there, so copy the existing string.
+    strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].line);    
+    
+    // FUTURE magic numbers need to be purged from here.
+    // Basically, we can copy the if statement from 158 to 165 and reuse it for any status icon tests we need.
     if (BATTERY_LOW){
-        WORK_STRING[0] = 0xF9; //FUTURE: Less hardcode for the line positions please.
+        if ((col + count_used) >= 8){  // We are going to exceed the limits and need to run in the other direction.
+            count_used = -1;
+            count_increment = -1;
+        }
+        WORK_STRING[col + count_used] = ICON_LOW_BATTERY;
+        count_used = count_used + count_increment;
     }
+
     if (StateMachine.ACT == 0){
-        WORK_STRING[1] = 0xFA; // Display the sleep icon while sleeping.
+        if ((col + count_used) >= 8){
+            count_used = -1;
+            count_increment = -1;
+        }
+        WORK_STRING[col + count_used] = ICON_SLEEPING;
+        count_used = count_used + count_increment;
     }
 
     return &WORK_STRING;
+}
+
+/* Performs the necessary calculations to determine which status icons need to
+ * be displayed through the work string, which is then used to place directives.
+ */
+char* MG_directStatusIcons(unsigned int row, unsigned int col){
+    int count_used, count_increment;
+    unsigned char existing_directive;
+
+    count_used = 0; // This is just the sanest starting value.
+    count_increment = 1;
+    strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].directives);    // Draw atop of what is already there.
+    
+    // FUTURE magic numbers need to be purged from here.
+    if (BATTERY_LOW){
+        if ((col + count_used) >= 8){  // We are going to exceed the limits and need to run in the other direction.
+            count_used = -1;
+            count_increment = -1;
+        }
+        existing_directive = WORK_STRING[col + count_used] & 0x0F;
+        WORK_STRING[col + count_used] = ICON_LOW_BATTERY_FONT + existing_directive;
+        count_used = count_used + count_increment;
+    }
+
+    if (StateMachine.ACT == 0){
+        if ((col + count_used) >= 8){
+            count_used = -1;
+            count_increment = -1;
+        }
+        existing_directive = WORK_STRING[col + count_used] & 0x0F;
+        WORK_STRING[col + count_used] = ICON_SLEEPING_FONT + existing_directive;
+        count_used = count_used + count_increment;
+    }
+
+    return &WORK_STRING;
+}
+
+
+/* Given an x-y position in *character cells*, computes a stack of poop icons
+*  and places them into the global DISPLAY_FRAME. This overwrites any other
+*  tiles placed in those positions but dynamically respects the lighting state.
+*  width of pile is determined by MG_poop_stack_width and max rows is a function
+*  of that and GM_MAX_POOPS.
+*/
+void MG_displayPoop(unsigned int root_x, unsigned int root_y){
+    unsigned int poop_rows, row, poops_this_row, col;
+    char used_icon, used_directive;
+
+    // Currently, a two-frame animation is supported. Modifying the values in
+    // icons.h will transparently retarget the poop icons as long as they share
+    // a font. The font could also be modified in-place without changing the
+    // characters if you really wanted.
+    if (SCENE_FRAME % 2){
+        used_icon = ICON_POOP_A;
+    }
+    else {
+        used_icon = ICON_POOP_B;
+    }
+
+    // We also need this, to preserve the directive already in place. This is
+    // easier to compute than dynamically pulling it from the bitfield.
+    if (MG_lights_on){
+        used_directive = DIRECTIVE_NORMAL;
+    }
+    else {
+        used_directive = DIRECTIVE_BLACKOUT; 
+    }
+
+    poop_rows = StateMachine.POOP_COUNT / MG_poop_stack_width;
+    if (StateMachine.POOP_COUNT % MG_poop_stack_width){
+        poop_rows++; // If there is a remainder, we need an extra row.
+    }
+    
+    // Now we can do this row-by row.
+    for (row=0; row<=poop_rows; row++){
+        //First Pass: Set the poop icon onto the line for the row.
+        strcpy(WORK_STRING, &DISPLAY_FRAME.frame[root_x - row].line);
+        if ((row == poop_rows) && (StateMachine.POOP_COUNT % MG_poop_stack_width)){ // Special Remainder Pile
+            poops_this_row = StateMachine.POOP_COUNT % MG_poop_stack_width;
+        }
+        else { //for the TOP row
+            poops_this_row = MG_poop_stack_width;
+        }
+        for (col=0; col<poops_this_row; col++){
+            WORK_STRING[root_y-col] = used_icon;
+        }
+        strcpy(DISPLAY_FRAME.frame[root_x - row].line, &WORK_STRING);
+        //second pass: set the font directive.
+        strcpy(WORK_STRING, &DISPLAY_FRAME.frame[root_x - row].directives);
+        if ((row == poop_rows) && (StateMachine.POOP_COUNT % MG_poop_stack_width)){ // Special Remainder Pile
+            poops_this_row = StateMachine.POOP_COUNT % MG_poop_stack_width;
+        }
+        else { //for the TOP row
+            poops_this_row = MG_poop_stack_width;
+        }
+        for (col=0; col<poops_this_row; col++){
+            WORK_STRING[root_y-col] = ICON_POOP_FONT + used_directive;
+        }
+        strcpy(DISPLAY_FRAME.frame[root_x - row].directives, &WORK_STRING);
+    }
+}
+
+
+/* Given a pointer to the .d of the current metanimation, and pointers to status_row and status_column,
+*  parses the entire metanimation and returns the *last* instance of the symbol `@`'s position. This respects
+*  the global definition of METANIMATION_STATUS_ROOT from metanimations.h.
+*/
+void MG_findStatusRoot(Metanimation* meta_placements, unsigned int* row, unsigned int* column){
+    unsigned int search_row, search_column;
+    char current_char;
+    char* this_row[8];
+    for (search_row=0; search_row<6; search_row++){
+        for (search_column=0; search_column<(PIXELS_Y/16); search_column++){
+            current_char = meta_placements->d[SCENE_FRAME][search_row][search_column];
+            if (current_char == METANIMATION_STATUS_ROOT){
+                *row = search_row+1; // This should be correct but it results in the character not being drawn.
+                *column = search_column;
+            }
+        }
+    }
 }
 
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
 // to determine the content of each output frame in the main 6 rows of the display, as well as which
 // of those flags need to be reset.
 void MG_updatePlayfieldIdle(void){
-    unsigned int active_line;
+    unsigned int active_line, search_column, status_row, status_column;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     icon_size = active_species.size; 
     int font_used = active_species.font;
@@ -179,9 +317,13 @@ void MG_updatePlayfieldIdle(void){
         strcpy(DISPLAY_FRAME.frame[active_line+1].line, MG_computeMeta(species_anim, active_meta.d[SCENE_FRAME][active_line])); // Compute the animated text for this row.
         strcpy(DISPLAY_FRAME.frame[active_line+1].directives, MG_computeDirective(active_meta.d[SCENE_FRAME][active_line], font_used)); // Comput the directive information.
     }
+    
+    MG_findStatusRoot(&active_meta, &status_row, &status_column);
+    strcpy(DISPLAY_FRAME.frame[status_row].line, MG_placeStatusIcons(status_row, status_column));
+    strcpy(DISPLAY_FRAME.frame[status_row].directives, MG_directStatusIcons(status_row, status_column));
+
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
-    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
 }
 
 /* Parent logic for displaying the sleeping pet animation. Pulls the animation
@@ -195,34 +337,35 @@ void MG_updatePlayfieldSleeping(void){
     char font_used = active_species.font;
     icon_size = active_species.size;
     // Blank the top three lines since none of the sleep animations use them.
-    strcpy(DISPLAY_FRAME.frame[1].line, " ");
-    strcpy(DISPLAY_FRAME.frame[2].line, " ");
-    strcpy(DISPLAY_FRAME.frame[3].line, " ");
     char_tracker = 0;
+
+    //Because of how the sleep dierctives work this makes more sense to do *now*
+    for (row=1;row<8;row++){
+        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep(font_used));
+    }
+
     switch (icon_size){
         case EVO_size_small: 
             strcpy(DISPLAY_FRAME.frame[4].line, " ");
             strcpy(DISPLAY_FRAME.frame[5].line, " ");
+            strcpy(DISPLAY_FRAME.frame[5].line, MG_placeStatusIcons(5,((PIXELS_X/16)/2))); // Same logic as next line.
+            strcpy(DISPLAY_FRAME.frame[5].directives, MG_directStatusIcons(5,((PIXELS_X/16)/2)));
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
             break;
         case EVO_size_med:
-            strcpy(DISPLAY_FRAME.frame[4].line, " ");
+            strcpy(DISPLAY_FRAME.frame[4].line, MG_placeStatusIcons(4,((PIXELS_X/16)/2))); // Same logic as next line.
+            strcpy(DISPLAY_FRAME.frame[4].directives, MG_directStatusIcons(4,((PIXELS_X/16)/2)));
             strcpy(DISPLAY_FRAME.frame[5].line, MG_computeLineSleep(sleep_animation));
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
             break;
         case EVO_size_large:
+            strcpy(DISPLAY_FRAME.frame[3].line, MG_placeStatusIcons(3,((PIXELS_X/16)/2))); // Same logic as next line.
+            strcpy(DISPLAY_FRAME.frame[3].directives, MG_directStatusIcons(3,((PIXELS_X/16)/2)));
             strcpy(DISPLAY_FRAME.frame[4].line, MG_computeLineSleep(sleep_animation));
             strcpy(DISPLAY_FRAME.frame[5].line, MG_computeLineSleep(sleep_animation));
             strcpy(DISPLAY_FRAME.frame[6].line, MG_computeLineSleep(sleep_animation));
             break;
     }
-
-    for (row=1;row<8;row++){
-        strcpy(DISPLAY_FRAME.frame[row].directives, MG_computeDirectiveSleep(font_used));
-    }
-
-    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
-    strcpy(DISPLAY_FRAME.frame[1].directives, MG_computeDirectiveSleep(FONT_ADDR_0));
 }
 
 // Boilerplate input handler, similar to those seen in all other parts of the firmware.
@@ -350,7 +493,12 @@ char* MG_computeTopDirective(void){
 char* MG_computeBottomDirective(void){
     unsigned int bottom_slice; unsigned int top_slice; unsigned int magic_pad; unsigned int blank_spaces; unsigned int left_pad; unsigned int text_index; unsigned int cursor_index = 0;
     bottom_slice = SCENE_PAGE_COUNT/2; //3
-    magic_pad = 2;
+    if (SCENE_PAGE_COUNT % 2 == 1){ // Padding gets weird if the numbers are even or odd.
+        magic_pad = 2;
+    }
+    else {
+        magic_pad = 3;
+    }
     top_slice = SCENE_PAGE_COUNT - bottom_slice; //4
     blank_spaces = (PIXELS_X/FONT_SIZE_FLOOR_X) - bottom_slice; //13
     left_pad = blank_spaces/2; // This will always round down, which we actually want 6
@@ -383,17 +531,12 @@ void MG_LightsOut(){
 // Called once per cycle to update the menu and playfield based on their various subfunctions for update.
 // Some functions (those used for menuing) are not defined and present only as comments.
 void MG_computeNextFrame(void){
+    DISPLAY_blankFrame(); // Blank the frame so we can just draw what *SHOULD* be on this frame.
     if (StateMachine.STAGE_ID != 0x00){ // Eggs don't get menus
         strcpy(DISPLAY_FRAME.frame[0].line, MG_printTopMenu());
         strcpy(DISPLAY_FRAME.frame[0].directives, MG_computeTopDirective());
         strcpy(DISPLAY_FRAME.frame[8].line, MG_printBottomMenu());
         strcpy(DISPLAY_FRAME.frame[8].directives, MG_computeBottomDirective());
-        strcpy(DISPLAY_FRAME.frame[7].line, " "); // In some conditions the previous frame may set this!
-    }
-    else{ // Menu and middle strings not needed
-        strcpy(DISPLAY_FRAME.frame[0].line, " ");
-        strcpy(DISPLAY_FRAME.frame[7].line, " ");
-        strcpy(DISPLAY_FRAME.frame[8].line, " ");
     }
 
     //Moving on to the large font work, which means we need to "shrink" the work string
@@ -414,7 +557,7 @@ void MG_computeNextFrame(void){
     }
     else {
         MG_LightsOut();
-        strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons());
+        strcpy(DISPLAY_FRAME.frame[3].line, MG_placeStatusIcons(3,3));
         if (StateMachine.ACT == GM_ACTIVITY_SLEEPING){
             if (SCENE_CURRENT_PAGE >= MG_sleep_display_cycles){ // Piggybacking on an unusued scene-wide var to handle
                 DISPLAY_sleepLCD();
@@ -423,6 +566,11 @@ void MG_computeNextFrame(void){
             }
             SCENE_CURRENT_PAGE++;
         }
+    }
+    //FUTURE: At some point we should draw the status icons here.
+    if (StateMachine.POOP_COUNT){
+        MG_displayPoop(7,7); //Encodes for the bottom-right corner of the screen. 
+        //FUTURE Replace these magic numbers
     }
 }
 

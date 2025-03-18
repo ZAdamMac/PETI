@@ -141,4 +141,12 @@
 
 # v 0.4.1 - Bugfixes
 - Fixes issue #45, which put the pet into a crashed state when you tuck them in for bed.
-- 
+
+# v 0.5.0 - Hygine and Audio Update
+- Changed the audio interface code to use PWM audio output. This will result in richer audio options beginning with Hardware Revision D, at the cost of quieter audio output for the Revision C development hardware.
+- Implemented the ability for the pet to poop and for the player to clean it up. This both uses and has implications for the "health byte", which will compe into play later in the development process.
+- Default wall clock time is now 8 AM on the defaulted day rather than midnight.
+- Adds an ability to the RNG Debug (Entropy Check) debug menu item that causes the result on each frame to be sent out as a signal on the accessory SPI port (EXP_CS et. al.). This will ultimately mean that RNG Debug *cannot be used* with an accessory connected. It may be removed at a future date. This featuer has some limitations that are hard to contravene.
+- `scenes/main_game.c` now uses an updated logic for drawing status icons, allowing a root position for status icons to be defined. The metanimations page in the wiki was updated to reflect this.
+- the pet now raises an alert when it first falls asleep.
+- menus that were created using the `menu_generator.c` general purpose functions now detect when they have been idle and return to `main_game`.

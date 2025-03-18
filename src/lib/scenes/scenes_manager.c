@@ -11,15 +11,15 @@
 //***************************************************************************************
 
 #include <msp430.h>
-#include "driverlib.h"
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include "scenes_manager.h"
 #include "boot_splash.h"
-#include "calendar_menu.h"
+#include "lib/scenes/calendar_menu.h"
 #include "main.h"
 #include "button_proofer.h"
 #include "status_menu.h"
 #include "lib/display/display.h"
-#include "menu_generator.h"
+#include "lib/scenes/menu_generator.h"
 #include "lib/menus/debug_menu.h"
 #include "lib/menus/snacks_menu.h"
 #include "lib/menus/food_menu.h"
@@ -32,6 +32,7 @@
 #include "stage_selector.h"
 #include "lib/menus/minigames_menu.h"
 #include "lib/scenes/minigames/rockpaperscissors.h"
+#include "lib/scenes/bath_animation.h"
 #include "evolving_animation.h"
 #include "reset_save.h"
 
@@ -105,7 +106,9 @@ void SCENE_updateDisplay(void){
         case SCENEADDR_evolving:
             SCENE_Evolving();
             break;
-
+        case SCENEADDR_bathtime:
+            SCENE_bathtime();
+            break;
     }
 }
 

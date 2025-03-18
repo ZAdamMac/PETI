@@ -15,6 +15,7 @@
 #include "driverlib.h"
 #include <msp430.h>
 #include <string.h>
+#include <stdio.h>
 #include "scenes_manager.h"
 #include "main.h"
 #include "lib/locales/enCA_strings.h"

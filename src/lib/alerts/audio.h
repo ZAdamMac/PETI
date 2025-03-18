@@ -15,4 +15,9 @@
 
 void AUDIO_pulse(int pulse_length);
 
+//Functional Boolean used to indicate whether or not it's time to stop the timers.
+int AUDIO_noteEnd;
+
+void AUDIO_stopNote(void);
+
 #endif /* LIB_ALERTS_AUDIO_H_ */

@@ -30,6 +30,7 @@ volatile unsigned int SCENE_FRAME;          // A global counter to keep track of
 #define SCENEADDR_calendar_menu 0x21                // Address to the calendar adjustment menu.
 #define SCENEADDR_minigames_menu 0x30               // Address to the minigames menu.
 #define SCENEADDR_minigame_rockpaperscissors 0x31   // Address to the rock paper scissors minigame.
+#define SCENEADDR_bathtime 0x40                     // Address to the bathtime animation
 #define SCENEADDR_debug_menu 0xF0                   // Address to the debug menu
 #define SCENEADDR_demo_mode 0xF1                    // Address for the demo screen
 #define SCENEADDR_sound_test 0xF2                   // Address for the sound test.
