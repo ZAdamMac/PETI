@@ -148,3 +148,5 @@
 - Default wall clock time is now 8 AM on the defaulted day rather than midnight.
 - Adds an ability to the RNG Debug (Entropy Check) debug menu item that causes the result on each frame to be sent out as a signal on the accessory SPI port (EXP_CS et. al.). This will ultimately mean that RNG Debug *cannot be used* with an accessory connected. It may be removed at a future date. This featuer has some limitations that are hard to contravene.
 - `scenes/main_game.c` now uses an updated logic for drawing status icons, allowing a root position for status icons to be defined. The metanimations page in the wiki was updated to reflect this.
+- the pet now raises an alert when it first falls asleep.
+- menus that were created using the `menu_generator.c` general purpose functions now detect when they have been idle and return to `main_game`.

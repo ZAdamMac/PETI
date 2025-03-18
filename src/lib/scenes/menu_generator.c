@@ -11,7 +11,7 @@
 
 #include "lib/display/display.h"
 #include "lib/hwinit/hwinit.h"
-#include "driverlib.h"
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include <msp430.h>
 #include <string.h>
 #include "main.h"
@@ -22,6 +22,7 @@
 
 #define MENU_active_lines 7                     // Defines the number of lines usable to display menu items on each page.
 #define MENU_width_buffered ((PIXELS_X/8)+1)    // Mathmatically ties the buffered menu widht to display.h's PIXELS_X
+#define MENU_LIMIT_IDLE_FRAMES 15
 
 // Computes the total number of pages needed based on the value of MENU_active_lines and the argued-in count of menu options
 int MENU_computePagination(int count_opts){
@@ -50,7 +51,8 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
         this_event = HID_input_events_queue[i]; //fetch the event.
         switch (this_event){
             case(BUTTON_A_PRESS): // Scroll up the list but one per keypress.
-	            SCENE_CURSOR_POS -= 1;
+	            SCENE_FRAME = 0;
+                SCENE_CURSOR_POS -= 1;
                 if (SCENE_CURSOR_POS < 0){
                     SCENE_CURSOR_POS = MENU_active_lines;
                     SCENE_CURRENT_PAGE -= 1;
@@ -60,6 +62,7 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
                 }
             	break;
             case(BUTTON_B_PRESS): // scroll down the list by one per keypress
+                SCENE_FRAME = 0;
                 SCENE_CURSOR_POS += 1;
                 if (SCENE_CURSOR_POS >= MENU_active_lines){
                     SCENE_CURRENT_PAGE += 1;
@@ -70,6 +73,7 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
                 }
                 break;
             case(BUTTON_C_PRESS): //Make a selection of the current line.
+                SCENE_FRAME = 0;
                 SCENE_EXIT_FLAG = true;
                 if (SCENE_CURSOR_POS + (SCENE_CURRENT_PAGE*MENU_active_lines) < target_count_opts){
                     selection = SCENE_CURSOR_POS+(SCENE_CURRENT_PAGE*7);
@@ -77,8 +81,8 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
                 }
                 break;
             case(BUTTON_D_PRESS): // exit back to the main game page
+                SCENE_FRAME = 0;
                 SCENE_EXIT_FLAG = true;
-                SCENE_ACT = SCENEADDR_main_game; // We are cancelling, get me outta here.
                 break;
         }
         HID_input_events_queue[i] = BUTTON_NO_PRESS;
@@ -132,13 +136,18 @@ void MENU_computeNextFrame(char* header, char * options, int count_opts){
 //      target_MARRAY: a voidFuncPointer ** array of pointers to functions. This must be in the same order as target_LARRAY
 //      target_count_opts: an integer describing the number of items (not the max index!) of the two arrays above.
 void SCENE_TextMenu(char * target_LSTRING_HEADER, char ** target_LARRAY, voidFuncPointer ** target_MARRAY, int target_count_opts){
+    SCENE_FRAME++;
     SCENE_PAGE_COUNT = MENU_computePagination(target_count_opts);
     MENU_handleInputs(target_MARRAY, target_count_opts);
     MENU_computeNextFrame(target_LSTRING_HEADER, target_LARRAY, target_count_opts);
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
+    if (SCENE_FRAME >= MENU_LIMIT_IDLE_FRAMES){
+        SCENE_EXIT_FLAG = true;
+    }
     if (SCENE_EXIT_FLAG){ // The user has asked to leave.
         SCENE_EXIT_FLAG = false; // The player can come back to this menu, so we need to reset this.
         SCENE_CURRENT_PAGE = 0;
         SCENE_CURSOR_POS = 0;
+        SCENE_ACT = SCENEADDR_main_game; // We are cancelling, get me outta here.
     }
 }
