@@ -41,8 +41,8 @@ char* MG_computeMeta(const char* species_charset, const char* meta_placements){
     unsigned int reversal_array[4] = {1, 0, 3, 2};  // This reverses a 2x2 sprite!
     unsigned int reversal_array_large[9] = {2, 1, 0, 5, 4, 3, 8, 7, 6}; // This reverses a 3x3 sprite!
     while (charindex < PIXELS_X/16){ // this assumes the 16x16 graphical font is being used.
-        if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_'){ // Dashes are empty cells, underscores are reversed empty cells
-            WORK_STRING[charindex] = ' ';
+        if (meta_placements[charindex] == '-' || meta_placements[charindex] == '_' || meta_placements[charindex] == METANIMATION_STATUS_ROOT){ 
+            WORK_STRING[charindex] = ' '; // Dashes are empty cells, underscores are reversed empty cells, @s are status roots
         }
         else if (meta_placements[charindex] == '0' || meta_placements[charindex] == '2'){ // Zeros say "put the character here, unmodified", 2 is color inverted
             WORK_STRING[charindex] = species_charset[char_tracker];
@@ -89,6 +89,9 @@ char* MG_computeDirective(const char* meta_placements, char FONT_ADDR){
                 break;
             case '3' :
                 WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_REVERSED_NEGATIVE;
+                break;
+            case METANIMATION_STATUS_ROOT :
+                WORK_STRING[dirindex] = FONT_ADDR + DIRECTIVE_NORMAL; // This won't necessarily be the right addr. It gets added later.
                 break;
         }
         dirindex++;
@@ -150,7 +153,8 @@ char* MG_placeStatusIcons(unsigned int row, unsigned int col){
 
     count_used = 0; // This is just the sanest starting value.
     count_increment = 1;
-    strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].line);    // Draw atop of what is already there.
+    // We want to draw atop of what is already there, so copy the existing string.
+    strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].line);    
     
     // FUTURE magic numbers need to be purged from here.
     // Basically, we can copy the if statement from 158 to 165 and reuse it for any status icon tests we need.
@@ -187,7 +191,6 @@ char* MG_directStatusIcons(unsigned int row, unsigned int col){
     strcpy(WORK_STRING, &DISPLAY_FRAME.frame[row].directives);    // Draw atop of what is already there.
     
     // FUTURE magic numbers need to be purged from here.
-    // Basically, we can copy the if statement from 158 to 165 and reuse it for any status icon tests we need.
     if (BATTERY_LOW){
         if ((col + count_used) >= 8){  // We are going to exceed the limits and need to run in the other direction.
             count_used = -1;
@@ -276,11 +279,31 @@ void MG_displayPoop(unsigned int root_x, unsigned int root_y){
     }
 }
 
+
+/* Given a pointer to the .d of the current metanimation, and pointers to status_row and status_column,
+*  parses the entire metanimation and returns the *last* instance of the symbol `@`'s position. This respects
+*  the global definition of METANIMATION_STATUS_ROOT from metanimations.h.
+*/
+void MG_findStatusRoot(Metanimation* meta_placements, unsigned int* row, unsigned int* column){
+    unsigned int search_row, search_column;
+    char current_char;
+    char* this_row[8];
+    for (search_row=0; search_row<6; search_row++){
+        for (search_column=0; search_column<(PIXELS_Y/16); search_column++){
+            current_char = meta_placements->d[SCENE_FRAME][search_row][search_column];
+            if (current_char == METANIMATION_STATUS_ROOT){
+                *row = search_row+1; // This should be correct but it results in the character not being drawn.
+                *column = search_column;
+            }
+        }
+    }
+}
+
 //Parent function that keeps track of what frame of animation we're on and uses MG_updatePlayfieldIdle
 // to determine the content of each output frame in the main 6 rows of the display, as well as which
 // of those flags need to be reset.
 void MG_updatePlayfieldIdle(void){
-    unsigned int active_line;
+    unsigned int active_line, search_column, status_row, status_column;
     Stage active_species = EVO_metaStruct[StateMachine.STAGE_ID];
     icon_size = active_species.size; 
     int font_used = active_species.font;
@@ -294,9 +317,13 @@ void MG_updatePlayfieldIdle(void){
         strcpy(DISPLAY_FRAME.frame[active_line+1].line, MG_computeMeta(species_anim, active_meta.d[SCENE_FRAME][active_line])); // Compute the animated text for this row.
         strcpy(DISPLAY_FRAME.frame[active_line+1].directives, MG_computeDirective(active_meta.d[SCENE_FRAME][active_line], font_used)); // Comput the directive information.
     }
+    
+    MG_findStatusRoot(&active_meta, &status_row, &status_column);
+    strcpy(DISPLAY_FRAME.frame[status_row].line, MG_placeStatusIcons(status_row, status_column));
+    strcpy(DISPLAY_FRAME.frame[status_row].directives, MG_directStatusIcons(status_row, status_column));
+
     SCENE_FRAME++;
     SCENE_FRAME = SCENE_FRAME % 4; // Automatic index rollover because manual coding sucks.
-    strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons(1,0));
 }
 
 /* Parent logic for displaying the sleeping pet animation. Pulls the animation
@@ -504,18 +531,12 @@ void MG_LightsOut(){
 // Called once per cycle to update the menu and playfield based on their various subfunctions for update.
 // Some functions (those used for menuing) are not defined and present only as comments.
 void MG_computeNextFrame(void){
+    DISPLAY_blankFrame(); // Blank the frame so we can just draw what *SHOULD* be on this frame.
     if (StateMachine.STAGE_ID != 0x00){ // Eggs don't get menus
-        DISPLAY_blankFrame(); // Blank the frame so we can just draw what *SHOULD* be on this frame.
         strcpy(DISPLAY_FRAME.frame[0].line, MG_printTopMenu());
         strcpy(DISPLAY_FRAME.frame[0].directives, MG_computeTopDirective());
         strcpy(DISPLAY_FRAME.frame[8].line, MG_printBottomMenu());
         strcpy(DISPLAY_FRAME.frame[8].directives, MG_computeBottomDirective());
-        strcpy(DISPLAY_FRAME.frame[7].line, " "); // In some conditions the previous frame may set this!
-    }
-    else{ // Menu and middle strings not needed
-        strcpy(DISPLAY_FRAME.frame[0].line, " ");
-        strcpy(DISPLAY_FRAME.frame[7].line, " ");
-        strcpy(DISPLAY_FRAME.frame[8].line, " ");
     }
 
     //Moving on to the large font work, which means we need to "shrink" the work string
@@ -536,7 +557,7 @@ void MG_computeNextFrame(void){
     }
     else {
         MG_LightsOut();
-        strcpy(DISPLAY_FRAME.frame[1].line, MG_placeStatusIcons(1,0));
+        strcpy(DISPLAY_FRAME.frame[3].line, MG_placeStatusIcons(3,3));
         if (StateMachine.ACT == GM_ACTIVITY_SLEEPING){
             if (SCENE_CURRENT_PAGE >= MG_sleep_display_cycles){ // Piggybacking on an unusued scene-wide var to handle
                 DISPLAY_sleepLCD();

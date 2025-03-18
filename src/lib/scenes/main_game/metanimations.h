@@ -13,6 +13,8 @@ typedef struct Metanimation{    // A special structure for defining a metanimati
     char d[4][6][8];            // the actual animation itself. Four arrays, each of six eight-character strings, allow you to define up to four frames of animation.
 } Metanimation;                 // Refer to the wiki for the construction of these strings.
 
+#define METANIMATION_STATUS_ROOT '@'  // Defines the character used to encode the root position for drawing status icons
+
 
 #pragma PERSISTENT(SCENES_metanimations)
 Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed to other functions. Should contain one for each phase-of-life.
@@ -21,7 +23,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
             .d = {
                   {
                         "--------",
-                        "--------",
+                        "---@----",
                         "---00---",
                         "---00---",
                         "--------",
@@ -29,7 +31,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   },
                   {
                         "--------",
-                        "--------",
+                        "---@----",
                         "---00---",
                         "---00---",
                         "--------",
@@ -37,7 +39,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   },
                   {
                         "--------",
-                        "--------",
+                        "---@----",
                         "---00---",
                         "---00---",
                         "--------",
@@ -45,7 +47,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   },
                   {
                         "--------",
-                        "--------",
+                        "---@----",
                         "---00---",
                         "---00---",
                         "--------",
@@ -59,7 +61,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "----@---",
                         "----0---",
                         "--------",
                         "--------"
@@ -67,7 +69,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "---@----",
                         "---0----",
                         "--------",
                         "--------"
@@ -75,7 +77,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "---@----",
                         "---1----",
                         "--------",
                         "--------"
@@ -83,7 +85,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "----@---",
                         "----1---",
                         "--------",
                         "--------"
@@ -96,7 +98,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "-@------",
                         "-00-----",
                         "-00-----",
                         "--------"
@@ -104,7 +106,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "---@----",
                         "---00---",
                         "---00---",
                         "--------"
@@ -112,7 +114,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "----@---",
                         "----00--",
                         "----00--",
                         "--------"
@@ -120,7 +122,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   {
                         "--------",
                         "--------",
-                        "--------",
+                        "---@----",
                         "---11---",
                         "---11---",
                         "--------"
@@ -133,13 +135,13 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
             {
                   "--------",
                   "--------",
-                  "--------",
+                  "@-------",
                   "00------",
                   "00------",
                   "--------"
             },
             {
-                  "--------",
+                  "---@----",
                   "---00---",
                   "---00---",
                   "--------",
@@ -149,14 +151,14 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
             {
                   "--------",
                   "--------",
-                  "--------",
+                  "------@-",
                   "------11",
                   "------11",
                   "--------"
             },
             {
                   "--------",
-                  "--------",
+                  "---@----",
                   "---11---",
                   "---11---",
                   "--------",
@@ -168,7 +170,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
       .phase_id = 0x04,
       .d = {
             {
-                  "--------",
+                  "-@------",
                   "000-----",
                   "000-----",
                   "000-----",
@@ -176,7 +178,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   "--------"
             },
             {
-                  "--------",
+                  "----@---",
                   "---000--",
                   "---000--",
                   "---000--",
@@ -184,7 +186,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   "--------"
             },
             {
-                  "--------",
+                  "------@-",
                   "-----111",
                   "-----111",
                   "-----111",
@@ -192,7 +194,7 @@ Metanimation SCENES_metanimations[] = { // Parent array of metanimations exposed
                   "--------"
             },
             {
-                  "--------",
+                  "---@----",
                   "--111---",
                   "--111---",
                   "--111---",
