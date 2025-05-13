@@ -436,7 +436,6 @@ extern Stage EVO_metaStruct[] = {
                .rateHealth = 0.25   
           },
           {// Begin entry for KingFool. Arguments are in order listed in stage definition above
-               //TODO animatin data is wrong
                .stage_id = 0x17,
                .phase = EVO_phase_senior,
                .metanimation_id = 0x04,
