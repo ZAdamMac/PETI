@@ -36,6 +36,7 @@ typedef struct Stage{
     int lowEvo;  // If the high evolution condition is not met, we go here.
     int secretEvo; // If there is a secret evolution condition, we go here instead.
     int stageLength; // integer number of days before the next evolution.
+    float rateHealth; // Must be greater than 0 and less than 1. Gross threshold for often the pet gets sick. Check rolls *under*
 } Stage;
 
 extern Stage EVO_metaStruct[];

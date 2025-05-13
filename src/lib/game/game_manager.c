@@ -104,7 +104,7 @@ unsigned int GAME_NEEDS_evaluateHungerFun(unsigned int hf_minutes){
 // Evaluates to true if the current_time is between the start_edge and the end_edge.
 int GAME_evaluateBoundedTime(unsigned int start_edge, unsigned int end_edge, unsigned int current_time){
     if (start_edge > end_edge){  //This condition means that the time bound straddles midnight
-        if (current_time <= end_edge || current_time >= start_edge){ // If either of these conditions are true, we're in the bound
+        if (current_time < end_edge || current_time >= start_edge){ // If either of these conditions are true, we're in the bound
             return 1;
         }
         else{

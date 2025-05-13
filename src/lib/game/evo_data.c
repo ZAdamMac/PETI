@@ -8,10 +8,10 @@
 #include "evo_data.h"
 #include "lib/display/display.h"
 
-unsigned int EVO_count_stages = 0x14;
+unsigned int EVO_count_stages = 0x19;
 
 #pragma PERSISTENT(EVO_metaStruct)
-extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
+extern Stage EVO_metaStruct[] = {
                            {// Begin entry for egg. Arguments are in order listed in stage definition above
                                 .stage_id = 0x00,
                                 .phase = EVO_phase_egg,
@@ -26,8 +26,10 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                                 .rateHF = 0x00,
                                 .highEvo = 0x01,
                                 .lowEvo = 0x01,
+                                .rateHealth = 0.001,
                                 .secretEvo = 0x01,
-                                .stageLength = 0x00 // In the case of the egg this value is not actually used
+                                .stageLength = 0x00, // In the case of the egg this value is not actually used
+                                .rateHealth = 0.001 //In the case of the egg this value is not actually used.
                            },
                            {// Begin entry for the baby. Arguments are in order listed in stage definition above
                                .stage_id = 0x01,
@@ -44,7 +46,8 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                                .highEvo = 0x02,
                                .lowEvo = 0x03,
                                .secretEvo = 0x02,
-                               .stageLength = 0x00
+                               .stageLength = 0x00,
+                               .rateHealth = 0.001 // The baby is not *meant* to be able to get sick.
                           },
                           {// Begin entry for Hungryboi. Arguments are in order listed in stage definition above
                               .stage_id = 0x02,
@@ -61,7 +64,8 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                               .highEvo = 0x04,
                               .lowEvo = 0x05,
                               .secretEvo = 0x04,    
-                              .stageLength = 0x02   
+                              .stageLength = 0x02,
+                              .rateHealth = 0.25
                          },
                          {// Begin entry for SicklySlim. Arguments are in order listed in stage definition above
                              .stage_id = 0x03,
@@ -77,8 +81,9 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                              .rateHF = 0xCC,
                              .highEvo = 0x07,
                              .lowEvo = 0x08,
-                             .secretEvo = 0x06,   // TODO: Map to "secretkeeper"
-                             .stageLength = 0x02
+                             .secretEvo = 0x06,
+                             .stageLength = 0x02,
+                             .rateHealth = 0.70
                         },
                         {// Begin entry for Jellyfloat. Arguments are in order listed in stage definition above
                             .stage_id = 0x04,
@@ -95,7 +100,8 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                             .highEvo = 0x0A,
                             .lowEvo = 0x0D,
                             .secretEvo = 0x0D,    
-                            .stageLength = 0x07   
+                            .stageLength = 0x07,
+                            .rateHealth = 0.15
                        },
                        {// Begin entry for Bughound. Arguments are in order listed in stage definition above
                            .stage_id = 0x05,
@@ -112,7 +118,8 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                            .highEvo = 0x0C,      
                            .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
                            .secretEvo = 0x0B,    
-                           .stageLength = 0x07
+                           .stageLength = 0x07,
+                           .rateHealth = 0.15
                       },
                       {// Begin entry for Zazenkuchi. Arguments are in order listed in stage definition above
                           .stage_id = 0x06,
@@ -125,11 +132,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                           .faceRight = "\x38\x36\x39\x37",
                           .animationEating = {"\x2C\x36\x2D\x37", "\x32\x33\x34\x35"},
                           .animationSleeping = "\x8A\x8B\x30\x31",
-                          .rateHF = 0x00,
+                          .rateHF = 0x55,
                           .highEvo = 0x09,      
                           .lowEvo = 0x09,       // An evolution can be self-addressed; in this case the animation should be skipped.
                           .secretEvo = 0x09,    
-                          .stageLength = 0x09   
+                          .stageLength = 0x09,
+                          .rateHealth = 0.075
                      },
                      {// Begin entry for Pointyboi. Arguments are in order listed in stage definition above
                          .stage_id = 0x07,
@@ -142,11 +150,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                          .faceRight = "\x3A\x3B\x46\x47",
                          .animationEating = {"\x3A\x3B\x3C\x3D", "\x42\x43\x44\x45"},
                          .animationSleeping = "\x3A\x3B\x8C\x8D",
-                         .rateHF = 0x00,
+                         .rateHF = 0x38,
                          .highEvo = 0x0E,      
                          .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
                          .secretEvo = 0x0E,    
-                         .stageLength = 0x07  
+                         .stageLength = 0x07,
+                         .rateHealth = 0.15 
                     },
                     {// Begin entry for Skullcrab. Arguments are in order listed in stage definition above
                         .stage_id = 0x08,
@@ -159,11 +168,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                         .faceRight = "\x48\x49\x4A\x4B",
                         .animationEating = {"\x48\x49\x4A\x4B", "\x48\x49\x4E\x4F"},
                         .animationSleeping = "\x48\x49\x4A\x8E",
-                        .rateHF = 0x00,
+                        .rateHF = 0x83,
                         .highEvo = 0x0B,      
                         .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable. TODO removemagic
                         .secretEvo = 0x0B,    
-                        .stageLength = 0x0A
+                        .stageLength = 0x0A,
+                        .rateHealth = 0.30
                    },
                    {// Begin entry for Darumite. Arguments are in order listed in stage definition above
                        .stage_id = 0x09,
@@ -176,11 +186,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                        .faceRight = "\x5E\xFF\x5F\x53\x54\x55\x56\x57\x58",
                        .animationEating = {"\x50\x51\x52\x53\x54\x55\x56\x57\x58", "\x50\x51\x52\x53\x5D\x55\x56\x57\x58"},
                        .animationSleeping = "\xFC\xFD\xFE\x53\x54\x55\x56\x5B\x5C",
-                       .rateHF = 0x00,
+                       .rateHF = 0x22,
                        .highEvo = 0xFF,      
                        .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
-                       .secretEvo = 0x00,    // FUTURE: This should lead to one of the "final" states
-                       .stageLength = 0x1F   
+                       .secretEvo = 0xFF,    //FUTURE: If both FlagSecret and FlagYellow Sign, special treat.
+                       .stageLength = 0x1F,
+                       .rateHealth = 0.05   
                   },
                   {// Begin entry for Squid. Arguments are in order listed in stage definition above
                       .stage_id = 0x0A,
@@ -192,12 +203,13 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                                     "\x60\x61\x62\x63\x64\x65\x69\x67\x6A"},
                       .faceRight = "\x60\x61\x62\x6C\x6D\x6E\x66\x67\x6F",
                       .animationEating = {"\x60\x61\x62\x63\x64\x65\x66\x67\x68", "\x60\x61\x62\x63\x6B\x65\x69\x67\x6A"},
-                      .animationSleeping = "\x60\x61\x62\xBA\xBB\xBC\x66\x67\x68", // FUTURE: These legs are because of font problems. Consider revising.
-                      .rateHF = 0x00,
+                      .animationSleeping = "\x60\x61\x62\xBA\xBB\xBC\x66\x67\x68",
+                      .rateHF = 0x33,
                       .highEvo = 0xFF,      
                       .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
                       .secretEvo = 0xFF,    
-                      .stageLength = 0x20   
+                      .stageLength = 0x20,
+                      .rateHealth = 0.08   
                  },
                  {// Begin entry for Cthulhorse. Arguments are in order listed in stage definition above
                      .stage_id = 0x0B,
@@ -210,11 +222,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                      .faceRight = "\x70\x71\x72\x73 \x74\x75\x76\x77",
                      .animationEating = {"\x70\x71\x72\x73 \x74\x75\x76\x77", "\x70\x71\x72\x73 \x7B\x75\x76\x77"},
                      .animationSleeping = "\x70\x71\xB9\x73 \x74\x75\x76\x77",
-                     .rateHF = 0x00,
+                     .rateHF = 0x42,
                      .highEvo = 0xFF,      
                      .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
                      .secretEvo = 0xFF,    
-                     .stageLength = 0xFF   
+                     .stageLength = 0xFF,
+                     .rateHealth = 0.10   
                 },
                 {// Begin entry for Ham-Monster. Arguments are in order listed in stage definition above
                     .stage_id = 0x0C,
@@ -227,11 +240,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                     .faceRight = "\x80\x81 \x82\x83 \x84\x85 ",
                     .animationEating = {"\x80\x81 \x82\x83 \x84\x85 ", "\x80\x81 \x88\x89 \x84\x85 "},
                     .animationSleeping = "\xC2\xC3 \xC4\xC5 \x84\x85 ",
-                    .rateHF = 0x00,
+                    .rateHF = 0x55,
                     .highEvo = 0xFF,      
                     .lowEvo = 0xFF, 
                     .secretEvo = 0xFF,    
-                    .stageLength = 0x14   
+                    .stageLength = 0x14,
+                    .rateHealth = 0.15   
                },
                {// Begin entry for Nautalus. Arguments are in order listed in stage definition above
                    .stage_id = 0x0D,
@@ -244,11 +258,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                    .faceRight = "\x90\x91\x92\x93\x94\x95\x96\x97 ",
                    .animationEating = {"\x90\x91\x92\x93\x94\x95\x96\x97 ", "\x90\x98\x99\x93\x9C\x9D \x9E\x9F"},
                    .animationSleeping = "\x90\xBD \xBE\xBF \x96\x97 ",
-                   .rateHF = 0x00,
+                   .rateHF = 0x22,
                    .highEvo = 0x0D,      
                    .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
-                   .secretEvo = 0x0D,    
-                   .stageLength = 0xFF   // TODO Set
+                   .secretEvo = 0x0D,    // By linking back to itself, this guy is immortal while the secret is active
+                   .stageLength = 0x70,
+                   .rateHealth = 0.19
               },
               {// Begin entry for Ax-a-lot'l. Arguments are in order listed in stage definition above
                   .stage_id = 0x0E,
@@ -261,11 +276,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                   .faceRight = " \xAF\xB0\xB1\xB2\xB3\xB4\xB5\xB6",
                   .animationEating = {"\xA0\xA1\xA2\xA3\xA4\xA5\xA6\xA7\xA8", "\xA0\xA1\xA2\xA9\xAD\xAE\xAB\xAC\xA8"},
                   .animationSleeping = "\xA0\xA1\xA2\xA3\xC0\xC1\xA6\xA7\xA8",
-                  .rateHF = 0x00,
-                  .highEvo = 0xFF,      // TODO Set
+                  .rateHF = 0x32,
+                  .highEvo = 0xFF,      
                   .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
-                  .secretEvo = 0xFF,    // TODO Set
-                  .stageLength = 0x20   // TODO Set
+                  .secretEvo = 0xFF,    
+                  .stageLength = 0x29,  
+                  .rateHealth = 0.15
                },
                {// Begin entry for Geo-Baby. Arguments are in order listed in stage definition above
                   .stage_id = 0x0F,
@@ -281,9 +297,10 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                   .animationSleeping = "\x07\x08\x09\x0A",
                   .rateHF = 0x99,
                   .highEvo = 0x10,      
-                  .lowEvo = 0x11,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
+                  .lowEvo = 0x11,
                   .secretEvo = 0x10,    
-                  .stageLength = 0x03   
+                  .stageLength = 0x03,
+                  .rateHealth = 0.01   
              },
                {// Begin entry for Spike. Arguments are in order listed in stage definition above
                   .stage_id = 0x10,
@@ -298,10 +315,11 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                                       "\x37\x38\x35\x36"},
                   .animationSleeping = "\x3B\x3C\x33\x34",
                   .rateHF = 0x99,
-                  .highEvo = 0x12,      // TODO Set
+                  .highEvo = 0x12,      
                   .lowEvo = 0x13,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
-                  .secretEvo = 0x12,    // TODO Set
-                  .stageLength = 0x07   // TODO Set
+                  .secretEvo = 0x12,    
+                  .stageLength = 0x07,
+                  .rateHealth = 0.005
              },
              {// Begin entry for Cubie. Arguments are in order listed in stage definition above
                   .stage_id = 0x11,
@@ -315,11 +333,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                   .animationEating = {"\x11\x12\x13\x14",
                                       "\x11\x12\x1D\x1E"},
                   .animationSleeping = "\x2B\x2C\x2D\x2E",
-                  .rateHF = 0x99,
-                  .highEvo = 0x00,      // TODO Set
+                  .rateHF = 0x44,
+                  .highEvo = 0x14,      
                   .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
-                  .secretEvo = 0x00,    // TODO Set
-                  .stageLength = 0x07   // TODO Set
+                  .secretEvo = 0x14,
+                  .stageLength = 0x07,
+                  .rateHealth = 0.01
              },
              {// Begin entry for Cluster. Arguments are in order listed in stage definition above
                   .stage_id = 0x12,
@@ -333,11 +352,12 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                   .animationEating = {"CDESTUcde",
                                       "CFESTUcde"},
                   .animationSleeping = "CVESTUcde",
-                  .rateHF = 0x99,
+                  .rateHF = 0x11,
                   .highEvo = 0xFF,      
                   .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
                   .secretEvo = 0xFF,    
-                  .stageLength = 0xDE   
+                  .stageLength = 0xDE,
+                  .rateHealth = 0.01   
              },
              {// Begin entry for Shinebrite. Arguments are in order listed in stage definition above
                   .stage_id = 0x13,
@@ -351,10 +371,107 @@ extern Stage EVO_metaStruct[] = { // TODO review rate HF for everyone here.
                   .animationEating = {"\x70\x71\x72\x80\x81\x82 \x91 ",
                                       "\x70\x73\x72\x80\x81\x82 \x91 "},
                   .animationSleeping = "\x83\x71\x93\x80\x81\x82 \x91 ",
-                  .rateHF = 0x99,
-                  .highEvo = 0x13,      
-                  .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
+                  .rateHF = 0x11,
+                  .highEvo = 0x13,      //By linking back to itself, shinebrite is functionally immortal
+                  .lowEvo = 0x13,       
                   .secretEvo = 0x13,    
-                  .stageLength = 0x10   
-             }
+                  .stageLength = 0x10,
+                  .rateHealth = 0.001   
+             },
+             {// Begin entry for Bestagon. Arguments are in order listed in stage definition above
+               .stage_id = 0x14,
+               .phase = EVO_phase_senior,
+               .metanimation_id = 0x04,
+               .size = EVO_size_large,
+               .font = FONT_ADDR_1,
+               .animation = {"\x21\x22\x23\x23\x24\x21   ",
+                             "\x21\x26\x23\x23\x24\x21   "},
+               .faceRight = "\x21\x25\x23\x23\x24\x21   ",
+               .animationEating = {"\x21\x22\x23\x23\x24\x21   ",
+                                   "\x21\x26\x23\x23\x24\x21   "},
+               .animationSleeping = "\x21\x27\x23\x23\x24\x21   ",
+               .rateHF = 0x11,
+               .highEvo = 0x14,      
+               .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
+               .secretEvo = 0x14,    // By linking back t oitself unless cared for poorly, Bestagon is immortal-ish.
+               .stageLength = 0x10,
+               .rateHealth = 0.001   
+          },
+          {// Begin entry for Glitch. Arguments are in order listed in stage definition above
+               .stage_id = 0x15,
+               .phase = EVO_phase_senior,
+               .metanimation_id = 0x04,
+               .size = EVO_size_large,
+               .font = FONT_ADDR_1,
+               .animation = {"@ABPQR`ab",
+                             "`abB@ARPQ"},
+               .faceRight = "B@ARPQ`ab",
+               .animationEating = {"@ABPQR`ab",
+                                   "`abB@ARPQ"},
+               .animationSleeping = "`RABabBA`R",
+               .rateHF = 0x11,
+               .highEvo = 0xFF,      
+               .lowEvo = 0xFF,       // 0xFF is the reserved state value for death, since it's unlikely to ever be addressable.
+               .secretEvo = 0xFF,    
+               .stageLength = 0x10,
+               .rateHealth = 0.001   
+          },
+          {// Begin entry for Secretkeeper. Arguments are in order listed in stage definition above
+               .stage_id = 0x16,
+               .phase = EVO_phase_adult,
+               .metanimation_id = 0x02,
+               .size = EVO_size_med,
+               .font = FONT_ADDR_1,
+               .animation = {"G W ",
+                             "G g "},
+               .faceRight = " H X",
+               .animationEating = {"G W ",
+                                   "h W "},
+               .animationSleeping = "V W ",
+               .rateHF = 0x22,
+               .highEvo = 0x17,      
+               .lowEvo = 0x18,
+               .secretEvo = 0x17,    
+               .stageLength = 0x10,
+               .rateHealth = 0.25   
+          },
+          {// Begin entry for KingFool. Arguments are in order listed in stage definition above
+               //TODO animatin data is wrong
+               .stage_id = 0x17,
+               .phase = EVO_phase_senior,
+               .metanimation_id = 0x04,
+               .size = EVO_size_large,
+               .font = FONT_ADDR_1,
+               .animation = {"\x69\x6A\x6B\x79\x7A\x7B\x89\x8A\x8B",
+                             "\x6C\x6D\x6E\x79\x7D\x7B\x8C\x8D\x8E"},
+               .faceRight = "\x69\x87\x6B\x79\x7A\x7B\x89\x8A\x8B",
+               .animationEating = {"\x69\x6A\x6B\x79\x7A\x7B\x89\x8A\x8B",
+                                   "\x69\x7C\x6B\x79\x7E\x7B\x89\x8A\x8B"},
+               .animationSleeping = "\x69\x78\x6B\x79\x7A\x7B\x89\x8A\x8B",
+               .rateHF = 0x22,
+               .highEvo = 0xFF,      
+               .lowEvo = 0xFF,
+               .secretEvo = 0xFF,    
+               .stageLength = 0x42,
+               .rateHealth = 0.05   
+          },
+          {// Begin entry for Sentinel. Arguments are in order listed in stage definition above
+               .stage_id = 0x18,
+               .phase = EVO_phase_senior,
+               .metanimation_id = 0x05,
+               .size = EVO_size_large,
+               .font = FONT_ADDR_1,
+               .animation = {" \x75 \x84\x85\x86\x94\x95\x96",
+                             " \x75 \x84\x77\x86\x94\x95\x96"},
+               .faceRight = " \x75 \x84\x77\x86\x94\x95\x96",
+               .animationEating = {" \x75 \x84\x85\x86\x94\x95\x96",
+                                   " \x75 \x84\x74\x86\x94\x95\x96"},
+               .animationSleeping = " \x75 \x84\x76\x86\x94\x95\x96",
+               .rateHF = 0x10,
+               .highEvo = 0x18,      //If the sentinel is cared for, it is functionally immortal, and checks slowly
+               .lowEvo = 0xFF,
+               .secretEvo = 0x18,    
+               .stageLength = 0xFF,
+               .rateHealth = 0.01   
+          }
     };
