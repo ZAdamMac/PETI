@@ -14,7 +14,7 @@
 #include "lib/hwinit/human_input.h"
 #include "lib/game/game_manager.h"
 #include "lib/game/evo_data.h"
-#include "driverlib.h"
+#include "driverlib/MSP430FR5xx_6xx/driverlib.h"
 #include <msp430.h>
 #include <string.h>
 #include "main.h"

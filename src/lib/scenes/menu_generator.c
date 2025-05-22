@@ -83,6 +83,7 @@ void MENU_handleInputs(voidFuncPointer *target_MARRAY, int target_count_opts){
             case(BUTTON_D_PRESS): // exit back to the main game page
                 SCENE_FRAME = 0;
                 SCENE_EXIT_FLAG = true;
+                SCENE_ACT = SCENEADDR_main_game;
                 break;
         }
         HID_input_events_queue[i] = BUTTON_NO_PRESS;
@@ -143,11 +144,11 @@ void SCENE_TextMenu(char * target_LSTRING_HEADER, char ** target_LARRAY, voidFun
     DISPLAY_updatesOnly_enhanced(&DISPLAY_FRAME, MODE_MENU); // Updating the LCD is slow, please update just the parts that matter, and use the MENU layout.
     if (SCENE_FRAME >= MENU_LIMIT_IDLE_FRAMES){
         SCENE_EXIT_FLAG = true;
+        SCENE_ACT = SCENEADDR_main_game; // We are cancelling, get me outta here.
     }
     if (SCENE_EXIT_FLAG){ // The user has asked to leave.
         SCENE_EXIT_FLAG = false; // The player can come back to this menu, so we need to reset this.
         SCENE_CURRENT_PAGE = 0;
         SCENE_CURSOR_POS = 0;
-        SCENE_ACT = SCENEADDR_main_game; // We are cancelling, get me outta here.
     }
 }

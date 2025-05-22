@@ -150,3 +150,13 @@
 - `scenes/main_game.c` now uses an updated logic for drawing status icons, allowing a root position for status icons to be defined. The metanimations page in the wiki was updated to reflect this.
 - the pet now raises an alert when it first falls asleep.
 - menus that were created using the `menu_generator.c` general purpose functions now detect when they have been idle and return to `main_game`.
+
+# v 0.6.0 - Illness and Healing Update
+- "Completed" setup and configuration of unfinished evolution data that somehow escaped the last several updates.
+  - This mostly related to badly-configured "hunger" and "fun" degredation values.
+  - Added a number of pets that had escaped containment
+    - Some of which now live for a VERY lnog time
+  - Added values needed to make the sickliness of a pet configurable at the evolution level, `float  .healthRate`;
+    - Initial illness rates were based on a lot of assumptions and will likely have to be balance tested into another patch.
+  - Fixed an undocumented bug in GAME_evaluateBoundedTimeEvent that was causing the pet to experience sleep apnia during the hour it is meant to wake up in.
+- Corrected a minor bug in the `menu_generater.c`-based menus that prevented them from being used to access nested menus

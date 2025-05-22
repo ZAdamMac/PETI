@@ -91,7 +91,12 @@ extern const char* LARRAY_EVO_STAGE_NAMES[] = {
                     "      Spike     ",
                     "      Cubie     ",
                     "    Cluster     ",
-                    "   Shine-Brite  "
+                    "   Shine-Brite  ",
+                    "    Bestagon    ",
+                    "     Glitch     ",
+                    "  SecretKeeper  ",
+                    "    KingFool    ",
+                    "    Sentinel    "
 };
 
 extern const char* LARRAY_FOOD_TOP_MENU[] = {
