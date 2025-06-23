@@ -8,6 +8,13 @@ Full documentation is available as part of the "documentation" directory of this
 
 This project involves both firmware and hardware development.
 
+## NOTICE: Project on Hiaitus
+This project is currently **on hiaitus**. You're stll welcome to submit bug reports (which will be addressed rapidly) or make use of the codebase, but we have a couple of caveats:
+- Missing firmware functionality and gameplay features are not currently scheduled to be released. There's some frozen work on the `v/0.6.0` branch that starts implementing the next gameplay release.
+- It is not currently advisable to mill the development kit boards provided under `hardware`. When the project comes off hiaitus there's going to be a major hardware redesign released, which will be simpler and more elegant.
+
+Currently, we think the project is likely to come off hiaitus sometime around the start of 2026.
+
 ## Requirements
 This project has a number of requirements that need to be satisfied to build the project successfully:
   - It is advised that the developer install TI's Code Composer Studio and its included compiler, or otherwise source cl430 and the rest.
