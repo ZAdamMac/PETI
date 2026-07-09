@@ -10,10 +10,13 @@ This project involves both firmware and hardware development.
 
 ## NOTICE: Project on Hiaitus
 This project is currently **on hiaitus**. You're stll welcome to submit bug reports (which will be addressed rapidly) or make use of the codebase, but we have a couple of caveats:
-- Missing firmware functionality and gameplay features are not currently scheduled to be released. There's some frozen work on the `v/0.6.0` branch that starts implementing the next gameplay release.
+- Missing firmware functionality and gameplay features are not currently scheduled to be released. There's some frozen work on the `v/0.6.0` branch and f/ branches originating from it, which starts implementing the next gameplay release.
 - It is not currently advisable to mill the development kit boards provided under `hardware`. When the project comes off hiaitus there's going to be a major hardware redesign released, which will be simpler and more elegant.
 
-Currently, we think the project is likely to come off hiaitus sometime around the start of 2026.
+Currently, we think the project is likely to come off hiaitus sometime around the start of 2027.
+
+## NOTICE: Github End of Life
+The version of the project hosted on github is no longer being actively maintained and has been scheduled for truncation (removal of branches and notices apart from this readme file). The authoritative main repository of this project is [Arcana Labs' Forgejo](https://forgejo.arcanalabs.ca/zadammac/peti). Please redirect your upstream branch definitions to that repository. In the days to come, the remaining files from this repository will be removed and purged from the commit history on Github. This has been done because of GitHub's decision to allow for - and encourage - the training of proprietary large language model code generation systems on codebases where the licensing implicitly (or often explicitly) does not permit such conversion.
 
 ## Requirements
 This project has a number of requirements that need to be satisfied to build the project successfully:
